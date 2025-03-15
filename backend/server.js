@@ -17,18 +17,17 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+  useNewUrlParser: true, // Still okay to keep for now, but also deprecated in newer versions
 })
-.then(() => console.log('Connected to MongoDB Atlas'))
-.catch(err => console.error('MongoDB Connection Error:', err));
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error('MongoDB Connection Error:', err));
 
 app.use('/api/users', userRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api', contactRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", supportRoutes);
-app.use(cors({ origin: "http://localhost:5173", credentials: true })); // Ensure frontend can connect
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');
