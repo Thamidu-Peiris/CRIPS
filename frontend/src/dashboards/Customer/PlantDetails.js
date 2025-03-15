@@ -78,7 +78,7 @@ const PlantDetails = () => {
         </div>
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/customerdashboard" className="text-gray-600">Shop</Link>
+          <Link to="/shop" className="text-gray-600">Shop</Link>
           <Link to="/careers" className="text-gray-600">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
@@ -97,7 +97,7 @@ const PlantDetails = () => {
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/customerdashboard" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
+                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Shop</Link>
                 <Link to="/dashboard/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
                 <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
                 <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
@@ -119,7 +119,7 @@ const PlantDetails = () => {
 
       <div className="max-w-6xl mx-auto p-5">
         <p className="text-gray-500 text-sm">
-          <Link to="/">Home</Link> / <Link to="/customerdashboard">Shop</Link> / <span className="font-semibold text-gray-700">{plant.name}</span>
+          <Link to="/">Home</Link> / <Link to="/shop">Shop</Link> / <span className="font-semibold text-gray-700">{plant.name}</span>
         </p>
 
         <div className="flex flex-col md:flex-row mt-5 gap-6">

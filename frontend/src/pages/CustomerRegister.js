@@ -44,7 +44,7 @@ const CustomerRegister = () => {
         </div>
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/customerdashboard" className="text-gray-600">Shop</Link>
+          <Link to="/shop" className="text-gray-600">Shop</Link>
           <Link to="/Careers" className="text-gray-600">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>

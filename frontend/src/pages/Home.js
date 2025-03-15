@@ -16,7 +16,7 @@ const Home = () => {
   const handlePlantClick = () => {
     const userInfo = localStorage.getItem("userInfo");
     if (userInfo) {
-      navigate("/customerdashboard");
+      navigate("/shop");
     } else {
       navigate("/login");
     }

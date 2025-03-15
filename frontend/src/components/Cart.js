@@ -36,7 +36,7 @@ const Cart = () => {
         {/* Navigation Links */}
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/customerdashboard" className="text-gray-600">Shop</Link>
+          <Link to="/shop" className="text-gray-600">Shop</Link>
           <Link to="/staff" className="text-gray-600">Staff</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
@@ -60,7 +60,7 @@ const Cart = () => {
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/customerdashboard" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
+                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Shop</Link>
                 <Link to="/dashboard/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
                 <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
                 <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
@@ -105,7 +105,7 @@ const Cart = () => {
             ))}
           </div>
         )}
-        <Link to="/customerdashboard" className="mt-4 inline-block text-green-600">
+        <Link to="/shop" className="mt-4 inline-block text-green-600">
           Continue Shopping
         </Link>
       </div>
