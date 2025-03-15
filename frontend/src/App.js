@@ -25,7 +25,7 @@ import ViewTicket from "./dashboards/Customer/ViewTicket"; // ✅ Import ViewTic
 import KnowledgeBase from "./dashboards/CSM/KnowledgeBase";
 import ManageSupportTickets from "./dashboards/CSM/ManageSupportTickets"; // ✅ Correct path
 import Conversation from "./dashboards/CSM/Conversation";
-
+import PlantDetails from "./dashboards/Customer/PlantDetails";
 
 
 
@@ -63,6 +63,7 @@ function App() {
         <Route path="/dashboard/support" element={<ManageSupportTickets />} />
         <Route path="/dashboard/support/:id" element={<ViewTicket />} />
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
+        <Route path="/plant/:id" element={<PlantDetails />} />
         
 
       </Routes>
@@ -71,4 +72,3 @@ function App() {
 }
 
 export default App;
-//moda kaveen aiya apita epa.

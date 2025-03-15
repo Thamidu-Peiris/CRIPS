@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaShoppingCart, FaUserCircle, FaSearch } from "react-icons/fa";
+import { FaShoppingCart, FaUserCircle, FaSearch, FaStar, FaRegStar } from "react-icons/fa";
 
 const CustomerDashboard = () => {
   const [username, setUsername] = useState("Guest");
@@ -15,7 +15,6 @@ const CustomerDashboard = () => {
 
   const navigate = useNavigate();
 
-  // Load user info & cart from local storage
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (userInfo) {
@@ -24,50 +23,53 @@ const CustomerDashboard = () => {
     } else {
       navigate("/login");
     }
+  }, [navigate]);
 
-    
-    // Fetch plant data
+  useEffect(() => {
     const fetchPlants = async () => {
       try {
         const { data } = await axios.get("http://localhost:5000/api/plants");
+        console.log("Fetched plants:", data); // Log for debugging
         setPlants(data);
       } catch (error) {
         console.error("Error fetching plants:", error);
       }
     };
     fetchPlants();
+  }, []);
 
-    // Load cart from local storage
+  useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
-  }, [navigate]);
+  }, []);
 
-  // Save cart data to local storage when cart updates
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/login");
-  };
+  const renderStars = (rating) => {
+    const totalStars = 5;
+    const filledStars = Math.round(rating);
 
-  const addToCart = (plant) => {
-    const updatedCart = [...cart, plant];
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart)); // Save cart immediately
-    alert(`${plant.name} added to cart!`);
+    return (
+      <div className="flex justify-center space-x-1 mt-1">
+        {Array.from({ length: totalStars }, (_, index) => (
+          index < filledStars ? (
+            <FaStar key={index} className="text-yellow-500" />
+          ) : (
+            <FaRegStar key={index} className="text-gray-400" />
+          )
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className="font-sans">
-      {/* Navbar */}
       <nav className="flex justify-between items-center p-5 bg-white shadow-md">
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
         </div>
-
-        {/* Search & Categories */}
         <div className="flex items-center space-x-4">
           <select
             value={selectedCategory}
@@ -78,7 +80,6 @@ const CustomerDashboard = () => {
               <option key={index} value={category}>{category}</option>
             ))}
           </select>
-
           <div className="relative">
             <input
               type="text"
@@ -90,8 +91,6 @@ const CustomerDashboard = () => {
             <FaSearch className="absolute left-3 top-3 text-gray-500" />
           </div>
         </div>
-
-        {/* Navigation Links */}
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/customerdashboard" className="text-gray-600">Shop</Link>
@@ -99,10 +98,7 @@ const CustomerDashboard = () => {
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
-
-        {/* Cart & Profile */}
         <div className="flex items-center space-x-4">
-          {/* Cart Icon */}
           <Link to="/cart" className="relative">
             <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
             {cart.length > 0 && (
@@ -111,8 +107,6 @@ const CustomerDashboard = () => {
               </span>
             )}
           </Link>
-
-          {/* Profile Dropdown */}
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -128,14 +122,13 @@ const CustomerDashboard = () => {
                 <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
                 <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
                 <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
-                <button onClick={handleLogout} className="block px-4 py-2 hover:bg-red-100 text-red-600">Logout</button>
+                <button onClick={() => { localStorage.removeItem("userInfo"); navigate("/login"); }} className="block px-4 py-2 hover:bg-red-100 text-red-600">Logout</button>
               </div>
             )}
           </div>
         </div>
       </nav>
 
-      {/* Plants Section */}
       <section className="py-10">
         <h2 className="text-center text-3xl font-bold text-green-700">All Plants</h2>
         <div className="flex justify-center p-6">
@@ -143,19 +136,19 @@ const CustomerDashboard = () => {
             {plants
               .filter((plant) =>
                 (selectedCategory === "All" || plant.category === selectedCategory) &&
-                (plant.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                plant.name.toLowerCase().includes(searchTerm.toLowerCase())
               )
-              .map((plant, index) => (
-                <div key={index} className="border rounded-lg p-3 shadow-lg text-center">
+              .map((plant) => (
+                <div
+                  key={plant._id}
+                  className="border rounded-lg p-3 shadow-lg text-center cursor-pointer hover:shadow-xl"
+                  onClick={() => navigate(`/plant/${plant._id}`)} // Fixed to use _id
+                >
                   <img src={plant.image} alt={plant.name} className="w-full h-60 object-cover rounded-md" />
-                  <h3 className="text-md font-bold mt-3">{plant.name}</h3>
-                  <p className="text-gray-600">${plant.price}</p>
-                  <button 
-                    onClick={() => addToCart(plant)} 
-                    className="mt-2 px-3 py-1 border rounded text-green-600 text-sm"
-                  >
-                    Add to Cart
-                  </button>
+                  <h3 className="text-md font-bold mt-3 text-green-700">{plant.name}</h3>
+                  {renderStars(plant.rating || 0)}
+                  <p className="text-gray-500">Stock: {plant.stock > 0 ? `${plant.stock} Available` : "Out of stock"}</p>
+                  <p className="text-gray-600 font-semibold">${plant.price}</p>
                 </div>
               ))}
           </div>
