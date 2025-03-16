@@ -1,11 +1,12 @@
+
 const express = require('express');
 const router = express.Router();
-const { createUser, loginUser } = require('../controllers/userController');
+const { createUser, loginUser, updateUserProfile, changePassword, deleteUser, upload } = require('../controllers/userController'); // Added deleteUser
 
-// Customer Registration Route
-router.post('/register', createUser); 
-
-// Customer Login Route
-router.post('/login', loginUser); 
+router.post('/register', upload.single('profileImage'), createUser);
+router.post('/login', loginUser);
+router.put('/profile', upload.single('profileImage'), updateUserProfile);
+router.put('/change-password', changePassword);
+router.delete('/delete', deleteUser); // Line 11 - Now defined
 
 module.exports = router;

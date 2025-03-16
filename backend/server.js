@@ -7,6 +7,7 @@ const plantRoutes = require('./routes/plantRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/supportRoutes");
+const path = require('path'); // Import the path module
 
 dotenv.config();
 
@@ -15,6 +16,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true, // Still okay to keep for now, but also deprecated in newer versions
