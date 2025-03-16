@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 const CustomerLogin = () => {
   const [formData, setFormData] = useState({
@@ -18,23 +18,17 @@ const CustomerLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/api/users/login', formData);
-      alert(response.data.message);
-      if (response.data.success) {
-        // Save user info to local storage
-        localStorage.setItem('userInfo', JSON.stringify(response.data.user));
-        navigate('/shop');
-      }
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+      alert('Login successful');
+      navigate('/shop');
     } catch (error) {
+      console.error("Error logging in:", error);
       alert('Login failed. Please check your credentials.');
     }
   };
-  
-  
-  
 
   return (
     <div className="font-sans">
-      {/* Navbar */}
       <nav className="flex justify-between items-center p-5 bg-white shadow-md">
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
@@ -56,7 +50,6 @@ const CustomerLogin = () => {
         </div>
       </nav>
 
-      {/* Login Form */}
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
           <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Customer Login</h2>

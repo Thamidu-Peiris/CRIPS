@@ -11,9 +11,9 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   companyName: { type: String },
   businessAddress: { type: String },
-  taxId: { type: String }
+  taxId: { type: String },
+  profileImage: { type: String }
 });
-
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

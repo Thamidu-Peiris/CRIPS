@@ -27,7 +27,8 @@ import ManageSupportTickets from "./dashboards/CSM/ManageSupportTickets"; // ✅
 import Conversation from "./dashboards/CSM/Conversation";
 import PlantDetails from "./dashboards/Customer/PlantDetails";
 import Shop from "./dashboards/Customer/Shop";
-
+import UserProfileSettings from "./dashboards/Customer/UserProfileSettings";
+import CustomerChangePassword from "../../frontend/src/dashboards/Customer/CustomerChangePassword";
 
 
 
@@ -64,6 +65,8 @@ function App() {
         <Route path="/dashboard/support/:id" element={<ViewTicket />} />
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
         <Route path="/plant/:id" element={<PlantDetails />} />
+        <Route path="/dashboard/settings" element={<UserProfileSettings />} />
+        <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         
 
       </Routes>

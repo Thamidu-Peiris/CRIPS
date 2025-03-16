@@ -143,7 +143,7 @@ const Shop = () => {
                 <div
                   key={plant._id}
                   className="border rounded-lg p-3 shadow-lg text-center cursor-pointer hover:shadow-xl"
-                  onClick={() => navigate(`/plant/${plant._id}`)} // Fixed to use _id
+                  onClick={() => navigate(`/plant/${plant._id}`)}
                 >
                   <img src={plant.image} alt={plant.name} className="w-full h-60 object-cover rounded-md" />
                   <h3 className="text-md font-bold mt-3 text-green-700">{plant.name}</h3>
