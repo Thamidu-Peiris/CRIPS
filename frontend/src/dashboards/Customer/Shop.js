@@ -106,6 +106,7 @@ const Shop = () => {
                 {cart.length}
               </span>
             )}
+            
           </Link>
           <div className="relative">
             <button
