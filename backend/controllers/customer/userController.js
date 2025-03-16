@@ -1,5 +1,5 @@
 // userController.js
-const User = require('../models/User');
+const User = require('../../models/customer/User');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');

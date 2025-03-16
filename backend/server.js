@@ -2,12 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const userRoutes = require('./routes/userRoutes');
-const plantRoutes = require('./routes/plantRoutes');
-const contactRoutes = require('./routes/contactRoutes');
-const jobRoutes = require("./routes/jobRoutes");
-const supportRoutes = require("./routes/supportRoutes");
+const userRoutes = require('./routes/customer/userRoutes');
+const plantRoutes = require('./routes/customer/plantRoutes');
+const contactRoutes = require('./routes/customer/contactRoutes');
+const jobRoutes = require("./routes/csm/jobRoutes");
+const supportRoutes = require("./routes/customer/supportRoutes");
 const path = require('path'); // Import the path module
+
 
 dotenv.config();
 

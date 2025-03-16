@@ -1,10 +1,9 @@
-const express = require("express");
+// E:\SLIIT\Y2 S2\CRIPS\backend\controllers\jobController.js
 const bcrypt = require("bcryptjs");
-const router = express.Router();
-const JobApplication = require("../models/JobApplication");
+const JobApplication = require("../../models/csm/JobApplication");
 
-// 📌 Fetch Profile by ID
-router.get("/profile/:id", async (req, res) => {
+// Fetch Profile by ID
+const getProfileById = async (req, res) => {
   try {
     const user = await JobApplication.findById(req.params.id).select("-password"); // Exclude password
     if (!user) {
@@ -15,11 +14,10 @@ router.get("/profile/:id", async (req, res) => {
     console.error("Error fetching profile:", error);
     res.status(500).json({ error: "Failed to fetch profile" });
   }
-});
+};
 
-
-// 📌 Update Profile
-router.put("/profile/update/:id", async (req, res) => {
+// Update Profile
+const updateProfile = async (req, res) => {
   try {
     const { firstName, lastName, address, phoneNumber } = req.body;
 
@@ -38,10 +36,10 @@ router.put("/profile/update/:id", async (req, res) => {
     console.error("Error updating profile:", error);
     res.status(500).json({ error: "Failed to update profile" });
   }
-});
+};
 
-// 📌 Change Password
-router.post("/profile/change-password/:id", async (req, res) => {
+// Change Password
+const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -66,10 +64,10 @@ router.post("/profile/change-password/:id", async (req, res) => {
     console.error("Error changing password:", error);
     res.status(500).json({ error: "Failed to change password" });
   }
-});
+};
 
-// 📌 Save job applications
-router.post("/apply", async (req, res) => {
+// Save job applications
+const applyForJob = async (req, res) => {
   try {
     const { jobTitle, firstName, lastName, username, address, phoneNumber, email, password } = req.body;
 
@@ -103,10 +101,10 @@ router.post("/apply", async (req, res) => {
     console.error("Error submitting application:", error);
     res.status(500).json({ error: "Failed to submit application" });
   }
-});
+};
 
-// 📌 Employee Login Route
-router.post("/login", async (req, res) => {
+// Employee Login
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -130,13 +128,19 @@ router.post("/login", async (req, res) => {
         id: user._id,
         username: user.username,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  getProfileById,
+  updateProfile,
+  changePassword,
+  applyForJob,
+  login,
+};
