@@ -1,9 +1,8 @@
-const express = require("express");
-const router = express.Router();
-const ContactMessage = require("../models/ContactMessage");
+// E:\SLIIT\Y2 S2\CRIPS\backend\controllers\contactController.js
+const ContactMessage = require("../../models/customer/ContactMessage");
 
-// POST: Save contact message to MongoDB
-router.post("/contact", async (req, res) => {
+// Save contact message to MongoDB
+const saveContactMessage = async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
@@ -19,6 +18,8 @@ router.post("/contact", async (req, res) => {
     console.error("Error saving message:", error);
     res.status(500).json({ error: "Failed to send message" });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  saveContactMessage,
+};
