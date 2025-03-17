@@ -1,4 +1,4 @@
-// E:\SLIIT\Y2 S2\CRIPS\backend\controllers\supportController.js
+////CRIPS\backend\controllers\customer\supportController.js
 const SupportTicket = require("../../models/customer/SupportTicket");
 
 // Create a new support ticket

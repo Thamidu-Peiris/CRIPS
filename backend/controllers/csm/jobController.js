@@ -1,4 +1,4 @@
-// E:\SLIIT\Y2 S2\CRIPS\backend\controllers\jobController.js
+//CRIPS\backend\controllers\csm\jobController.js
 const bcrypt = require("bcryptjs");
 const JobApplication = require("../../models/csm/JobApplication");
 

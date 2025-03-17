@@ -1,3 +1,4 @@
+//CRIPS\backend\models\customer\ContactMessage.js
 const mongoose = require("mongoose");
 
 const ContactMessageSchema = new mongoose.Schema({

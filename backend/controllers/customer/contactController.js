@@ -1,4 +1,4 @@
-// E:\SLIIT\Y2 S2\CRIPS\backend\controllers\contactController.js
+//CRIPS\backend\controllers\customer\contactController.js
 const ContactMessage = require("../../models/customer/ContactMessage");
 
 // Save contact message to MongoDB

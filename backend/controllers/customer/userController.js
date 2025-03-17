@@ -1,4 +1,4 @@
-// userController.js
+//CRIPS\backend\controllers\customer\userController.js
 const User = require('../../models/customer/User');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');

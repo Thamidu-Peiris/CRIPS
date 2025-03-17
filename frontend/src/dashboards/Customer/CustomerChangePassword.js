@@ -1,4 +1,4 @@
-// E:\SLIIT\Y2 S2\CRIPS\frontend\src\dashboard\Customer\ChangePassword.js
+//CRIPS\frontend\src\dashboards\Customer\CustomerChangePassword.js
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
