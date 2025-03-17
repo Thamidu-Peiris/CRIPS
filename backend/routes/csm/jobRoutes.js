@@ -10,4 +10,5 @@ router.post("/profile/change-password/:id", jobController.changePassword);
 router.post("/apply", jobController.applyForJob);
 router.post("/login", jobController.login);
 
+
 module.exports = router;
