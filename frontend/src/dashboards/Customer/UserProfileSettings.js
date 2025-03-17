@@ -1,7 +1,8 @@
+//CRIPS\frontend\src\dashboards\Customer\UserProfileSettings.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaUserCircle, FaLock, FaCamera } from "react-icons/fa";
+import { FaUserCircle, FaLock, FaCamera, FaShoppingCart } from "react-icons/fa";
 
 const UserProfileSettings = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const UserProfileSettings = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [selectedFile, setSelectedFile] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -98,26 +100,64 @@ const UserProfileSettings = () => {
     navigate("/customer/change-password");
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    navigate("/");
+  };
+
   return (
-    <div className="font-sans min-h-screen bg-gray-100 p-6">
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md mb-6">
+    <div className="font-sans min-h-screen bg-gray-100">
+      {/* 🔹 Navbar */}
+      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
         </div>
+
+        {/* 🔹 Navigation Links */}
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
+          <Link to="/orders" className="text-gray-600">Orders</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
+
+        {/* 🔹 Cart & Profile */}
         <div className="flex items-center space-x-4">
-          <Link to="/cart" className="relative">
-            <FaUserCircle className="text-gray-600 text-xl cursor-pointer" />
+          {/* Cart Icon */}
+          <Link to="/cart">
+            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
           </Link>
+
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center bg-gray-200 px-4 py-2 rounded-full"
+            >
+              <span className="mr-2">{username}</span>
+              <FaUserCircle className="text-gray-600 text-xl" />
+            </button>
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
+                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
+                <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
+                <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
+                <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
+                <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
+                <button onClick={handleLogout} className="block px-4 py-2 hover:bg-red-100 text-red-600">Logout</button>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
+      {/* 🔹 Breadcrumb Navigation (Optional, based on OrdersPage.js) */}
+      <div className="text-gray-500 mb-4 p-6">
+        <Link to="/" className="hover:underline">Home</Link> / Profile Settings
+      </div>
+
+      {/* 🔹 Profile Settings Content */}
       <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-green-700">Profile Settings</h2>
 
@@ -205,10 +245,10 @@ const UserProfileSettings = () => {
               <FaLock className="mr-2" /> Change Password
             </button>
             <button
-              onClick={handleDeleteAccount} // Updated to handleDeleteAccount
+              onClick={handleDeleteAccount}
               className="flex items-center px-4 py-2 bg-red-200 rounded-lg hover:bg-red-300 text-red-600"
             >
-              <FaUserCircle className="mr-2" /> Delete Account {/* Updated text */}
+              <FaUserCircle className="mr-2" /> Delete Account
             </button>
           </div>
 

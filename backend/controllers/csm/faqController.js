@@ -1,4 +1,4 @@
-
+//CRIPS\backend\controllers\csm\faqController.js
 const FAQ = require("../../models/csm/FaqModel");
 
 // Get all FAQs

@@ -1,3 +1,4 @@
+//CRIPS\frontend\src\components\Layout.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaUserCircle } from "react-icons/fa";

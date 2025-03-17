@@ -1,4 +1,4 @@
-// E:\SLIIT\Y2 S2\CRIPS\backend\controllers\plantController.js
+//CRIPS\backend\controllers\customer\plantController.js
 const PlantModel = require("../../models/customer/PlantModel");
 
 // Get all plants

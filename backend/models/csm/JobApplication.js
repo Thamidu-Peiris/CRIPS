@@ -1,3 +1,4 @@
+////CRIPS\backend\models\csm\JobApplication.js
 const mongoose = require("mongoose");
 
 const JobApplicationSchema = new mongoose.Schema({
