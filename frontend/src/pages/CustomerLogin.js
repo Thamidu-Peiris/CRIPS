@@ -1,7 +1,8 @@
-//CRIPS\frontend\src\pages\CustomerLogin.js
+// CRIPS\frontend\src\pages\CustomerLogin.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import CustomerHeader from '../components/CustomerHeader'; // Adjust the import path based on your structure
 
 const CustomerLogin = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +20,13 @@ const CustomerLogin = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/api/users/login', formData);
-      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+      // Ensure firstName and lastName are included in userInfo
+      const user = {
+        ...response.data.user,
+        firstName: response.data.user.firstName || response.data.user.username || 'Guest',
+        lastName: response.data.user.lastName || '',
+      };
+      localStorage.setItem('userInfo', JSON.stringify(user));
       alert('Login successful');
       navigate('/shop');
     } catch (error) {
@@ -37,18 +44,12 @@ const CustomerLogin = () => {
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/Careers" className="text-gray-600">Careers</Link>
+          <Link to="/careers" className="text-gray-600">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
-        <div className="space-x-4">
-          <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
-            Sign Up
-          </Link>
-          <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
-            Login
-          </Link>
-        </div>
+        {/* 🔹 Customer Header */}
+        <CustomerHeader />
       </nav>
 
       <div className="flex items-center justify-center min-h-screen bg-gray-50">

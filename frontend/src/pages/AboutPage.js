@@ -1,10 +1,10 @@
-//CRIPS\frontend\src\pages\AboutPage.js
+// CRIPS\frontend\src\pages\AboutPage.js
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
+import CustomerHeader from "../components/CustomerHeader"; // Adjust the import path based on your structure
 
 const AboutPage = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const navigate = useNavigate();
 
@@ -36,48 +36,24 @@ const AboutPage = () => {
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
-        {/* 🔹 Cart & Profile */}
-        <div className="flex items-center space-x-4">
-          {/* Cart Icon */}
-          <Link to="/cart">
-            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
-          </Link>
-
-          {/* Profile Dropdown */}
-          {userInfo ? (
-            <div className="relative">
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center bg-gray-200 px-4 py-2 rounded-full"
-              >
-                <span className="mr-2">{userInfo.username}</span>
-                <FaUserCircle className="text-gray-600 text-xl" />
-              </button>
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-50">
-                  <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-                  <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
-                  <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
-                  <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
-                  <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
-                  <button onClick={handleLogout} className="block px-4 py-2 hover:bg-red-100 text-red-600 w-full text-left">
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-x-4">
-              <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
-                Sign Up
-              </Link>
-              <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
-                Login
-              </Link>
-            </div>
-          )}
-        </div>
+        {/* 🔹 Conditional Rendering for Cart & Profile */}
+        {userInfo ? (
+          <CustomerHeader />
+        ) : (
+          <div className="space-x-4">
+            <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
+              Sign Up
+            </Link>
+            <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
+              Login
+            </Link>
+          </div>
+        )}
       </nav>
+      {/* 🔹 Breadcrumb Navigation (Optional) */}
+            <div className="text-gray-500 mb-4 p-6">
+              <Link to="/" className="hover:underline">Home</Link> / About
+            </div>
 
       {/* 🔹 About Section */}
       <div className="max-w-4xl mx-auto bg-white shadow-lg p-8 mt-10 rounded-lg text-center">
@@ -111,7 +87,12 @@ const AboutPage = () => {
           <div className="flex justify-center gap-6 mt-4">
             {[1, 2, 3].map((id) => (
               <div key={id} className="border rounded-lg p-4 shadow-lg text-center">
-                <img src={`/team${id}.jpg`} alt={`Team Member ${id}`} className="w-24 h-24 object-cover rounded-full mx-auto" />
+                <img
+                  src={`/team${id}.jpg`}
+                  alt={`Team Member ${id}`}
+                  className="w-24 h-24 object-cover rounded-full mx-auto"
+                  onError={(e) => (e.target.src = "/default-team.jpg")} // Fallback image
+                />
                 <h4 className="text-lg font-bold mt-2">Team Member {id}</h4>
                 <p className="text-gray-600">Aquatic Specialist</p>
               </div>
@@ -122,7 +103,7 @@ const AboutPage = () => {
 
       {/* 🔹 Footer */}
       <footer className="bg-gray-900 text-white p-10 text-center mt-10">
-        <p>&copy; 2025 AquaPlants. All rights reserved.</p>
+        <p>© 2025 AquaPlants. All rights reserved.</p>
       </footer>
     </div>
   );

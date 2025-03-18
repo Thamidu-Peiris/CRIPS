@@ -1,23 +1,15 @@
-//CRIPS\frontend\src\pages\OrderPage.js
+// CRIPS\frontend\src\pages\OrderPage.js
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
+import CustomerHeader from "../components/CustomerHeader"; // Import the updated component
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
-  const [username, setUsername] = useState("Guest");
-  const [email, setEmail] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    if (userInfo) {
-      setUsername(userInfo.username);
-      setEmail(userInfo.email);
-    }
-
     const fetchOrders = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/orders");
@@ -29,11 +21,6 @@ const OrdersPage = () => {
 
     fetchOrders();
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/");
-  };
 
   return (
     <div className="font-sans min-h-screen bg-gray-100">
@@ -52,34 +39,8 @@ const OrdersPage = () => {
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
-        {/* 🔹 Cart & Profile */}
-        <div className="flex items-center space-x-4">
-          {/* Cart Icon */}
-          <Link to="/cart">
-            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
-          </Link>
-
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center bg-gray-200 px-4 py-2 rounded-full"
-            >
-              <span className="mr-2">{username}</span>
-              <FaUserCircle className="text-gray-600 text-xl" />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-                <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
-                <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
-                <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
-                <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
-                <button onClick={handleLogout} className="block px-4 py-2 hover:bg-red-100 text-red-600">Logout</button>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 🔹 Use Updated CustomerHeader Component */}
+        <CustomerHeader />
       </nav>
 
       {/* 🔹 Breadcrumb Navigation */}
@@ -109,12 +70,23 @@ const OrdersPage = () => {
                     <td className="p-3">{order.id}</td>
                     <td className="p-3">${order.total.toFixed(2)}</td>
                     <td className="p-3">{order.paymentMethod}</td>
-                    <td className={`p-3 font-semibold ${order.status === "Completed" ? "text-green-600" : "text-red-600"}`}>
+                    <td
+                      className={`p-3 font-semibold ${
+                        order.status === "Completed"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
                       {order.status}
                     </td>
-                    <td className="p-3">{new Date(order.date).toLocaleDateString()}</td>
                     <td className="p-3">
-                      <Link to={`/orders/${order.id}`} className="text-blue-600 hover:underline">
+                      {new Date(order.date).toLocaleDateString()}
+                    </td>
+                    <td className="p-3">
+                      <Link
+                        to={`/orders/${order.id}`}
+                        className="text-blue-600 hover:underline"
+                      >
                         View
                       </Link>
                     </td>

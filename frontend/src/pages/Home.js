@@ -1,6 +1,8 @@
-//CRIPS\frontend\src\pages\Home.js
+// CRIPS\frontend\src\pages\Home.js
+
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import CustomerHeader from "../components/CustomerHeader";
 
 const Home = () => {
   const images = ["/hero-image1.jpg", "/hero-image2.jpg", "/hero-image3.jpg"];
@@ -25,14 +27,42 @@ const Home = () => {
 
   return (
     <>
+      {/* Navigation Bar */}
+      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
+        {/* Logo Section */}
+        <div className="text-lg font-bold flex items-center">
+          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+          
+        </div>
+
+        {/* Navigation Links */}
+        <div className="space-x-6">
+          <Link to="/" className="text-green-600 font-medium">Home</Link>
+          <Link to="/shop" className="text-gray-600">Shop</Link>
+          <Link to="/careers" className="text-gray-600">Careers</Link>
+          <Link to="/about" className="text-gray-600">About</Link>
+          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+        </div>
+
+        {/* Cart, Wishlist, Profile (via CustomerHeader) */}
+        <CustomerHeader />
+      </nav>
+
       {/* Hero Section with Slider */}
-      <header className="relative text-center text-white py-32 bg-cover bg-center transition-all duration-1000"
-        style={{ backgroundImage: `url(${images[currentImage]})` }}>
+      <header
+        className="relative text-center text-white py-32 bg-cover bg-center transition-all duration-1000"
+        style={{ backgroundImage: `url(${images[currentImage]})` }}
+      >
         <div className="absolute inset-0 bg-black bg-opacity-10"></div>
         <div className="relative z-10">
           <h1 className="text-4xl font-bold">Welcome to Aqua Plants Export</h1>
           <h3 className="text-lg mt-2">Order Fresh Aquatic Plants Online</h3>
-          <button className="mt-4 px-6 py-2 bg-red-500 rounded text-white">Explore Now</button>
+          <button
+            className="mt-4 px-6 py-2 bg-red-500 rounded text-white"
+            onClick={handlePlantClick}
+          >
+            Explore Now
+          </button>
         </div>
       </header>
 
@@ -54,15 +84,22 @@ const Home = () => {
         <div className="flex justify-center p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
             {[1, 2, 3].map((item) => (
-              <div 
-                key={item} 
+              <div
+                key={item}
                 className="border rounded-lg p-3 shadow-lg text-center w-60 h-80 flex flex-col items-center justify-between bg-white cursor-pointer hover:shadow-xl transition"
                 onClick={handlePlantClick}
               >
-                <img src={`/plant${item}.jpg`} alt={`Plant ${item}`} className="w-full h-40 object-cover rounded-md" />
+                <img
+                  src={`/plant${item}.jpg`}
+                  alt={`Plant ${item}`}
+                  className="w-full h-40 object-cover rounded-md"
+                  onError={(e) => (e.target.src = "/default-plant.jpg")}
+                />
                 <h3 className="text-md font-bold mt-3">Plant {item}</h3>
                 <p className="text-gray-600">$20.00</p>
-                <button className="mt-2 px-3 py-1 bg-green-500 text-white rounded text-sm">View Details</button>
+                <button className="mt-2 px-3 py-1 bg-green-500 text-white rounded text-sm">
+                  View Details
+                </button>
               </div>
             ))}
           </div>
@@ -76,14 +113,19 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
             {["Emily Thompson", "James Anderson", "Sophia Martinez"].map((name, index) => (
               <div key={index} className="border rounded-lg p-5 shadow-lg text-center bg-white">
-                <img src={`/user${index + 1}.jpg`} alt={name} className="w-16 h-16 rounded-full mx-auto" />
+                <img
+                  src={`/user${index + 1}.jpg`}
+                  alt={name}
+                  className="w-16 h-16 rounded-full mx-auto"
+                  onError={(e) => (e.target.src = "/default-user.jpg")}
+                />
                 <h3 className="text-md font-bold mt-2">{name}</h3>
                 <p className="text-yellow-500">★★★★★</p>
                 <p className="text-gray-600 mt-2">
-                  {index === 0 
-                    ? "I love the quality of plants I received! Will order again." 
-                    : index === 1 
-                    ? "Fast delivery and excellent service. Highly recommend!" 
+                  {index === 0
+                    ? "I love the quality of plants I received! Will order again."
+                    : index === 1
+                    ? "Fast delivery and excellent service. Highly recommend!"
                     : "Vibrant plants, exceeded expectations."}
                 </p>
               </div>
@@ -123,7 +165,11 @@ const Home = () => {
           <div>
             <h3 className="text-lg font-bold">Newsletter</h3>
             <div className="flex mt-2">
-              <input type="email" placeholder="Your email" className="p-2 rounded-l bg-gray-800 text-white w-full" />
+              <input
+                type="email"
+                placeholder="Your email"
+                className="p-2 rounded-l bg-gray-800 text-white w-full"
+              />
               <button className="bg-green-500 px-4 py-2 rounded-r text-white">Subscribe</button>
             </div>
           </div>
