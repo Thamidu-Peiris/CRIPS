@@ -25,7 +25,6 @@ const Cart = () => {
         {/* Logo Section */}
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-          <span>Aqua Plants Export</span>
         </div>
 
         {/* Navigation Links */}
