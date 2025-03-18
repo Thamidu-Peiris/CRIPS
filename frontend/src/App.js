@@ -29,7 +29,7 @@ import PlantDetails from "./dashboards/Customer/PlantDetails";
 import Shop from "./dashboards/Customer/Shop";
 import UserProfileSettings from "./dashboards/Customer/UserProfileSettings";
 import CustomerChangePassword from "../../frontend/src/dashboards/Customer/CustomerChangePassword";
-
+import UserProfile from "./dashboards/Customer/UserProfile";
 
 
 function App() {
@@ -67,7 +67,7 @@ function App() {
         <Route path="/plant/:id" element={<PlantDetails />} />
         <Route path="/dashboard/settings" element={<UserProfileSettings />} />
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
-        
+        <Route path="/profile" element={<UserProfile />} />
 
       </Routes>
     </Router>

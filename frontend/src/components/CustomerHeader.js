@@ -1,4 +1,3 @@
-// CRIPS\frontend\src\components\CustomerHeader.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
@@ -92,15 +91,55 @@ const CustomerHeader = () => {
             </button>
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-                <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
-                <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
-                <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
-                <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
+                <Link to="/profile" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <img
+                    src="/home/profile-icon.png"
+                    alt="Profile Icon"
+                    className="w-5 h-5 object-contain mr-2"
+                  />
+                  Profile
+                </Link>
+                <Link to="/orders" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <img
+                    src="/home/orders-icon.png"
+                    alt="Orders Icon"
+                    className="w-5 h-5 object-contain mr-2"
+                  />
+                  Orders
+                </Link>
+                <Link to="/dashboard/tracking" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <img
+                    src="/home/tracking-icon.png"
+                    alt="Tracking Icon"
+                    className="w-5 h-5 object-contain mr-2"
+                  />
+                  Tracking
+                </Link>
+                <Link to="/dashboard/support" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <img
+                    src="/home/support-icon.png"
+                    alt="Support Icon"
+                    className="w-5 h-5 object-contain mr-2"
+                  />
+                  Support
+                </Link>
+                <Link to="/dashboard/settings" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                  <img
+                    src="/home/settings-icon.png"
+                    alt="Settings Icon"
+                    className="w-5 h-5 object-contain mr-2"
+                  />
+                  Profile Settings
+                </Link>
                 <button
                   onClick={handleLogout}
-                  className="block px-4 py-2 hover:bg-red-100 text-red-600 w-full text-left"
+                  className="flex items-center px-4 py-2 hover:bg-red-100 text-red-600 w-full text-left"
                 >
+                  <img
+                    src="/home/logout-icon.png"
+                    alt="Logout Icon"
+                    className="w-5 h-5 object-contain mr-2"
+                  />
                   Logout
                 </button>
               </div>
