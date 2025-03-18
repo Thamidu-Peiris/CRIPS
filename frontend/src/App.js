@@ -30,6 +30,9 @@ import Shop from "./dashboards/Customer/Shop";
 import UserProfileSettings from "./dashboards/Customer/UserProfileSettings";
 import CustomerChangePassword from "../../frontend/src/dashboards/Customer/CustomerChangePassword";
 import UserProfile from "./dashboards/Customer/UserProfile";
+import SmDashboard from './dashboards/SM/dashboard.js';
+
+
 
 
 function App() {
@@ -68,6 +71,8 @@ function App() {
         <Route path="/dashboard/settings" element={<UserProfileSettings />} />
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/sm-dashboard" element={<SmDashboard />} />
+
 
       </Routes>
     </Router>
