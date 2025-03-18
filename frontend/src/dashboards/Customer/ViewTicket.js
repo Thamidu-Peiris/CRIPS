@@ -1,4 +1,7 @@
+
 // CRIPS\frontend\src\dashboards\Customer\ViewTicket.js
+
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom"; // Added Link import
 import axios from "axios";

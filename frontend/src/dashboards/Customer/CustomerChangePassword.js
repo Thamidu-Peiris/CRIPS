@@ -1,4 +1,6 @@
-// CRIPS\frontend\src\dashboards\Customer\CustomerChangePassword.js
+
+//CRIPS\frontend\src\dashboards\Customer\CustomerChangePassword.js
+
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom"; // Added Link for navigation

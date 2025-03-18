@@ -5,6 +5,7 @@ import axios from "axios";
 import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
 import { FaLock, FaCamera, FaUserCircle } from "react-icons/fa";
 
+
 const UserProfileSettings = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ const UserProfileSettings = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [selectedFile, setSelectedFile] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -122,8 +124,10 @@ const UserProfileSettings = () => {
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
+
         {/* 🔹 Customer Header */}
         <CustomerHeader />
+
       </nav>
 
       {/* 🔹 Breadcrumb Navigation (Optional, based on OrdersPage.js) */}
