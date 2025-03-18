@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.post("/register", registerSystemManager); // ✅ Register new system manager
 router.get("/profile", getProfile);  // ✅ Get profile data
-router.put("/profile", updateProfile); // ✅ Update profile data
+router.put("/profile", updateProfile); // ✅ Update profile dat
 
 export default router;

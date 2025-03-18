@@ -29,7 +29,7 @@ export const loginSystemManager = async (req, res) => {
         }
 
         const token = jwt.sign({ id: systemManager._id, role: "SystemManager" }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
+//d
         console.log("Login successful for:", UserName);
         res.json({ message: "Login successful", token });
     } catch (error) {

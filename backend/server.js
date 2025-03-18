@@ -7,7 +7,7 @@ const plantRoutes = require('./routes/customer/plantRoutes');
 const contactRoutes = require('./routes/customer/contactRoutes');
 const jobRoutes = require("./routes/csm/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
-const path = require('path'); // Import the path module
+const path = require('path'); // Import the path modul
 
 
 dotenv.config();

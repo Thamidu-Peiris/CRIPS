@@ -17,7 +17,7 @@ const RegisterSystemManager = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData({ ...formData, [name]: value });//s
     };
 
     const handleSubmit = async (e) => {
