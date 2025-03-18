@@ -71,7 +71,7 @@ function App() {
         <Route path="/dashboard/settings" element={<UserProfileSettings />} />
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
-        <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashboard
+        <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashb
 
 
       </Routes>

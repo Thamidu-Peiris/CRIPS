@@ -24,4 +24,4 @@ systemManagerSchema.pre("save", async function (next) {
 
 const SystemManager = mongoose.model("SystemManager", systemManagerSchema);
 
-export default SystemManager;//df
+export default SystemManager;

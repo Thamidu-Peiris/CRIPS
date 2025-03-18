@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Sidebar from './sideBar.js';// ✅ Correct path
+import Sidebar from './sideBar.js';// ✅ Correct pa
 
 
 const Dashboard = () => {
