@@ -1,8 +1,8 @@
-//CRIPS\frontend\src\dashboards\Customer\CreateTicket.js
+// CRIPS\frontend\src\dashboards\Customer\CreateTicket.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import axios from "axios";
+import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
 
 const CreateTicket = () => {
   const navigate = useNavigate();
@@ -15,7 +15,6 @@ const CreateTicket = () => {
     message: "",
     orderId: "",
   });
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,33 +54,15 @@ const CreateTicket = () => {
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
-        {/* Cart & Profile */}
-        <div className="flex items-center space-x-4">
-          <Link to="/cart" className="relative">
-            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
-          </Link>
-
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center bg-gray-200 px-4 py-2 rounded-full"
-            >
-              <span className="mr-2">{userInfo.username || "Guest"}</span>
-              <FaUserCircle className="text-gray-600 text-xl" />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Shop</Link>
-                <Link to="/dashboard/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
-                <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
-                <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
-                <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 🔹 Customer Header */}
+        <CustomerHeader />
       </nav>
+
+      {/* 🔹 Breadcrumb Navigation (Optional) */}
+      <div className="text-gray-500 mb-4 p-6">
+        <Link to="/" className="hover:underline">Home</Link> /{" "}
+        <Link to="/dashboard/support" className="hover:underline">Support</Link> / Create Ticket
+      </div>
 
       {/* Create Ticket Content */}
       <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
@@ -144,7 +125,10 @@ const CreateTicket = () => {
             >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            >
               Submit Ticket
             </button>
           </div>

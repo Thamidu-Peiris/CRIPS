@@ -1,8 +1,8 @@
-//CRIPS\frontend\src\pages\Careers.js
+// CRIPS\frontend\src\pages\Careers.js
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import Layout from "../components/Layout";
+import { Link, useNavigate } from "react-router-dom"; // Added useNavigate for potential navigation
+import CustomerHeader from "../components/CustomerHeader"; // Adjust the import path based on your structure
 
 const Careers = () => {
   const [selectedJob, setSelectedJob] = useState("");
@@ -18,6 +18,7 @@ const Careers = () => {
     confirmPassword: "",
     termsAccepted: false,
   });
+  const navigate = useNavigate(); // Added for potential use (e.g., logout)
 
   const jobOptions = [
     "Customer Service Manager",
@@ -64,7 +65,43 @@ const Careers = () => {
   };
 
   return (
-    <Layout>
+    <div className="font-sans min-h-screen bg-gray-100">
+      {/* 🔹 Navbar */}
+      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
+        <div className="text-lg font-bold flex items-center">
+          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+        </div>
+
+        {/* 🔹 Navigation Links */}
+        <div className="space-x-6">
+          <Link to="/" className="text-green-600 font-medium">Home</Link>
+          <Link to="/shop" className="text-gray-600">Shop</Link>
+          <Link to="/careers" className="text-gray-600 font-bold">Careers</Link>
+          <Link to="/about" className="text-gray-600">About</Link>
+          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+        </div>
+
+        {/* 🔹 Conditional Rendering for Cart & Profile */}
+        {JSON.parse(localStorage.getItem("userInfo")) ? (
+          <CustomerHeader />
+        ) : (
+          <div className="space-x-4">
+            <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
+              Sign Up
+            </Link>
+            <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
+              Login
+            </Link>
+          </div>
+        )}
+      </nav>
+
+      {/* 🔹 Breadcrumb Navigation (Optional) */}
+      <div className="text-gray-500 mb-4 p-6">
+        <Link to="/" className="hover:underline">Home</Link> / Careers
+      </div>
+
+      {/* 🔹 Careers Content */}
       <div className="max-w-4xl mx-auto py-12">
         <h1 className="text-4xl font-bold text-center text-green-600 mb-6">Join Our Team</h1>
 
@@ -80,14 +117,20 @@ const Careers = () => {
               <option key={index} value={job}>{job}</option>
             ))}
           </select>
-          <button onClick={handleApplyClick} className="ml-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          <button
+            onClick={handleApplyClick}
+            className="ml-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
             Apply Now
           </button>
         </div>
 
         {/* Employee Login Button */}
         <div className="text-center mt-10">
-          <Link to="/employee-login" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700">
+          <Link
+            to="/employee-login"
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700"
+          >
             Employee Login
           </Link>
         </div>
@@ -100,28 +143,90 @@ const Careers = () => {
             <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Apply for {selectedJob}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input name="firstName" onChange={handleChange} placeholder="First Name" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="lastName" onChange={handleChange} placeholder="Last Name" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="username" onChange={handleChange} placeholder="Username" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="address" onChange={handleChange} placeholder="Address" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="phoneNumber" onChange={handleChange} placeholder="Phone Number" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="email" onChange={handleChange} placeholder="Email" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="password" type="password" onChange={handleChange} placeholder="Password" className="p-3 border rounded-lg bg-gray-100" required />
-                <input name="confirmPassword" type="password" onChange={handleChange} placeholder="Confirm Password" className="p-3 border rounded-lg bg-gray-100" required />
+                <input
+                  name="firstName"
+                  onChange={handleChange}
+                  placeholder="First Name"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="lastName"
+                  onChange={handleChange}
+                  placeholder="Last Name"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="username"
+                  onChange={handleChange}
+                  placeholder="Username"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="address"
+                  onChange={handleChange}
+                  placeholder="Address"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="phoneNumber"
+                  onChange={handleChange}
+                  placeholder="Phone Number"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="email"
+                  onChange={handleChange}
+                  placeholder="Email"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="password"
+                  type="password"
+                  onChange={handleChange}
+                  placeholder="Password"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
+                <input
+                  name="confirmPassword"
+                  type="password"
+                  onChange={handleChange}
+                  placeholder="Confirm Password"
+                  className="p-3 border rounded-lg bg-gray-100"
+                  required
+                />
               </div>
 
               {/* Terms and Conditions Checkbox */}
               <div className="mt-4 flex items-center">
-                <input type="checkbox" name="termsAccepted" onChange={handleChange} className="w-4 h-4 text-green-500" required />
+                <input
+                  type="checkbox"
+                  name="termsAccepted"
+                  onChange={handleChange}
+                  className="w-4 h-4 text-green-500"
+                  required
+                />
                 <label className="ml-2 text-gray-700">I agree to all the Terms and Privacy Policy</label>
               </div>
 
               {/* Submit & Close Buttons */}
               <div className="flex justify-between mt-6">
-                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                >
                   Submit Application
                 </button>
-                <button onClick={() => setIsPopupOpen(false)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                <button
+                  onClick={() => setIsPopupOpen(false)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+                >
                   Cancel
                 </button>
               </div>
@@ -129,7 +234,7 @@ const Careers = () => {
           </div>
         </div>
       )}
-    </Layout>
+    </div>
   );
 };
 

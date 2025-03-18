@@ -1,8 +1,9 @@
-//CRIPS\frontend\src\dashboards\Customer\UserProfileSettings.js
+// CRIPS\frontend\src\dashboards\Customer\UserProfileSettings.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaUserCircle, FaLock, FaCamera, FaShoppingCart } from "react-icons/fa";
+import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
+import { FaLock, FaCamera, FaUserCircle } from "react-icons/fa";
 
 const UserProfileSettings = () => {
   const navigate = useNavigate();
@@ -15,7 +16,6 @@ const UserProfileSettings = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [selectedFile, setSelectedFile] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -122,34 +122,8 @@ const UserProfileSettings = () => {
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
-        {/* 🔹 Cart & Profile */}
-        <div className="flex items-center space-x-4">
-          {/* Cart Icon */}
-          <Link to="/cart">
-            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
-          </Link>
-
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center bg-gray-200 px-4 py-2 rounded-full"
-            >
-              <span className="mr-2">{username}</span>
-              <FaUserCircle className="text-gray-600 text-xl" />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Dashboard</Link>
-                <Link to="/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
-                <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
-                <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
-                <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
-                <button onClick={handleLogout} className="block px-4 py-2 hover:bg-red-100 text-red-600">Logout</button>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 🔹 Customer Header */}
+        <CustomerHeader />
       </nav>
 
       {/* 🔹 Breadcrumb Navigation (Optional, based on OrdersPage.js) */}

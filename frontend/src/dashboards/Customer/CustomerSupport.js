@@ -1,15 +1,14 @@
-//CRIPS\frontend\src\dashboards\Customer\CustomerSupport.js
+// CRIPS\frontend\src\dashboards\Customer\CustomerSupport.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaShoppingCart, FaUserCircle } from "react-icons/fa";
 import axios from "axios";
+import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
 
 const CustomerSupport = () => {
   const navigate = useNavigate();
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [faqs, setFaqs] = useState([]);
 
@@ -18,7 +17,7 @@ const CustomerSupport = () => {
     const fetchTickets = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/support");
-        setTickets(response.data.filter(ticket => ticket.email === userInfo.email));
+        setTickets(response.data.filter((ticket) => ticket.email === userInfo.email));
       } catch (error) {
         console.error("Error fetching tickets:", error);
       }
@@ -61,32 +60,8 @@ const CustomerSupport = () => {
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
-        {/* Cart & Profile */}
-        <div className="flex items-center space-x-4">
-          <Link to="/cart" className="relative">
-            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
-          </Link>
-
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center bg-gray-200 px-4 py-2 rounded-full"
-            >
-              <span className="mr-2">{userInfo.username || "Guest"}</span>
-              <FaUserCircle className="text-gray-600 text-xl" />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
-                <Link to="/shop" className="block px-4 py-2 hover:bg-gray-100">Shop</Link>
-                <Link to="/dashboard/orders" className="block px-4 py-2 hover:bg-gray-100">Orders</Link>
-                <Link to="/dashboard/tracking" className="block px-4 py-2 hover:bg-gray-100">Tracking</Link>
-                <Link to="/dashboard/support" className="block px-4 py-2 hover:bg-gray-100">Support</Link>
-                <Link to="/dashboard/settings" className="block px-4 py-2 hover:bg-gray-100">Settings</Link>
-              </div>
-            )}
-          </div>
-        </div>
+        {/* 🔹 Customer Header */}
+        <CustomerHeader />
       </nav>
 
       {/* Support Content */}
@@ -127,7 +102,7 @@ const CustomerSupport = () => {
 
         {/* Navigate to CreateTicket page */}
         <div className="text-center mt-8">
-          <button 
+          <button
             onClick={() => navigate("/dashboard/create-ticket")}
             className="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700"
           >
@@ -149,10 +124,14 @@ const CustomerSupport = () => {
           </thead>
           <tbody>
             {tickets.length > 0 ? (
-              tickets.map(ticket => (
+              tickets.map((ticket) => (
                 <tr key={ticket._id} className="text-center border-b border-gray-300">
                   <td>{ticket.subject}</td>
-                  <td className={`py-3 px-4 font-bold ${ticket.status === "Resolved" ? "text-green-600" : "text-red-600"}`}>
+                  <td
+                    className={`py-3 px-4 font-bold ${
+                      ticket.status === "Resolved" ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
                     {ticket.status}
                   </td>
                   <td>
@@ -167,7 +146,9 @@ const CustomerSupport = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="3" className="text-center py-4 text-gray-600">No support tickets found.</td>
+                <td colSpan="3" className="text-center py-4 text-gray-600">
+                  No support tickets found.
+                </td>
               </tr>
             )}
           </tbody>
