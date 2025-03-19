@@ -1,12 +1,22 @@
-import express from "express";
-import { loginSystemManager, registerSystemManager } from "../controllers/adminController.js";
-import { getProfile, updateProfile } from "../controllers/adminProfileController.js";
-
+const express = require('express');
+const { 
+  loginSystemManager, 
+  registerSystemManager 
+} = require('../../controllers/SM/smController');
+const { 
+  getProfile, 
+  updateProfile 
+} = require('../../controllers/SM/smProfileController');
 
 const router = express.Router();
 
-router.post("/register", registerSystemManager); // ✅ Register new system manager
-router.get("/profile", getProfile);  // ✅ Get profile data
-router.put("/profile", updateProfile); // ✅ Update profile 
+// ✅ Register a new system manager
+router.post('/register', registerSystemManager);
 
-export default router;
+// ✅ Get system manager profile
+router.get('/profile', getProfile);
+
+// ✅ Update system manager profile
+router.put('/profile', updateProfile);
+
+module.exports = router; // ✅ CommonJS export
