@@ -1,4 +1,4 @@
-import SystemManager from "../models/admin.js"; // Ensure this is your correct model
+import SystemManager from "../../models/SM/SysManagerModel.js"; // Ensure this is your correct model
 
 // Get System Manager Profile
 export const getProfile = async (req, res) => {

@@ -1,8 +1,7 @@
-// CRIPS\frontend\src\pages\CustomerLogin.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import CustomerHeader from '../components/CustomerHeader'; // Adjust the import path based on your structure
+import CustomerHeader from '../components/CustomerHeader'; // Adjust the path based on your structure
 
 const CustomerLogin = () => {
   const [formData, setFormData] = useState({
@@ -15,20 +14,28 @@ const CustomerLogin = () => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', formData);
-      // Ensure firstName and lastName are included in userInfo
-      const user = {
-        ...response.data.user,
-        firstName: response.data.user.firstName || response.data.user.username || 'Guest',
-        lastName: response.data.user.lastName || '',
-      };
-      localStorage.setItem('userInfo', JSON.stringify(user));
-      alert('Login successful');
-      navigate('/shop');
+      // ✅ Call universal login API instead of /users/login
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        emailOrUsername: formData.email,
+        password: formData.password
+      });
+      
+      
+      // ✅ Save full user info including role
+      localStorage.setItem('userInfo', JSON.stringify(response.data));
+
+      // ✅ Redirect based on role
+      const role = response.data.role;
+      if (role === "SystemManager") navigate("../sm-dashboard");
+      else if (role === "Customers") navigate("/shop");
+      else if (role === "Employee") navigate("/employee/dashboard");
+      else navigate("/admin/dashboard");
+
     } catch (error) {
       console.error("Error logging in:", error);
       alert('Login failed. Please check your credentials.');

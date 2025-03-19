@@ -31,6 +31,8 @@ import UserProfileSettings from "./dashboards/Customer/UserProfileSettings";
 import CustomerChangePassword from "../../frontend/src/dashboards/Customer/CustomerChangePassword";
 import UserProfile from "./dashboards/Customer/UserProfile";
 import SmDashboard from './dashboards/SM/dashboard.js';
+import RegisterSystemManager from './pages/smRegister.js';
+
 
 
 
@@ -72,6 +74,7 @@ function App() {
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashb
+        <Route path="/SMregister" element={<RegisterSystemManager />} />
 
 
       </Routes>

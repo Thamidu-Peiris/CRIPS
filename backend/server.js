@@ -8,6 +8,9 @@ const contactRoutes = require('./routes/customer/contactRoutes');
 const jobRoutes = require("./routes/csm/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
 const path = require('path'); // Import the path mo
+const authRoutes = require('./routes/authRoutes');
+const systemManagerRoutes = require('./routes/SM/smRoute');
+
 
 
 dotenv.config();
@@ -32,7 +35,13 @@ app.use('/api/plants', plantRoutes);
 app.use('/api', contactRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", supportRoutes);
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use('/api/auth', authRoutes);
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true
+}));
+app.use('/api/systemManagers', systemManagerRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('Hello from the backend!');

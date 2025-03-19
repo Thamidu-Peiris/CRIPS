@@ -1,7 +1,7 @@
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import SystemManager from "../models/SM/SysManagerModel"; // ✅ Ensure correct path
+import SystemManager from "../../models/SM/SysManagerModel.js"; // ✅ Ensure correct path
 
 
 export const loginSystemManager = async (req, res) => {
