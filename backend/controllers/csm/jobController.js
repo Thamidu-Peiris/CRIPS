@@ -1,11 +1,25 @@
-//CRIPS\backend\controllers\csm\jobController.js
+// CRIPS\backend\controllers\csm\jobController.js
 const bcrypt = require("bcryptjs");
 const JobApplication = require("../../models/csm/JobApplication");
+const multer = require('multer');
+const path = require('path');
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
 
 // Fetch Profile by ID
 const getProfileById = async (req, res) => {
   try {
-    const user = await JobApplication.findById(req.params.id).select("-password"); // Exclude password
+    const user = await JobApplication.findById(req.params.id).select("-password");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -21,15 +35,21 @@ const updateProfile = async (req, res) => {
   try {
     const { firstName, lastName, address, phoneNumber } = req.body;
 
-    const updatedUser = await JobApplication.findByIdAndUpdate(
-      req.params.id,
-      { firstName, lastName, address, phoneNumber },
-      { new: true, runValidators: true }
-    );
-
+    const updatedUser = await JobApplication.findById(req.params.id);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
+
+    updatedUser.firstName = firstName || updatedUser.firstName;
+    updatedUser.lastName = lastName || updatedUser.lastName;
+    updatedUser.address = address || updatedUser.address;
+    updatedUser.phoneNumber = phoneNumber || updatedUser.phoneNumber;
+
+    if (req.file) {
+      updatedUser.profileImage = `/uploads/${req.file.filename}`;
+    }
+
+    await updatedUser.save();
 
     res.status(200).json({ success: true, message: "Profile updated successfully!", updatedUser });
   } catch (error) {
@@ -48,13 +68,11 @@ const changePassword = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Validate current password
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Incorrect current password" });
     }
 
-    // Hash new password and update
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
@@ -80,7 +98,6 @@ const applyForJob = async (req, res) => {
       return res.status(400).json({ error: "Email already registered" });
     }
 
-    // Encrypt the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newApplication = new JobApplication({
@@ -103,7 +120,7 @@ const applyForJob = async (req, res) => {
   }
 };
 
-// Employee Login
+// Employee Login (not used anymore, but keeping for reference)
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -139,7 +156,7 @@ const login = async (req, res) => {
 
 module.exports = {
   getProfileById,
-  updateProfile,
+  updateProfile: [upload.single('profileImage'), updateProfile], // Add multer middleware
   changePassword,
   applyForJob,
   login,

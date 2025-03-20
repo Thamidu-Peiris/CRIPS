@@ -1,3 +1,4 @@
+// CRIPS\backend\routes\SM\smRoute.js
 const express = require('express');
 const { 
   loginSystemManager, 

@@ -1,3 +1,4 @@
+// CRIPS\frontend\src\dashboards\SalesManagerDashboard.js
 import React from "react";
 
 const SalesManagerDashboard = () => {

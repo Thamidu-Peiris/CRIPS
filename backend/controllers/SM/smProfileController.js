@@ -1,3 +1,4 @@
+// CRIPS\backend\controllers\SM\smProfileController.js
 import SystemManager from "../../models/SM/SysManagerModel.js"; // Ensure this is your correct model
 
 // Get System Manager Profile

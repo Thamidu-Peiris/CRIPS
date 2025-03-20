@@ -1,13 +1,14 @@
-// CRIPS\frontend\src\pages\Careers.js
+// CRIPS\frontend\src\pages\Careers.js (already updated in previous response)
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom"; // Added useNavigate for potential navigation
-import CustomerHeader from "../components/CustomerHeader"; // Adjust the import path based on your structure
+import CustomerHeader from "../components/CustomerHeader";
 
 const Careers = () => {
   const [selectedJob, setSelectedJob] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [formData, setFormData] = useState({
+    jobTitle: "",
     firstName: "",
     lastName: "",
     username: "",
@@ -18,7 +19,8 @@ const Careers = () => {
     confirmPassword: "",
     termsAccepted: false,
   });
-  const navigate = useNavigate(); // Added for potential use (e.g., logout)
+
+  const navigate = useNavigate();
 
   const jobOptions = [
     "Customer Service Manager",
@@ -30,9 +32,10 @@ const Careers = () => {
 
   const handleApplyClick = () => {
     if (selectedJob) {
+      setFormData({ ...formData, jobTitle: selectedJob });
       setIsPopupOpen(true);
     } else {
-      alert("Please select a job position before applying.");
+      alert("Please select a job position to apply for.");
     }
   };
 
@@ -46,33 +49,46 @@ const Careers = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
     if (!formData.termsAccepted) {
-      alert("You must accept the terms and conditions.");
+      alert("Please accept the Terms and Privacy Policy.");
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/jobs/apply", {
-        jobTitle: selectedJob,
-        ...formData,
-      });
-
-      alert(response.data.message);
-      setIsPopupOpen(false);
+      const response = await axios.post("http://localhost:5000/api/jobs/apply", formData);
+      if (response.data.success) {
+        alert("Application submitted successfully!");
+        setIsPopupOpen(false);
+        setFormData({
+          jobTitle: "",
+          firstName: "",
+          lastName: "",
+          username: "",
+          address: "",
+          phoneNumber: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+          termsAccepted: false,
+        });
+        navigate("/login");
+      }
     } catch (error) {
+      console.error("Error submitting application:", error);
       alert("Failed to submit application. Please try again.");
     }
   };
 
   return (
     <div className="font-sans min-h-screen bg-gray-100">
-      {/* 🔹 Navbar */}
       <nav className="flex justify-between items-center p-5 bg-white shadow-md">
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
         </div>
-
-        {/* 🔹 Navigation Links */}
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/shop" className="text-gray-600">Shop</Link>
@@ -80,15 +96,13 @@ const Careers = () => {
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
-
-        {/* 🔹 Conditional Rendering for Cart & Profile */}
         {JSON.parse(localStorage.getItem("userInfo")) ? (
           <CustomerHeader />
         ) : (
           <div className="space-x-4">
             <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
-              Sign Up
-            </Link>
+      Sign Up
+    </Link>
             <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
               Login
             </Link>
@@ -96,16 +110,13 @@ const Careers = () => {
         )}
       </nav>
 
-      {/* 🔹 Breadcrumb Navigation (Optional) */}
       <div className="text-gray-500 mb-4 p-6">
         <Link to="/" className="hover:underline">Home</Link> / Careers
       </div>
 
-      {/* 🔹 Careers Content */}
       <div className="max-w-4xl mx-auto py-12">
         <h1 className="text-4xl font-bold text-center text-green-600 mb-6">Join Our Team</h1>
 
-        {/* Job Selection Dropdown */}
         <div className="text-center mb-6">
           <select
             value={selectedJob}
@@ -124,19 +135,8 @@ const Careers = () => {
             Apply Now
           </button>
         </div>
-
-        {/* Employee Login Button */}
-        <div className="text-center mt-10">
-          <Link
-            to="/employee-login"
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-700"
-          >
-            Employee Login
-          </Link>
-        </div>
       </div>
 
-      {/* Apply Popup Form */}
       {isPopupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
@@ -203,7 +203,6 @@ const Careers = () => {
                 />
               </div>
 
-              {/* Terms and Conditions Checkbox */}
               <div className="mt-4 flex items-center">
                 <input
                   type="checkbox"
@@ -215,7 +214,6 @@ const Careers = () => {
                 <label className="ml-2 text-gray-700">I agree to all the Terms and Privacy Policy</label>
               </div>
 
-              {/* Submit & Close Buttons */}
               <div className="flex justify-between mt-6">
                 <button
                   type="submit"

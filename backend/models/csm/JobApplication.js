@@ -1,4 +1,4 @@
-////CRIPS\backend\models\csm\JobApplication.js
+// CRIPS\backend\models\csm\JobApplication.js
 const mongoose = require("mongoose");
 
 const JobApplicationSchema = new mongoose.Schema({
@@ -11,6 +11,7 @@ const JobApplicationSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["Customer Service Manager", "Grower Handler", "Cutters", "Inventory Manager", "Sales Manager"], required: true },
+  profileImage: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 

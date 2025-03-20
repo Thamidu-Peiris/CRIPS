@@ -1,11 +1,12 @@
+// CRIPS\frontend\src\pages\CustomerLogin.js
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import CustomerHeader from '../components/CustomerHeader'; // Adjust the path based on your structure
+import CustomerHeader from '../components/CustomerHeader';
 
 const CustomerLogin = () => {
   const [formData, setFormData] = useState({
-    email: '',
+    emailOrUsername: '',
     password: '',
   });
   const navigate = useNavigate();
@@ -14,30 +15,46 @@ const CustomerLogin = () => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // ✅ Call universal login API instead of /users/login
+      console.log("Submitting login request with:", formData);
       const response = await axios.post('http://localhost:5000/api/auth/login', {
-        emailOrUsername: formData.email,
-        password: formData.password
+        emailOrUsername: formData.emailOrUsername,
+        password: formData.password,
       });
-      
-      
-      // ✅ Save full user info including role
-      localStorage.setItem('userInfo', JSON.stringify(response.data));
 
-      // ✅ Redirect based on role
-      const role = response.data.role;
-      if (role === "SystemManager") navigate("../sm-dashboard");
-      else if (role === "Customers") navigate("/shop");
-      else if (role === "Employee") navigate("/employee/dashboard");
-      else navigate("/admin/dashboard");
+      console.log("Login response:", response.data);
 
+      localStorage.setItem('userInfo', JSON.stringify(response.data.user));
+
+      const role = response.data.role ? response.data.role.toLowerCase() : "";
+      console.log("User role (lowercase):", role);
+      if (role === "systemmanager") {
+        console.log("Redirecting to /sm-dashboard");
+        navigate("/sm-dashboard");
+      } else if (role === "customer service manager") {
+        console.log("Redirecting to /customer-service-dashboard");
+        navigate("/customer-service-dashboard");
+      } else if (role === "grower handler") {
+        console.log("Redirecting to /grower-handler-dashboard");
+        navigate("/grower-handler-dashboard");
+      } else if (role === "cutters") {
+        console.log("Redirecting to /cutters-dashboard");
+        navigate("/cutters-dashboard");
+      } else if (role === "inventory manager") {
+        console.log("Redirecting to /inventory-manager-dashboard");
+        navigate("/inventory-manager-dashboard");
+      } else if (role === "sales manager") {
+        console.log("Redirecting to /sales-manager-dashboard");
+        navigate("/sales-manager-dashboard");
+      } else {
+        console.log("Redirecting to /shop (default for Customer)");
+        navigate("/shop");
+      }
     } catch (error) {
-      console.error("Error logging in:", error);
+      console.error("Error logging in:", error.response?.data || error.message);
       alert('Login failed. Please check your credentials.');
     }
   };
@@ -55,18 +72,17 @@ const CustomerLogin = () => {
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
-        {/* 🔹 Customer Header */}
         <CustomerHeader />
       </nav>
 
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
-          <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Customer Login</h2>
+          <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Login</h2>
           <form onSubmit={handleSubmit}>
             <input
-              type="email"
-              name="email"
-              placeholder="Email"
+              type="text"
+              name="emailOrUsername"
+              placeholder="Email or Username"
               onChange={handleChange}
               className="w-full p-3 border rounded-lg bg-gray-100 mb-4"
               required

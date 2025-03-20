@@ -1,5 +1,7 @@
+// CRIPS\backend\controllers\SM\authController.js
 const SystemManager = require('../models/SM/SysManagerModel');
 const User = require('../models/customer/User');
+const JobApplication = require('../models/csm/JobApplication');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -11,19 +13,31 @@ exports.universalLogin = async (req, res) => {
     let role = "";
 
     // Check System Manager
+    console.log("Checking SystemManager...");
     user = await SystemManager.findOne({ $or: [{ Email: emailOrUsername }, { UserName: emailOrUsername }] });
-    if (user) role = "SystemManager";
+    if (user) {
+      console.log("SystemManager found:", user);
+      role = "systemmanager"; // Lowercase for consistency
+    }
 
     // Check Customer
     if (!user) {
+      console.log("Checking User (Customer)...");
       user = await User.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
-      if (user) role = user.role;
+      if (user) {
+        console.log("Customer found:", user);
+        role = (user.role || "customer").toLowerCase(); // Lowercase for consistency
+      }
     }
 
-    // Optionally Check Employee
-    if (!user && Employee) {
-      user = await Employee.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
-      if (user) role = user.role;
+    // Check Employee (Customer Service Manager, etc.)
+    if (!user) {
+      console.log("Checking JobApplication (CSM, etc.)...");
+      user = await JobApplication.findOne({ $or: [{ email: emailOrUsername }, { username: emailOrUsername }] });
+      if (user) {
+        console.log("JobApplication found:", user);
+        role = user.role.toLowerCase(); // Lowercase for consistency
+      }
     }
 
     console.log("User found:", user);
@@ -35,16 +49,21 @@ exports.universalLogin = async (req, res) => {
 
     const token = jwt.sign({ id: user._id, role }, process.env.JWT_SECRET, { expiresIn: '2h' });
 
+    const userData = {
+      id: user._id,
+      email: user.Email || user.email,
+      username: user.UserName || user.username,
+      firstName: user.FirstName || user.firstName || "",
+      lastName: user.LastName || user.lastName || "",
+      profileImage: user.profileImage || "",
+      role,
+    };
+
     res.status(200).json({
       message: "Login successful",
       token,
       role,
-      user: {
-        id: user._id,
-        email: user.Email || user.email,
-        username: user.UserName || user.username,
-        role,
-      }
+      user: userData,
     });
   } catch (error) {
     console.error("Universal Login Error:", error);

@@ -63,19 +63,12 @@ const CustomerRegister = () => {
 
     try {
       const response = await axios.post("http://localhost:5000/api/users/register", formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      // Ensure firstName and lastName are included in userInfo for CustomerHeader compatibility
-      const user = {
-        ...response.data.user,
-        firstName: formData.firstName || "Guest",
-        lastName: formData.lastName || "",
-      };
-      localStorage.setItem("userInfo", JSON.stringify(user));
+      // Store the full user object from the backend
+      localStorage.setItem("userInfo", JSON.stringify(response.data.user));
       alert("User registered successfully");
-      navigate("/login");
+      navigate("/shop"); // Redirect to shop instead of login
     } catch (error) {
       console.error("Error registering user:", error);
       alert("Failed to register user");
