@@ -1,3 +1,4 @@
+// CRIPS\backend\models\SM\SysManagerModel.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 

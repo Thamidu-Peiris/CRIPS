@@ -42,9 +42,26 @@ const createUser = async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'User registered successfully' });
+    // Updated response to include user data (excluding password for security)
+    res.status(201).json({ 
+      message: 'User registered successfully',
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        username: newUser.username,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        phoneNumber: newUser.phoneNumber,
+        address: newUser.address,
+        profileImage: newUser.profileImage,
+        role: newUser.role,
+        companyName: newUser.companyName,
+        businessAddress: newUser.businessAddress,
+        taxId: newUser.taxId,
+      }
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to register user', error });
+    res.status(500).json({ message: 'Failed to register user', error: error.message });
   }
 };
 

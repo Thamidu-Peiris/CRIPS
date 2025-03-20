@@ -1,4 +1,4 @@
-
+// CRIPS\backend\controllers\SM\smController.js
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import SystemManager from "../../models/SM/SysManagerModel.js"; // ✅ Ensure correct path

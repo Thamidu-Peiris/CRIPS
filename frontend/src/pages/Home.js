@@ -1,5 +1,4 @@
 // CRIPS\frontend\src\pages\Home.js
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
@@ -32,7 +31,6 @@ const Home = () => {
         {/* Logo Section */}
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-          
         </div>
 
         {/* Navigation Links */}
@@ -46,9 +44,10 @@ const Home = () => {
 
         {/* Cart, Wishlist, Profile (via CustomerHeader) */}
         <CustomerHeader />
+        
       </nav>
 
-      {/* Hero Section with Slider */}
+      {/* Rest of the Home page content */}
       <header
         className="relative text-center text-white py-32 bg-cover bg-center transition-all duration-1000"
         style={{ backgroundImage: `url(${images[currentImage]})` }}

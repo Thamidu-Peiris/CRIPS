@@ -1,95 +1,180 @@
-//CRIPS\frontend\src\dashboards\CSM\UpdateProfile.js
+// CRIPS\frontend\src\dashboards\CSM\UpdateProfile.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import CSMNavbar from "../../components/CSMNavbar";  // ✅ Import Navbar
-import CSMSidebar from "../../components/CSMSidebar";  // ✅ Import Sidebar
+import CSMNavbar from "../../components/CSMNavbar";
+import CSMSidebar from "../../components/CSMSidebar";
 
 const UpdateProfile = () => {
-  const [profile, setProfile] = useState({});
-  const [loading, setLoading] = useState(true);
-  const userId = localStorage.getItem("userId");
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    phoneNumber: "",
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`);
+        setFormData({
+          firstName: response.data.firstName || "",
+          lastName: response.data.lastName || "",
+          address: response.data.address || "",
+          phoneNumber: response.data.phoneNumber || "",
+        });
+        if (response.data.profileImage) {
+          setPreviewImage(`http://localhost:5000${response.data.profileImage}`);
+        }
+      } catch (error) {
+        setError("Failed to fetch profile data.");
+        console.error(error);
+      }
+    };
     fetchProfile();
-  }, []);
+  }, [userId]);
 
-  const fetchProfile = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`);
-      setProfile(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      setLoading(false);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleUpdate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formDataToSend = new FormData();
+    for (const key in formData) {
+      formDataToSend.append(key, formData[key]);
+    }
+    if (selectedFile) {
+      formDataToSend.append("profileImage", selectedFile);
+    }
+
     try {
-      await axios.put(`http://localhost:5000/api/jobs/profile/update/${userId}`, profile);
-      alert("Profile updated successfully!");
-      navigate("/profile-settings"); // Redirect back after update
+      const response = await axios.put(
+        `http://localhost:5000/api/jobs/profile/update/${userId}`,
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setSuccess("Profile updated successfully!");
+      setError("");
+
+      // Update localStorage with new user info
+      const updatedUser = {
+        ...JSON.parse(localStorage.getItem("userInfo")),
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        profileImage: response.data.updatedUser.profileImage || "",
+      };
+      localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+
+      setTimeout(() => {
+        navigate("/profile-settings");
+      }, 2000);
     } catch (error) {
-      alert("Error updating profile.");
+      setError("Failed to update profile. Please try again.");
+      setSuccess("");
+      console.error(error);
     }
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* ✅ Sidebar - Positioned on the left */}
       <CSMSidebar />
-
       <div className="flex-1 p-6">
-        {/* ✅ Navbar - Positioned at the top */}
         <CSMNavbar />
-
-        {/* ✅ Profile Update Content */}
-        <div className="max-w-2xl mx-auto py-12">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Update Profile</h2>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            {loading ? (
-              <p className="text-center">Loading...</p>
-            ) : (
-              <form onSubmit={handleUpdate} className="space-y-4">
-                <label className="block">
-                  <span className="font-semibold">First Name:</span>
-                  <input type="text" value={profile.firstName || ""}
-                    onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                    className="w-full border p-2 rounded-lg" required />
-                </label>
-
-                <label className="block">
-                  <span className="font-semibold">Last Name:</span>
-                  <input type="text" value={profile.lastName || ""}
-                    onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                    className="w-full border p-2 rounded-lg" required />
-                </label>
-
-                <label className="block">
-                  <span className="font-semibold">Address:</span>
-                  <input type="text" value={profile.address || ""}
-                    onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                    className="w-full border p-2 rounded-lg" />
-                </label>
-
-                <label className="block">
-                  <span className="font-semibold">Phone Number:</span>
-                  <input type="text" value={profile.phoneNumber || ""}
-                    onChange={(e) => setProfile({ ...profile, phoneNumber: e.target.value })}
-                    className="w-full border p-2 rounded-lg" />
-                </label>
-
-                <div className="flex justify-between mt-6">
-                  <button type="button" onClick={() => navigate("/customer-service-dashboard")} className="bg-gray-500 text-white px-4 py-2 rounded">Cancel</button>
-                  <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">Save Changes</button>
-                </div>
-              </form>
-            )}
-          </div>
+        <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg mt-6">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Update Profile</h2>
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          {success && <p className="text-green-500 text-center">{success}</p>}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="block w-full p-3 border rounded-lg bg-gray-100"
+              />
+              {previewImage && (
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="mt-2 w-32 h-32 rounded-full object-cover mx-auto"
+                />
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">First Name</label>
+              <input
+                type="text"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="w-full p-3 border rounded-lg bg-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Last Name</label>
+              <input
+                type="text"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="w-full p-3 border rounded-lg bg-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Address</label>
+              <input
+                type="text"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full p-3 border rounded-lg bg-gray-100"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input
+                type="text"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full p-3 border rounded-lg bg-gray-100"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition"
+            >
+              Update Profile
+            </button>
+          </form>
         </div>
       </div>
     </div>

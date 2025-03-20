@@ -1,3 +1,4 @@
+// CRIPS\frontend\src\components\CustomerHeader.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaAngleDown } from "react-icons/fa";
@@ -8,14 +9,13 @@ const CustomerHeader = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cart, setCart] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch user info and cart on mount
-  useEffect(() => {
+  const updateUserState = () => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (userInfo) {
-      setFirstName(userInfo.firstName || "Guest");
+      setFirstName(userInfo.firstName || "");
       setLastName(userInfo.lastName || "");
       const imagePath = userInfo.profileImage
         ? `http://localhost:5000${userInfo.profileImage}`
@@ -23,11 +23,35 @@ const CustomerHeader = () => {
       setProfileImage(imagePath);
       setIsLoggedIn(true);
     } else {
+      setFirstName("");
+      setLastName("");
+      setProfileImage("/default-profile.png");
       setIsLoggedIn(false);
     }
 
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(storedCart);
+  };
+
+  useEffect(() => {
+    updateUserState();
+
+    const handleStorageChange = () => {
+      updateUserState();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    const handleCustomStorageChange = () => {
+      updateUserState();
+    };
+
+    window.addEventListener("userInfoChanged", handleCustomStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("userInfoChanged", handleCustomStorageChange);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -37,18 +61,39 @@ const CustomerHeader = () => {
     setLastName("");
     setProfileImage("/default-profile.png");
     setIsLoggedIn(false);
+    setDropdownOpen(false);
     navigate("/");
+    window.dispatchEvent(new Event("userInfoChanged"));
   };
 
-  // Combine first and last name for display
-  const fullName = `${firstName} ${lastName}`.trim() || "Guest";
+  const toggleDropdown = () => {
+    console.log("Toggling dropdown, current state:", dropdownOpen);
+    setDropdownOpen(!dropdownOpen);
+  };
+
+  const handleCartClick = (e) => {
+    console.log("Cart link clicked");
+  };
+
+  const handleWishlistClick = (e) => {
+    console.log("Wishlist link clicked");
+  };
+
+  const handleProfileSettingsClick = (e) => {
+    console.log("Profile Settings link clicked");
+  };
+
+  const fullName = `${firstName} ${lastName}`.trim();
 
   return (
     <div className="flex items-center space-x-6">
       {isLoggedIn ? (
         <>
-          {/* Cart with Custom Image */}
-          <Link to="/cart" className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 relative">
+          <Link
+            to="/cart"
+            onClick={handleCartClick}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 relative"
+          >
             <img
               src="/home/cart-icon.png"
               alt="Cart"
@@ -62,8 +107,11 @@ const CustomerHeader = () => {
             )}
           </Link>
 
-          {/* Wishlist with Custom Image */}
-          <Link to="/wishlist" className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
+          <Link
+            to="/wishlist"
+            onClick={handleWishlistClick}
+            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+          >
             <img
               src="/home/wishlist-icon.png"
               alt="Wishlist"
@@ -72,11 +120,10 @@ const CustomerHeader = () => {
             <span className="text-sm font-medium">Wishlist</span>
           </Link>
 
-          {/* Profile Section with Round Image and Down Arrow */}
           <div className="relative">
             <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800"
+              onClick={toggleDropdown}
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 z-20"
             >
               <img
                 src={profileImage}
@@ -90,7 +137,7 @@ const CustomerHeader = () => {
               <FaAngleDown className="text-sm" />
             </button>
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-10">
+              <div className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-50">
                 <Link to="/profile" className="flex items-center px-4 py-2 hover:bg-gray-100">
                   <img
                     src="/home/profile-icon.png"
@@ -99,7 +146,7 @@ const CustomerHeader = () => {
                   />
                   Profile
                 </Link>
-                <Link to="/orders" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                <Link to="/dashboard/orders" className="flex items-center px-4 py-2 hover:bg-gray-100">
                   <img
                     src="/home/orders-icon.png"
                     alt="Orders Icon"
@@ -123,7 +170,11 @@ const CustomerHeader = () => {
                   />
                   Support
                 </Link>
-                <Link to="/dashboard/settings" className="flex items-center px-4 py-2 hover:bg-gray-100">
+                <Link
+                  to="/dashboard/settings"
+                  onClick={handleProfileSettingsClick}
+                  className="flex items-center px-4 py-2 hover:bg-gray-100"
+                >
                   <img
                     src="/home/settings-icon.png"
                     alt="Settings Icon"
@@ -149,9 +200,9 @@ const CustomerHeader = () => {
       ) : (
         <div className="space-x-4">
           <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
-            Sign Up
-          </Link>
-          <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
+      Sign Up
+    </Link>
+          <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             Login
           </Link>
         </div>
