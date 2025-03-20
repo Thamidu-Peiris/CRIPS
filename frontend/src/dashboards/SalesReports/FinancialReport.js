@@ -47,10 +47,13 @@ const FinancialReport = () => {
                 </div>
         
                 <div className="ml-auto bg-white shadow-lg rounded-lg p-5 text-center border h-[205px] w-[300px]">
-                    <p className="font-semibold">Export File(Last month)</p>
-                    <h2 className="text-2xl font-bold">R</h2>
+                    <p className="font-bold mb-2">Export File(Last month)</p>
+                    <h2 className="text-s font-semibold">Download as Excel Spreadsheet</h2>
+                    <h2 className="text-s font-semibold">Download as PDF</h2>
                     
                 </div>
+
+                    
             </div>    
 
             </div>

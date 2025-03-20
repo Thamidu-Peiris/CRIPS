@@ -38,17 +38,18 @@ const SalesManagerDashboard = () => {
   return (
     <div className="flex h-parent">
       {/* Sidebar */}
-      <div className="w-1/6 bg-gray-300 p-5">
+      <div className="w-[275px] bg-gray-300 p-5">
         <h2 className="text-xl font-bold mb-5">Side Bar</h2>
         <ul className="space-y-5">
-          <li><Link to="/" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Home</Link></li>
-          <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Financial Report</Link></li>
-          <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Products Report</Link></li>
-          <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Customer Reports</Link></li>
-          <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Employee Salary Sheet</Link></li>
-          <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Settings</Link></li>
+          <li><Link to="/" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Home</Link></li>
+          <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Financial Report</Link></li>
+          <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
+          <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
+          <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet</Link></li>
+          <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300"> ⚙ Settings</Link></li>
         </ul>
       </div>
+
 
       {/* Main Content */}
       <div className="w-4/5 p-10 text-center">
