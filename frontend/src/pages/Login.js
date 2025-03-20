@@ -1,10 +1,10 @@
-// CRIPS\frontend\src\pages\CustomerLogin.js
+// CRIPS\frontend\src\pages\Login.js
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import CustomerHeader from "../components/CustomerHeader";
 
-const CustomerLogin = () => {
+const Login = () => {
   const [formData, setFormData] = useState({
     emailOrUsername: "",
     password: "",
@@ -122,4 +122,4 @@ const CustomerLogin = () => {
   );
 };
 
-export default CustomerLogin;
+export default Login;
