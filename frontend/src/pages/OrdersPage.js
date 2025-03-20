@@ -34,7 +34,7 @@ const OrdersPage = () => {
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/orders" className="text-gray-600">Orders</Link>
+          <Link to="/careers" className="text-gray-600">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
