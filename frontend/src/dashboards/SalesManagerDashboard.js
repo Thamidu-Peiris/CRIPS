@@ -1,5 +1,6 @@
 // CRIPS\frontend\src\dashboards\SalesManagerDashboard.js
 import React from "react";
+import { Link } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
 
 const data = [
@@ -22,7 +23,7 @@ const topSellingPlants = [
   { id: 2, name: "Plant 2", sold: 543, image: "plant2.jpg" },
   { id: 3, name: "Plant 3", sold: 420, image: "plant3.jpg" },
   { id: 4, name: "Plant 4", sold: 382, image: "plant4.jpg" },
-  { id: 5, name: "Plant 5", sold: 151, image: "plant5.jpg" },
+  { id: 5, name: "Plant 5", sold: 151, image: "hero-image2.jpg" },
 ];
 
 const recentOrders = [
@@ -39,10 +40,13 @@ const SalesManagerDashboard = () => {
       {/* Sidebar */}
       <div className="w-1/6 bg-gray-300 p-5">
         <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-        <ul className="space-y-4">
-          {["Home", "Financial Report", "Product Performance Report", "Customer Report", "Salary Sheet", "Account Settings"].map((item) => (
-            <li key={item} className="cursor-pointer hover:text-green-600">{item}</li>
-          ))}
+        <ul className="space-y-5">
+          <li><Link to="/" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Home</Link></li>
+          <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Financial Report</Link></li>
+          <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Products Report</Link></li>
+          <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Customer Reports</Link></li>
+          <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Employee Salary Sheet</Link></li>
+          <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Settings</Link></li>
         </ul>
       </div>
 
@@ -56,13 +60,13 @@ const SalesManagerDashboard = () => {
           <div className="bg-white shadow-lg rounded-lg p-5 text-center border">
             <p className="font-semibold">Sales Summary (Last 7 days)</p>
             <h2 className="text-2xl font-bold">345 Units</h2>
-            <button className="text-blue-500 mt-2">See details</button>
+            <button> <Link to="/ProductReport" className="text-blue-500 mt-2"> See details</Link></button>
           </div>
 
           <div className="bg-white shadow-lg rounded-lg p-5 text-center border">
             <p className="font-semibold">Total Revenue (Last month)</p>
             <h2 className="text-2xl font-bold">Rs. 26,500</h2>
-            <button className="text-blue-500 mt-2">See details</button>
+            <button><Link to="/FinancialReport" className="text-blue-500 mt-2">See details</Link></button>
           </div>
         </div>
 
@@ -84,7 +88,7 @@ const SalesManagerDashboard = () => {
         <div className="p-10 mt-10 bg-gray-100 p-5 rounded-lg shadow-lg mb-10">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Top Selling Plants</h2>
-            <button className="text-blue-500">See details</button>
+            <button> <Link to ="/ProductReport" className="text-blue-500">See details</Link></button>
           </div>
           <div className="flex justify-around">
             {topSellingPlants.map((plant) => (
@@ -103,7 +107,7 @@ const SalesManagerDashboard = () => {
         <div className="p-20 bg-gray-100 p-5 rounded-lg shadow-lg">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Recent Orders</h2>
-            <button className="text-blue-500">See details</button>
+            <button> <Link to="/CustomerReport" className="text-blue-500">See details</Link></button>
           </div>
           <table className="w-full border-collapse border border-gray-300">
             <thead>

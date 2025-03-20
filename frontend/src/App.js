@@ -31,6 +31,10 @@ import CustomerChangePassword from "../../frontend/src/dashboards/Customer/Custo
 import UserProfile from "./dashboards/Customer/UserProfile";
 import SmDashboard from './dashboards/SM/dashboard.js';
 import RegisterSystemManager from './pages/smRegister.js';
+import FinancialReport from './dashboards/SalesReports/FinancialReport.js';
+import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
+import ProductReport from './dashboards/SalesReports/ProductReport.js';
+import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 
 
 
@@ -72,7 +76,10 @@ function App() {
         <Route path="/profile" element={<UserProfile />} />
         <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashb
         <Route path="/SMregister" element={<RegisterSystemManager />} />
-
+        <Route path="/financialreport" element={<FinancialReport />} />
+        <Route path="/productreport" element={<ProductReport />} />
+        <Route path="/customerreport" element={<CustomerReport />} />
+        <Route path="/salarysheet" element={<SalarySheet />} />
 
       </Routes>
     </Router>
