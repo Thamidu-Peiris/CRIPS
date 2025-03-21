@@ -2,21 +2,29 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+const incstatement = [
+    {date: "01/03/2025", description: "Balance B/F",  income: 12000, expense: "-", balance: 12000},
+    {date: "01/03/2025", description: "Balance B/F",  income: 12000, expense: "-", balance: 12000},
+    {date: "01/03/2025", description: "Balance B/F",  income: 12000, expense: "-", balance: 12000},
+    {date: "01/03/2025", description: "Balance B/F",  income: 12000, expense: "-", balance: 12000},
+    {date: "01/03/2025", description: "Balance B/F",  income: "-", expense: "5000", balance: 12000},
+];
+
 const FinancialReport = () => {
     return (
         <div className ="flex h-parent">
-            {/*Sidebar*/}
-            <div className="w-1/6 bg-gray-300 p-5">
-            <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-            <ul className="space-y-5">
-                <li><Link to="/" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Home</Link></li>
-                <li><Link to="/financialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Financial Report</Link></li>
-                <li><Link to="/ProductsReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Products Report</Link></li>
-                <li><Link to="/customerreport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Customer Reports</Link></li>
-                <li><Link to="/salarypayroll" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Employee Salary Sheet</Link></li>
-                <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">Settings</Link></li>
-            </ul>
-            </div>
+            {/* Sidebar */}
+                  <div className="w-[275px] bg-gray-300 p-5">
+                    <h2 className="text-xl font-bold mb-5">Side Bar</h2>
+                    <ul className="space-y-5">
+                      <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard</Link></li>
+                      <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Financial Report</Link></li>
+                      <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
+                      <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
+                      <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet</Link></li>
+                      <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300"> ⚙ Settings</Link></li>
+                    </ul>
+                  </div>
 
             {/*Main Content*/}
             <div className="w-4/5 p-10 text-center">
@@ -51,10 +59,39 @@ const FinancialReport = () => {
                     <h2 className="text-s font-semibold">Download as Excel Spreadsheet</h2>
                     <h2 className="text-s font-semibold">Download as PDF</h2>
                     
-                </div>
+               </div> 
+            </div>
 
-                    
-            </div>    
+                {/*Recent Orders*/}
+                <div className="p-20 bg-gray-100 p-5 mt-10 rounded-lg shadow-lg">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-lg font-bold">Income Statement</h2>
+                    </div>
+
+                    <table className="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-200">
+                                <th className ="border border-gray-300 p-2">Date</th>
+                                <th className ="border border-gray-300 p-2">Description</th>
+                                <th className ="border border-gray-300 p-2">Income (Rs.)</th>
+                                <th className ="border border-gray-300 p-2">Expense (Rs.)</th>
+                                <th className ="border border-gray-300 p-2">Total Balance (Rs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {incstatement.map((order) => (
+                            <tr className="text-center">
+                               <td className="border border-gray-300 p-2">{order.date}</td>
+                               <td className="border border-gray-300 p-2">{order.description}</td>
+                               <td className="border border-gray-300 p-2">{order.income}</td>
+                               <td className="border border-gray-300 p-2">{order.expense}</td>
+                               <td className="border border-gray-300 p-2">{order.balance}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                </div>    
 
             </div>
 

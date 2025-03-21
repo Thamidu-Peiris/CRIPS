@@ -41,7 +41,7 @@ const SalesManagerDashboard = () => {
       <div className="w-[275px] bg-gray-300 p-5">
         <h2 className="text-xl font-bold mb-5">Side Bar</h2>
         <ul className="space-y-5">
-          <li><Link to="/" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Home</Link></li>
+          <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard</Link></li>
           <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Financial Report</Link></li>
           <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
           <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
@@ -52,7 +52,31 @@ const SalesManagerDashboard = () => {
 
 
       {/* Main Content */}
-      <div className="w-4/5 p-10 text-center">
+      <div className="w-4/5 p-10 text-center relative">
+      {/* Top-left "My Account" Button */}
+       <div className="absolute top-0 right-0 p-4">
+        <button className="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+         <img
+           src="/default-profile.png"
+           alt="Profile"
+           className="w-8 h-8 object-cover rounded-full"
+          />
+          <span className="text-sm font-medium">Sales Manager</span>
+          <svg
+              stroke="currentColor"
+              fill="currentColor"
+              strokeWidth="0"
+              viewBox="0 0 320 512"
+              className="text-sm"
+              height="1em"
+              width="1em"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path>
+            </svg>
+        </button>
+      </div>
+
         <h1 className="text-3xl font-bold text-green-600">Sales and Report Dashboard Page</h1>
         <p>Welcome to the Sales Dashboard</p>
 
