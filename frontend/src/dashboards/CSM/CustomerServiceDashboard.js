@@ -3,14 +3,16 @@ import React, { useState, useEffect } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from "chart.js";
 import axios from "axios";
-import CSMNavbar from "../../components/CSMNavbar"; // Updated import path
-import CSMSidebar from "../../components/CSMSidebar"; // Updated import path
+import { useNavigate } from "react-router-dom"; // Added import for navigation
+import CSMNavbar from "../../components/CSMNavbar";
+import CSMSidebar from "../../components/CSMSidebar";
 
 // Register Chart.js components
 Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const CustomerServiceDashboard = () => {
   const [orders, setOrders] = useState([]);
+  const [tickets, setTickets] = useState([]); // Added state for tickets
   const [stats, setStats] = useState({
     totalOrders: 250,
     newOrders: 65,
@@ -18,7 +20,9 @@ const CustomerServiceDashboard = () => {
     completedOrders: 126,
     pendingOrders: 40,
     activeOrders: 85,
+    pendingTickets: 0, // Added pendingTickets to stats
   });
+  const navigate = useNavigate(); // Added navigate hook
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -29,7 +33,23 @@ const CustomerServiceDashboard = () => {
         console.error("Error fetching orders:", error);
       }
     };
+
+    const fetchTickets = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/support");
+        const pendingTicketsCount = response.data.filter(ticket => ticket.status === "Pending").length;
+        setTickets(response.data);
+        setStats(prevStats => ({
+          ...prevStats,
+          pendingTickets: pendingTicketsCount
+        }));
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+      }
+    };
+
     fetchOrders();
+    fetchTickets();
   }, []);
 
   // Bar Chart Data (Orders Over Time)
@@ -96,8 +116,13 @@ const CustomerServiceDashboard = () => {
     },
   };
 
+  // Handle navigation to support tickets
+  const handlePendingTicketsClick = () => {
+    navigate("/dashboard/support-tickets");
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-200">
       {/* Sidebar */}
       <CSMSidebar />
 
@@ -107,14 +132,24 @@ const CustomerServiceDashboard = () => {
         <CSMNavbar />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-6"> {/* Changed to 5 columns */}
           {[
             { title: "Total Orders", value: stats.totalOrders },
             { title: "New Orders", value: stats.newOrders },
             { title: "Pending Payments", value: stats.pendingPayments },
             { title: "Completed Orders", value: stats.completedOrders },
+            { 
+              title: "Pending Tickets", 
+              value: stats.pendingTickets,
+              onClick: handlePendingTicketsClick,
+              clickable: true
+            },
           ].map((item, index) => (
-            <div key={index} className="bg-white p-6 rounded-2xl shadow-md text-center">
+            <div 
+              key={index} 
+              className={`bg-white p-6 rounded-2xl shadow-md text-center ${item.clickable ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+              onClick={item.onClick}
+            >
               <h3 className="text-lg font-semibold">{item.title}</h3>
               <p className="text-3xl font-bold text-blue-600">{item.value}</p>
             </div>
