@@ -11,7 +11,7 @@ const supportRoutes = require("./routes/customer/supportRoutes");
 const path = require('path'); // Import the path mo
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
-
+const growerHandlerPlantRoutes = require("./routes/growerHandler/plantRoutes");
 
 
 dotenv.config();
@@ -44,6 +44,7 @@ app.use('/api', contactRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", supportRoutes);
 app.use('/api/auth', authRoutes);
+app.use("/api/grower-handler", growerHandlerPlantRoutes);
 app.use(cors({
   origin: ["http://localhost:5173", "http://localhost:3000"],
   credentials: true
