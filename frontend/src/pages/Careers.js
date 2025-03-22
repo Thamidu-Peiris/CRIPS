@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+// frontend/src/pages/Careers.js
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CustomerHeader from "../components/CustomerHeader";
 
 const Careers = () => {
-  const [jobs, setJobs] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState("");
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ const Careers = () => {
     firstName: "",
     lastName: "",
     username: "",
-    addressLine1: "", // Split address into multiple fields
+    addressLine1: "",
     addressLine2: "",
     city: "",
     state: "",
@@ -22,26 +22,15 @@ const Careers = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    startDate: "", // New field: When can you start?
-    coverLetter: null, // File upload for cover letter
-    resume: null, // File upload for resume
+    startDate: "",
+    coverLetter: null,
+    resume: null,
     termsAccepted: false,
   });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
-
-  // Fetch job opportunities (mocked for now)
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/jobs");
-        setJobs(response.data.data);
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-      }
-    };
-    fetchJobs();
-  }, []);
 
   const mockJobs = [
     {
@@ -70,6 +59,8 @@ const Careers = () => {
     setSelectedJob(jobTitle);
     setFormData({ ...formData, jobTitle });
     setIsPopupOpen(true);
+    setError("");
+    setIsSubmitting(false);
   };
 
   const handleChange = (e) => {
@@ -101,40 +92,71 @@ const Careers = () => {
       resume: null,
       termsAccepted: false,
     });
+    setError("");
+    setIsSubmitting(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    if (!formData.termsAccepted) {
-      alert("Please accept the Terms and Privacy Policy.");
+    if (isSubmitting) return;
+    setError("");
+    setIsSubmitting(true);
+
+    // Client-side validation for startDate
+    const today = new Date();
+    const selectedStartDate = new Date(formData.startDate);
+    if (selectedStartDate <= today) {
+      setError("Start date must be in the future");
+      setIsSubmitting(false);
       return;
     }
 
-    // Prepare form data for file uploads
+    // Validate password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate terms acceptance
+    if (!formData.termsAccepted) {
+      setError("Please accept the Terms and Privacy Policy");
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Construct FormData
     const formDataToSend = new FormData();
     for (const key in formData) {
-      if (formData[key]) {
+      if (formData[key] !== null && formData[key] !== undefined) {
         formDataToSend.append(key, formData[key]);
       }
     }
+
+    // Log FormData for debugging in a readable format
+    console.log("Submitting FormData:");
+    const formDataEntries = {};
+    for (let pair of formDataToSend.entries()) {
+      formDataEntries[pair[0]] = pair[1];
+    }
+    console.table(formDataEntries);
 
     try {
       const response = await axios.post("http://localhost:5000/api/jobs/apply", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       if (response.data.success) {
-        alert("Application submitted successfully!");
+        alert("Application submitted successfully! Awaiting admin approval. You can check your application status.");
         setIsPopupOpen(false);
         handleClear();
-        navigate("/login");
+        navigate("/check-status");
       }
     } catch (error) {
       console.error("Error submitting application:", error);
-      alert("Failed to submit application. Please try again.");
+      const errorMessage = error.response?.data?.message || "Failed to submit application. Please check your input and try again.";
+      setError(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -147,50 +169,40 @@ const Careers = () => {
           CRIPS
         </div>
         <div className="space-x-6">
-          <Link to="/" className="text-teal-600 font-medium">Home</Link>
+          <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-teal-600 font-bold">Careers</Link>
+          <Link to="/careers" className="text-green-600 font-bold">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
+          <Link to="/check-status" className="text-gray-600">Check Status</Link>
         </div>
-        {JSON.parse(localStorage.getItem("userInfo")) ? (
-          <CustomerHeader />
-        ) : (
-          <div className="space-x-4">
-            <Link to="/customerregister" className="border px-4 py-2 rounded text-teal-600 border-teal-600">
-              Sign Up
-            </Link>
-            <Link to="/login" className="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">
-              Login
-            </Link>
-          </div>
-        )}
+        <CustomerHeader />
       </nav>
 
       {/* Breadcrumb */}
       <div className="text-gray-500 mb-4 p-6">
-        <Link to="/" className="hover:underline">Home</Link> / Careers
+        <Link to="/">Home</Link> / Careers
       </div>
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto py-12 px-4">
-        <h1 className="text-4xl font-bold text-center text-teal-600 mb-10">Join Our Team at CRIPS</h1>
+        <h1 className="text-4xl font-bold text-center text-green-600 mb-10">Join Our Team at CRIPS</h1>
         <p className="text-center text-gray-600 mb-12">
           Be a part of our mission to bring the beauty of aqua plants to the world. Explore exciting career opportunities below!
         </p>
 
         {/* Job Opportunities Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {(jobs.length > 0 ? jobs : mockJobs).map((job, index) => (
+          {mockJobs.map((job, index) => (
             <div
               key={index}
               className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300"
             >
-              <h3 className="text-xl font-semibold text-teal-600 mb-2">{job.title}</h3>
+              <h3 className="text-xl font-semibold text-green-600 mb-2">{job.title}</h3>
               <p className="text-gray-600 mb-4">{job.description}</p>
               <button
                 onClick={() => handleApplyClick(job.title)}
-                className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors duration-300"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300"
               >
                 Apply Now
               </button>
@@ -199,13 +211,20 @@ const Careers = () => {
         </div>
       </div>
 
-      {/* Updated Popup Form */}
+      {/* Popup Form */}
       {isPopupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border-t-4 border-teal-600">
-            <h2 className="text-2xl font-bold text-center text-teal-600 mb-6">
+          <div className="bg-white p-8 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border-t-4 border-green-600">
+            <h2 className="text-2xl font-bold text-center text-green-600 mb-6">
               Employee Application - {selectedJob}
             </h2>
+            {/* Display error message prominently */}
+            {error && (
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+                <p className="font-semibold">Error:</p>
+                <p>{error}</p>
+              </div>
+            )}
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div>
@@ -218,7 +237,7 @@ const Careers = () => {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="First Name"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -229,7 +248,7 @@ const Careers = () => {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Last Name"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -240,7 +259,7 @@ const Careers = () => {
                       value={formData.username}
                       onChange={handleChange}
                       placeholder="Username"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -259,7 +278,7 @@ const Careers = () => {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="Email"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -270,7 +289,7 @@ const Careers = () => {
                       value={formData.phoneNumber}
                       onChange={handleChange}
                       placeholder="Phone Number"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -288,7 +307,7 @@ const Careers = () => {
                       value={formData.addressLine1}
                       onChange={handleChange}
                       placeholder="Address Line 1"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -299,7 +318,7 @@ const Careers = () => {
                       value={formData.addressLine2}
                       onChange={handleChange}
                       placeholder="Address Line 2 (Optional)"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -310,7 +329,7 @@ const Careers = () => {
                         value={formData.city}
                         onChange={handleChange}
                         placeholder="City"
-                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                         required
                       />
                     </div>
@@ -321,7 +340,7 @@ const Careers = () => {
                         value={formData.state}
                         onChange={handleChange}
                         placeholder="State"
-                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                         required
                       />
                     </div>
@@ -334,7 +353,7 @@ const Careers = () => {
                         value={formData.postalCode}
                         onChange={handleChange}
                         placeholder="Postal Code"
-                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                         required
                       />
                     </div>
@@ -344,7 +363,7 @@ const Careers = () => {
                         name="country"
                         value={formData.country}
                         onChange={handleChange}
-                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                         required
                       >
                         <option value="">Select Country</option>
@@ -352,7 +371,6 @@ const Careers = () => {
                         <option value="Canada">Canada</option>
                         <option value="UK">UK</option>
                         <option value="Australia">Australia</option>
-                        {/* Add more countries as needed */}
                       </select>
                     </div>
                   </div>
@@ -370,8 +388,9 @@ const Careers = () => {
                       type="date"
                       value={formData.startDate}
                       onChange={handleChange}
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
+                      min={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                   <div>
@@ -380,7 +399,7 @@ const Careers = () => {
                       name="coverLetter"
                       type="file"
                       onChange={handleChange}
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                   </div>
                   <div>
@@ -389,7 +408,7 @@ const Careers = () => {
                       name="resume"
                       type="file"
                       onChange={handleChange}
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -408,7 +427,7 @@ const Careers = () => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Password"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -420,7 +439,7 @@ const Careers = () => {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="Confirm Password"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
                   </div>
@@ -434,12 +453,12 @@ const Careers = () => {
                   name="termsAccepted"
                   checked={formData.termsAccepted}
                   onChange={handleChange}
-                  className="w-4 h-4 text-teal-500 focus:ring-teal-500"
+                  className="w-4 h-4 text-green-500 focus:ring-green-500"
                   required
                 />
                 <label className="ml-2 text-gray-700">
-                  I agree to all the <a href="/terms" className="text-teal-600 hover:underline">Terms</a> and{" "}
-                  <a href="/privacy" className="text-teal-600 hover:underline">Privacy Policy</a>
+                  I agree to all the <Link to="/terms" className="text-green-600 hover:underline">Terms</Link> and{" "}
+                  <Link to="/privacy" className="text-green-600 hover:underline">Privacy Policy</Link>
                 </label>
               </div>
 
@@ -447,9 +466,12 @@ const Careers = () => {
               <div className="flex justify-between mt-6">
                 <button
                   type="submit"
-                  className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors duration-300"
+                  disabled={isSubmitting}
+                  className={`bg-green-600 text-white px-6 py-2 rounded-lg transition-colors duration-300 ${
+                    isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-green-700"
+                  }`}
                 >
-                  Submit Application
+                  {isSubmitting ? "Submitting..." : "Submit Application"}
                 </button>
                 <button
                   type="button"
