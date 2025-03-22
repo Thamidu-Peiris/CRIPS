@@ -3,14 +3,19 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import CustomerHeader from "../../components/CustomerHeader";
+import Sidebar from "../../dashboards/SM/sideBar"; // Import the same Sidebar as the dashboard
+import { FaSearch, FaArrowLeft, FaDownload, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa"; // Icons for visual appeal
 
 const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
+  const [filteredApplications, setFilteredApplications] = useState([]); // For search/filter
   const [rejectionReason, setRejectionReason] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [managerName, setManagerName] = useState(""); // State for manager's name
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const navigate = useNavigate();
 
   // Clear success message after 5 seconds
@@ -21,11 +26,17 @@ const AdminApplications = () => {
     }
   }, [successMessage]);
 
-  // Check if the user is a System Manager
+  // Fetch manager's name and check if the user is a System Manager
   useEffect(() => {
     let userInfo;
     try {
       userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (user && user.name) {
+        setManagerName(user.name);
+      } else {
+        setManagerName("System Manager");
+      }
     } catch (err) {
       console.error("Error parsing userInfo from localStorage:", err);
       navigate("/login");
@@ -63,6 +74,7 @@ const AdminApplications = () => {
           status: app.status || "pending",
         }));
         setApplications(updatedApplications);
+        setFilteredApplications(updatedApplications); // Initialize filtered applications
       } catch (error) {
         console.error("Error fetching applications:", error.response?.data || error.message);
         setError(error.response?.data?.message || "Failed to fetch applications. Please try again.");
@@ -81,6 +93,17 @@ const AdminApplications = () => {
     fetchApplications();
   }, [navigate]);
 
+  // Handle search/filter
+  useEffect(() => {
+    const filtered = applications.filter(app =>
+      app.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      app.jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredApplications(filtered);
+  }, [searchQuery, applications]);
+
   const handleAction = async (id, status) => {
     const confirmMessage = status === "approved"
       ? "Are you sure you want to approve this application?"
@@ -88,7 +111,7 @@ const AdminApplications = () => {
     if (!window.confirm(confirmMessage)) {
       return;
     }
-  
+
     try {
       setLoading(true);
       setSuccessMessage("");
@@ -128,68 +151,128 @@ const AdminApplications = () => {
   };
 
   return (
-    <div className="font-sans min-h-screen bg-gradient-to-b from-teal-50 to-blue-100">
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-          CRIPS
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar /> {/* Add the same sidebar as the dashboard */}
+      <div className="ml-64 flex-1 p-6">
+        {/* Gradient Header */}
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-lg shadow-lg mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">System Manager Dashboard - Job Applications</h1>
+              <p className="text-lg mt-2">Welcome, {managerName}!</p>
+            </div>
+            <button
+              onClick={() => navigate("/sm-dashboard")} // Navigate back to dashboard
+              className="flex items-center bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition duration-300"
+            >
+              <FaArrowLeft className="mr-2" /> Back to Dashboard
+            </button>
+          </div>
         </div>
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
-          <Link to="/check-status" className="text-gray-600">Check Status</Link>
-        </div>
-        <CustomerHeader />
-      </nav>
 
-      <div className="max-w-6xl mx-auto py-12 px-4">
-        <h1 className="text-4xl font-bold text-center text-green-600 mb-10">System Manager Dashboard - Job Applications</h1>
-        {error && <p className="text-center text-red-500 mb-4">{error}</p>}
-        {successMessage && <p className="text-center text-green-600 mb-4">{successMessage}</p>}
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md mx-auto">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by name, email, or job title..."
+              className="w-full p-3 pl-10 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
+
+        {/* Error and Success Messages */}
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+            <p>{error}</p>
+          </div>
+        )}
+        {successMessage && (
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+            <p>{successMessage}</p>
+          </div>
+        )}
+
+        {/* Applications List */}
         {loading ? (
           <p className="text-center text-gray-600">Loading applications...</p>
-        ) : applications.length === 0 ? (
+        ) : filteredApplications.length === 0 ? (
           <p className="text-center text-gray-600">No applications to review.</p>
         ) : (
           <div className="space-y-6">
-            {applications.map((app) => (
-              <div key={app._id} className="bg-white rounded-lg shadow-lg p-6">
-                <h3 className="text-xl font-semibold text-green-600 mb-2">{app.jobTitle}</h3>
-                <p><strong>Name:</strong> {app.firstName} {app.lastName}</p>
-                <p><strong>Username:</strong> {app.username}</p>
-                <p><strong>Email:</strong> {app.email}</p>
-                <p><strong>Phone Number:</strong> {app.phoneNumber}</p>
-                <p><strong>Address:</strong> {app.address}</p>
-                <p><strong>Start Date:</strong> {app.startDate && !isNaN(new Date(app.startDate)) ? new Date(app.startDate).toLocaleDateString() : "Not provided"}</p>
-                <p><strong>Cover Letter:</strong> {app.coverLetter ? <a href={`http://localhost:5000/${app.coverLetter}`} className="text-green-600 hover:underline">Download</a> : "Not provided"}</p>
-                <p><strong>Resume:</strong> <a href={`http://localhost:5000/${app.resume}`} className="text-green-600 hover:underline">Download</a></p>
-                <p><strong>Status:</strong> {app.status}</p>
-                {app.status && app.status.toLowerCase() === "rejected" && app.rejectionReason && (
-                  <p><strong>Rejection Reason:</strong> {app.rejectionReason}</p>
+            {filteredApplications.map((app) => (
+              <div key={app._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-blue-600">{app.jobTitle}</h3>
+                  <span
+                    className={`text-sm px-3 py-1 rounded-full ${
+                      app.status.toLowerCase() === "approved"
+                        ? "bg-green-100 text-green-700"
+                        : app.status.toLowerCase() === "pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                    } flex items-center`}
+                  >
+                    {app.status.toLowerCase() === "approved" && <FaCheckCircle className="mr-1" />}
+                    {app.status.toLowerCase() === "pending" && <FaHourglassHalf className="mr-1" />}
+                    {app.status.toLowerCase() === "rejected" && <FaTimesCircle className="mr-1" />}
+                    {app.status}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p><strong>Name:</strong> {app.firstName} {app.lastName}</p>
+                    <p><strong>Username:</strong> {app.username}</p>
+                    <p><strong>Email:</strong> {app.email}</p>
+                    <p><strong>Phone Number:</strong> {app.phoneNumber}</p>
+                  </div>
+                  <div>
+                    <p><strong>Address:</strong> {app.address}</p>
+                    <p><strong>Start Date:</strong> {app.startDate && !isNaN(new Date(app.startDate)) ? new Date(app.startDate).toLocaleDateString() : "Not provided"}</p>
+                    <p>
+                      <strong>Cover Letter:</strong>{" "}
+                      {app.coverLetter ? (
+                        <a href={`http://localhost:5000/${app.coverLetter}`} className="text-blue-600 hover:underline flex items-center">
+                          <FaDownload className="mr-1" /> Download
+                        </a>
+                      ) : (
+                        "Not provided"
+                      )}
+                    </p>
+                    <p>
+                      <strong>Resume:</strong>{" "}
+                      <a href={`http://localhost:5000/${app.resume}`} className="text-blue-600 hover:underline flex items-center">
+                        <FaDownload className="mr-1" /> Download
+                      </a>
+                    </p>
+                  </div>
+                </div>
+                {app.status.toLowerCase() === "rejected" && app.rejectionReason && (
+                  <p className="mt-4 text-red-600"><strong>Rejection Reason:</strong> {app.rejectionReason}</p>
                 )}
                 {console.log("Application status for", app._id, ":", app.status)}
-                {app.status && app.status.toLowerCase() === "pending" ? (
+                {app.status.toLowerCase() === "pending" ? (
                   <div className="mt-4 flex space-x-4">
                     <button
                       onClick={() => handleAction(app._id, "approved")}
-                      className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 font-medium"
+                      className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
-                      {loading ? "Processing..." : "Approve"}
+                      <FaCheckCircle className="mr-2" /> {loading ? "Processing..." : "Approve"}
                     </button>
                     <button
                       onClick={() => setSelectedApplicationId(app._id)}
-                      className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300 font-medium"
+                      className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
-                      {loading ? "Processing..." : "Reject"}
+                      <FaTimesCircle className="mr-2" /> {loading ? "Processing..." : "Reject"}
                     </button>
                   </div>
                 ) : (
-                  app.status && <p className="mt-4 text-gray-500">Action not available for status: {app.status}</p>
+                  <p className="mt-4 text-gray-500">Action not available for status: {app.status}</p>
                 )}
                 {selectedApplicationId === app._id && (
                   <div className="mt-4">
@@ -198,7 +281,7 @@ const AdminApplications = () => {
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                       placeholder="Enter reason for rejection"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       rows="3"
                       required
                       disabled={loading}
