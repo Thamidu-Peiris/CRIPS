@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Careers from "./pages/Careers"; 
-import CustomerLogin from './pages/CustomerLogin';
+import Login from './pages/Login.js';
 import CustomerRegister from "./pages/CustomerRegister";
 import Shops from './dashboards/Customer/Shop';// customerdashboard
 import Layout from './components/Layout';
@@ -9,7 +9,6 @@ import Cart from "./components/Cart";
 import OrdersPage from "./pages/OrdersPage"; 
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
-import EmployeeLogin from "./pages/EmployeeLogin";
 import CustomerServiceDashboard from "./dashboards/CSM/CustomerServiceDashboard";
 import GrowerHandlerDashboard from "./dashboards/GrowerHandlerDashboard";
 import CuttersDashboard from "./dashboards/CuttersDashboard";
@@ -27,6 +26,16 @@ import ManageSupportTickets from "./dashboards/CSM/ManageSupportTickets"; // ✅
 import Conversation from "./dashboards/CSM/Conversation";
 import PlantDetails from "./dashboards/Customer/PlantDetails";
 import Shop from "./dashboards/Customer/Shop";
+import UserProfileSettings from "./dashboards/Customer/UserProfileSettings";
+import CustomerChangePassword from "../../frontend/src/dashboards/Customer/CustomerChangePassword";
+import UserProfile from "./dashboards/Customer/UserProfile";
+import SmDashboard from './dashboards/SM/dashboard.js';
+import RegisterSystemManager from './pages/smRegister.js';
+import FinancialReport from './dashboards/SalesReports/FinancialReport.js';
+import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
+import ProductReport from './dashboards/SalesReports/ProductReport.js';
+import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
+
 
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 
@@ -37,17 +46,15 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/login" element={<CustomerLogin />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/Careers" element={<Careers />} />
         <Route path="/customerregister" element={<CustomerRegister />} />
         <Route path="/shop" element={<Shop/>} />
-        <Route path="/login" element={<CustomerLogin />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="dashboard/orders" element={<OrdersPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
-        <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
@@ -64,7 +71,15 @@ function App() {
         <Route path="/dashboard/support/:id" element={<ViewTicket />} />
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
         <Route path="/plant/:id" element={<PlantDetails />} />
-        
+        <Route path="/dashboard/settings" element={<UserProfileSettings />} />
+        <Route path="/customer/change-password" element={<CustomerChangePassword />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashb
+        <Route path="/SMregister" element={<RegisterSystemManager />} />
+        <Route path="/financialreport" element={<FinancialReport />} />
+        <Route path="/productreport" element={<ProductReport />} />
+        <Route path="/customerreport" element={<CustomerReport />} />
+        <Route path="/salarysheet" element={<SalarySheet />} />
 
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
