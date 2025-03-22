@@ -10,7 +10,6 @@ import OrdersPage from "./pages/OrdersPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import CustomerServiceDashboard from "./dashboards/CSM/CustomerServiceDashboard";
-import GrowerHandlerDashboard from "./dashboards/GrowerHandlerDashboard";
 import CuttersDashboard from "./dashboards/CuttersDashboard";
 import InventoryManagerDashboard from "./dashboards/InventoryManagerDashboard";
 import SalesManagerDashboard from "./dashboards/SalesManagerDashboard";
@@ -35,10 +34,12 @@ import FinancialReport from './dashboards/SalesReports/FinancialReport.js';
 import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
-
-
-import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
-
+import GrowerHandlerDashboard from "./dashboards/GrowerHandler/GrowerHandlerDashboard.js";
+import GHProfileSettings from "./dashboards/GrowerHandler/GHProfileSettings.js";
+import GHUpdateProfile from "./dashboards/GrowerHandler/GHUpdateProfile.js";
+import GHChangePassword from "./dashboards/GrowerHandler/GHChangePassword.js";
+import AddCategory from "./dashboards/GrowerHandler/AddCategory";
+import ManageCategories from "./dashboards/GrowerHandler/ManageCategories";
 
 
 function App() {
@@ -80,9 +81,13 @@ function App() {
         <Route path="/productreport" element={<ProductReport />} />
         <Route path="/customerreport" element={<CustomerReport />} />
         <Route path="/salarysheet" element={<SalarySheet />} />
+        <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
+        <Route path="/grower-handler/profile-settings" element={<GHProfileSettings />} />
+        <Route path="/grower-handler/update-profile" element={<GHUpdateProfile />} />
+        <Route path="/grower-handler/change-password" element={<GHChangePassword />} />
+        <Route path="/grower-handler/add-category" element={<AddCategory />} />
+        <Route path="/grower-handler/manage-categories" element={<ManageCategories />} />
 
-        <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
-        <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
 
       </Routes>
     </Router>
