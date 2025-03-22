@@ -1,7 +1,8 @@
+// CRIPS\frontend\src\pages\ContactPage.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaShoppingCart } from "react-icons/fa";
 import axios from "axios"; // Import Axios
+import CustomerHeader from "../components/CustomerHeader"; // Adjust the import path based on your structure
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -60,34 +61,14 @@ const ContactPage = () => {
           <Link to="/contact" className="text-gray-600 font-bold">Contact Us</Link>
         </div>
 
-        {/* 🔹 Cart & User Authentication */}
-        <div className="flex items-center space-x-4">
-          {/* Cart Icon */}
-          <Link to="/cart">
-            <FaShoppingCart className="text-gray-600 text-xl cursor-pointer" />
-          </Link>
-
-          {/* Show Sign Up & Login if NOT logged in */}
-          {!userInfo ? (
-            <div className="space-x-4">
-              <Link to="/customerregister" className="border px-4 py-2 rounded text-green-600">
-                Sign Up
-              </Link>
-              <Link to="/login" className="bg-green-600 text-white px-4 py-2 rounded">
-                Login
-              </Link>
-            </div>
-          ) : (
-            // Show Profile Icon if Logged In
-            <div className="relative">
-              <button className="flex items-center bg-gray-200 px-4 py-2 rounded-full">
-                <span className="mr-2">{userInfo.username}</span>
-                <img src="/profile-icon.png" alt="Profile" className="h-8 w-8 rounded-full" />
-              </button>
-            </div>
-          )}
-        </div>
+        {/* 🔹 Customer Header */}
+        <CustomerHeader />
       </nav>
+
+      {/* 🔹 Breadcrumb Navigation (Optional) */}
+      <div className="text-gray-500 mb-4 p-6">
+        <Link to="/" className="hover:underline">Home</Link> / Contact Us
+      </div>
 
       {/* 🔹 Contact Form */}
       <div className="max-w-3xl mx-auto bg-white shadow-lg p-8 mt-10 rounded-lg">

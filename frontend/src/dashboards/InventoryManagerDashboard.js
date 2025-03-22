@@ -1,3 +1,4 @@
+// CRIPS\frontend\src\dashboards\InventoryManagerDashboard.js
 import React from "react";
 
 const InventoryManagerDashboard = () => {

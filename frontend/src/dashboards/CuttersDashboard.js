@@ -1,3 +1,4 @@
+// CRIPS\frontend\src\dashboards\CuttersDashboard.js
 import React from "react";
 
 const CuttersDashboard = () => {

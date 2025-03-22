@@ -1,3 +1,4 @@
+//CRIPS\frontend\src\dashboards\CSM\KnowledgeBase.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FiEdit, FiTrash, FiPlusCircle } from "react-icons/fi";

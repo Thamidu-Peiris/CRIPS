@@ -1,3 +1,4 @@
+//CRIPS\frontend\src\components\CSMNavbar.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdNotificationsNone } from "react-icons/md";
@@ -10,7 +11,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
-    navigate("/employee-login");
+    navigate("/login");
   };
 
   return (
