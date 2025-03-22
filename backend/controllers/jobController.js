@@ -1,4 +1,4 @@
-// backend/controllers/jobController.js
+// CRIPS\backend\controllers\jobController.js
 const JobApplication = require("../models/JobApplication");
 const CustomerServiceManager = require("../models/csm/csmModel");
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
@@ -149,26 +149,10 @@ exports.submitJobApplication = async (req, res) => {
     });
 
     await application.save();
+    console.log("Application saved to jobapplications collection:", application);
 
-    // Optionally save to the role-specific model (e.g., CustomerServiceManager)
-    const RoleModel = roleModelMap[jobTitle];
-    if (RoleModel) {
-      const roleApplication = new RoleModel({
-        jobTitle,
-        firstName,
-        lastName,
-        username,
-        address,
-        phoneNumber,
-        email,
-        password: hashedPassword,
-        role: jobTitle,
-      });
-      await roleApplication.save();
-      console.log(`Application also saved to ${jobTitle} model`);
-    } else {
-      console.log(`No role-specific model found for jobTitle: ${jobTitle}`);
-    }
+    // Do not save to the role-specific collection here
+    console.log(`Application for ${jobTitle} will be saved to role-specific collection only after approval`);
 
     res.status(201).json({ success: true, message: "Application submitted successfully. Awaiting admin approval." });
   } catch (error) {
@@ -176,10 +160,6 @@ exports.submitJobApplication = async (req, res) => {
     res.status(500).json({ success: false, message: "Error submitting application", error: error.message });
   }
 };
-
-
-
-
 
 exports.getAllApplications = async (req, res) => {
   try {
@@ -193,8 +173,6 @@ exports.getAllApplications = async (req, res) => {
   }
 };
 
-  
-  
 exports.updateApplicationStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -234,13 +212,10 @@ exports.updateApplicationStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: "Application not found" });
     }
 
-
-
     // If the application is approved, add the applicant to the role-specific collection
     if (normalizedStatus === "approved") {
       const RoleModel = roleModelMap[application.jobTitle];
       if (RoleModel) {
-        // Check if the applicant already exists in the role-specific collection
         const existingRoleEntry = await RoleModel.findOne({ email: application.email });
         if (!existingRoleEntry) {
           const roleApplication = new RoleModel({
@@ -251,7 +226,7 @@ exports.updateApplicationStatus = async (req, res) => {
             address: application.address,
             phoneNumber: application.phoneNumber,
             email: application.email,
-            password: application.password, // Already hashed
+            password: application.password,
             role: application.jobTitle,
           });
           await roleApplication.save();
@@ -264,9 +239,6 @@ exports.updateApplicationStatus = async (req, res) => {
       }
     }
 
-
-
-
     console.log("Application status updated:", application);
     res.status(200).json({ success: true, message: "Application status updated", data: application });
   } catch (error) {
@@ -275,18 +247,14 @@ exports.updateApplicationStatus = async (req, res) => {
   }
 };
 
-
-  
-  exports.checkApplicationStatus = async (req, res) => {
-    try {
-      const { email, username } = req.query;
-      if (!email && !username) return res.status(400).json({ success: false, message: "Email or username required" });
-      const application = await JobApplication.findOne({ $or: [{ email }, { username }] });
-      if (!application) return res.status(404).json({ success: false, message: "Application not found" });
-      res.status(200).json({ success: true, data: { status: application.status || "Pending" } });
-    } catch (error) {
-      res.status(500).json({ success: false, message: "Error checking status" });
-    }
-  };
-
-  
+exports.checkApplicationStatus = async (req, res) => {
+  try {
+    const { email, username } = req.query;
+    if (!email && !username) return res.status(400).json({ success: false, message: "Email or username required" });
+    const application = await JobApplication.findOne({ $or: [{ email }, { username }] });
+    if (!application) return res.status(404).json({ success: false, message: "Application not found" });
+    res.status(200).json({ success: true, data: { status: application.status || "Pending" } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error checking status" });
+  }
+};
