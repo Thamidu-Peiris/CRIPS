@@ -11,8 +11,7 @@ const supportRoutes = require("./routes/customer/supportRoutes");
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require("./routes/growerHandler/plantRoutes");
-const supplierRoutes = require('./routes/supplierRoutes');
-const stockRoutes = require('./routes/stockRoutes');
+const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 
 
 // Load environment variables from .env file
@@ -61,7 +60,6 @@ app.use('/api/auth', authRoutes);
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
-app.use('/api/stocks', stockRoutes);
 
 // Global error-handling middleware
 app.use((err, req, res, next) => {

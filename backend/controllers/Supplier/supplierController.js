@@ -1,4 +1,4 @@
-const Supplier = require('../models/Supplier');
+const Supplier = require('../../models/SupplierM/Suppliermodel');
 
 exports.getSuppliers = async (req, res) => {
   const suppliers = await Supplier.find();
