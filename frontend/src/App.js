@@ -28,9 +28,11 @@ import Conversation from "./dashboards/CSM/Conversation";
 import PlantDetails from "./dashboards/Customer/PlantDetails";
 import Shop from "./dashboards/Customer/Shop";
 
+//Grower  Handler
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
-
-
+import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
+import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
+import ViewPlants from "./dashboards/GrowerHandler/ViewPlants";
 
 function App() {
   return (
@@ -49,6 +51,7 @@ function App() {
         <Route path="/careers" element={<Careers />} />
         <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
+        <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
@@ -65,9 +68,12 @@ function App() {
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
         <Route path="/plant/:id" element={<PlantDetails />} />
         
-
+        //Grower Handler
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
+        <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
+        <Route path="/all-plants" element={<ViewPlants />} />
+        <Route path="/manage-plants" element={<ManagePlants />} />
 
       </Routes>
     </Router>

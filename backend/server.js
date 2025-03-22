@@ -20,10 +20,11 @@ mongoose
 
 // Import routes
 const plantRoutes = require("./routes/GrowerHandler/plantRoutes");
+const taskRoutes = require("./routes/GrowerHandler/tasks");
 
 // Use routes
-app.use("/api/growerPlants", growerPlantRoutes);
-
+app.use("/api/plants", plantRoutes);
+app.use('/api/tasks', taskRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

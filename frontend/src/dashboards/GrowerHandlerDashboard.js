@@ -24,27 +24,27 @@ const GrowerHandlerDashboard = () => {
           </button>
         </div>
 
-        {/* Update Plant Details */}
+        {/* Manage Plant Details */}
         <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
-          <h2 className="text-lg font-semibold text-blue-700">Update Plant Details</h2>
-          <p className="text-gray-500 mb-2">Modify existing plant information.</p>
+          <h2 className="text-lg font-semibold text-blue-700">Manage Plant Details</h2>
+          <p className="text-gray-500 mb-2">Update or delete existing plants.</p>
           <button 
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            onClick={() => navigate("/update-plant")}
+            onClick={() => navigate("/manage-plants")}
           >
-            Update Plant
+            Manage Plants
           </button>
         </div>
 
-        {/* Delete Plant */}
-        <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
-          <h2 className="text-lg font-semibold text-red-700">Delete a Plant</h2>
-          <p className="text-gray-500 mb-2">Remove a plant from the system.</p>
+       {/* View All Plants  */}
+       <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
+          <h2 className="text-lg font-semibold text-orange-700">View All Plants</h2>
+          <p className="text-gray-500 mb-2">See the complete plant catalog.</p>
           <button 
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700"
-            onClick={() => navigate("/delete-plant")}
+            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-700"
+            onClick={() => navigate("/all-plants")}
           >
-            Delete Plant
+            View Plants
           </button>
         </div>
 
@@ -66,21 +66,21 @@ const GrowerHandlerDashboard = () => {
           <p className="text-gray-500 mb-2">Allocate tasks to growers.</p>
           <button 
             className="bg-purple-500 text-white px-4 py-2 rounded-md hover:bg-purple-700"
-            onClick={() => navigate("/assign-tasks")}
+            onClick={() => navigate("/dashboards/GrowerHandler/assign-tasks")}
           >
             Assign
           </button>
         </div>
 
-        {/* View All Plants - NEW FEATURE */}
-        <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
-          <h2 className="text-lg font-semibold text-orange-700">View All Plants</h2>
-          <p className="text-gray-500 mb-2">See the complete plant catalog.</p>
-          <button 
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-700"
-            onClick={() => navigate("/all-plants")}
-          >
-            View Plants
+        {/* Delete Plant */}
+       <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
+      <h2 className="text-lg font-semibold text-red-700">Manage all Tasks</h2>
+      <p className="text-gray-500 mb-2">Manage and Monitor Tasks</p>
+      <button 
+      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700"
+      onClick={() => navigate("/delete-plant")}
+      >
+      Manage Tasks
           </button>
         </div>
 

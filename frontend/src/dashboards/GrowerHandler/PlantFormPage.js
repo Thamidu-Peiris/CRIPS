@@ -96,13 +96,35 @@ const PlantFormPage = () => {
           
           <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto">
             {/* Plant Name */}
-            <input type="text" name="plantName" value={formData.plantName} onChange={handleChange} required placeholder="Plant Name" className="w-full p-2 border rounded text-black placeholder-black" />
+            <input
+              type="text"
+              name="plantName"
+              value={formData.plantName}
+              onChange={handleChange}
+              required
+              placeholder="Plant Name"
+              className="w-full p-2 border rounded text-black placeholder-black"
+            />
 
             {/* Scientific Name */}
-            <input type="text" name="scientificName" value={formData.scientificName} onChange={handleChange} required placeholder="Scientific Name" className="w-full p-2 border rounded text-black placeholder-black" />
+            <input
+              type="text"
+              name="scientificName"
+              value={formData.scientificName}
+              onChange={handleChange}
+              required
+              placeholder="Scientific Name"
+              className="w-full p-2 border rounded text-black placeholder-black"
+            />
 
             {/* Species Category */}
-            <select name="speciesCategory" value={formData.speciesCategory} onChange={handleChange} required className="w-full p-2 border rounded text-black">
+            <select
+              name="speciesCategory"
+              value={formData.speciesCategory}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded text-black"
+            >
               <option value="">Select Species Category</option>
               <option value="Floating">Floating</option>
               <option value="Submerged">Submerged</option>
@@ -165,6 +187,34 @@ const PlantFormPage = () => {
               className="w-full p-2 border rounded text-black placeholder-black"
             />
 
+            {/* CO2 Requirement */}
+            <select
+              name="co2Requirement"
+              value={formData.co2Requirement}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            >
+              <option value="">Select CO2 Requirement</option>
+              <option value="None">None</option>
+              <option value="Low">Low</option>
+              <option value="Moderate">Moderate</option>
+              <option value="High">High</option>
+            </select>
+
+            {/* Fertilizer Requirement */}
+            <select
+              name="fertilizerRequirement"
+              value={formData.fertilizerRequirement}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            >
+              <option value="">Select Fertilizer Requirement</option>
+              <option value="None">None</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Biweekly">Biweekly</option>
+              <option value="Monthly">Monthly</option>
+            </select>
+
             {/* Stock Quantity */}
             <input
               type="number"
@@ -207,8 +257,50 @@ const PlantFormPage = () => {
               placeholder="Plant Image URL"
               className="w-full p-2 border rounded text-black placeholder-black"
             />
+
+            {/* Description */}
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              placeholder="Description"
+              className="w-full p-2 border rounded text-black placeholder-black"
+              rows="4"
+            />
+
+            {/* Plant Batch Status */}
+            <select
+              name="plantBatchStatus"
+              value={formData.plantBatchStatus}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            >
+              <option value="">Select Plant Batch Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Discontinued">Discontinued</option>
+            </select>
+
+            {/* Plant Availability */}
+            <select
+              name="plantAvailability"
+              value={formData.plantAvailability}
+              onChange={handleChange}
+              className="w-full p-2 border rounded text-black"
+            >
+              <option value="">Select Plant Availability</option>
+              <option value="In Stock">In Stock</option>
+              <option value="Out of Stock">Out of Stock</option>
+              <option value="Preorder">Preorder</option>
+            </select>
+
             {/* Submit Button */}
-            <button type="submit" className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600">Submit</button>
+            <button
+              type="submit"
+              className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Submit
+            </button>
           </form>
 
           {/* Success Message */}
