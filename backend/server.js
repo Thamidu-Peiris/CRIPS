@@ -12,6 +12,9 @@ const path = require('path'); // Import the path mo
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require("./routes/growerHandler/plantRoutes");
+const supplierRoutes = require('./routes/supplierRoutes');
+const stockRoutes = require('./routes/stockRoutes');
+
 
 
 dotenv.config();
@@ -50,6 +53,8 @@ app.use(cors({
   credentials: true
 }));
 app.use('/api/systemManagers', systemManagerRoutes);
+app.use('/api/suppliers', supplierRoutes);
+app.use('/api/stocks', stockRoutes);
 
 
 app.listen(PORT, () => {
