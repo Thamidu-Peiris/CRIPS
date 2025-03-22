@@ -18,7 +18,7 @@ const GrowerHandlerDashboard = () => {
           <p className="text-gray-500 mb-2">Register a new plant with its details.</p>
           <button 
             className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700"
-            onClick={() => navigate("/add-plant")}
+            onClick={() => navigate("/dashboards/GrowerHandler/plantFormPage")}
           >
             Add Plant
           </button>
@@ -72,7 +72,7 @@ const GrowerHandlerDashboard = () => {
           </button>
         </div>
 
-        {/* View All Plants */}
+        {/* View All Plants - NEW FEATURE */}
         <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
           <h2 className="text-lg font-semibold text-orange-700">View All Plants</h2>
           <p className="text-gray-500 mb-2">See the complete plant catalog.</p>
