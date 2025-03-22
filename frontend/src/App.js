@@ -37,6 +37,7 @@ import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 
 
+import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 
 
 
@@ -55,7 +56,6 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
-        <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
@@ -80,6 +80,9 @@ function App() {
         <Route path="/productreport" element={<ProductReport />} />
         <Route path="/customerreport" element={<CustomerReport />} />
         <Route path="/salarysheet" element={<SalarySheet />} />
+
+        <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
+        <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
 
       </Routes>
     </Router>
