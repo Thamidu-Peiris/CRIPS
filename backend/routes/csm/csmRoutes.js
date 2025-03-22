@@ -1,7 +1,7 @@
 // CRIPS\backend\routes\csm\jobRoutes.js
 const express = require("express");
 const router = express.Router();
-const jobController = require("../../controllers/csm/jobController");
+const jobController = require("../../controllers/csm/csmController");
 
 // Job Routes
 router.get("/profile/:id", jobController.getProfileById);

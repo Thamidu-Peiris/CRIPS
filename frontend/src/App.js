@@ -40,6 +40,8 @@ import GHUpdateProfile from "./dashboards/GrowerHandler/GHUpdateProfile.js";
 import GHChangePassword from "./dashboards/GrowerHandler/GHChangePassword.js";
 import AddCategory from "./dashboards/GrowerHandler/AddCategory";
 import ManageCategories from "./dashboards/GrowerHandler/ManageCategories";
+import AdminApplications from "./pages/SysManager/AdminApplications.js";
+
 
 
 function App() {
@@ -87,6 +89,7 @@ function App() {
         <Route path="/grower-handler/change-password" element={<GHChangePassword />} />
         <Route path="/grower-handler/add-category" element={<AddCategory />} />
         <Route path="/grower-handler/manage-categories" element={<ManageCategories />} />
+        <Route path="/admin-applications" element={<AdminApplications />} />
 
 
       </Routes>

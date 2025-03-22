@@ -1,23 +1,31 @@
-// CRIPS\backend\models\SM\SysManagerModel.js
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+// backend/models/SM/SysManagerModel.js
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 const systemManagerSchema = new mongoose.Schema({
-  UserName: { type: String, required: true, unique: true },
-  Password: { type: String, required: true },
-  Contact_No: { type: String, required: true },
-  DOB: { type: Date, required: true },
-  Email: { type: String, required: true, unique: true },
-  Address: { type: String, required: true },
-  role: { type: String, default: "SystemManager" }
+  firstName: { type: String, required: true }, // Added to match JobApplication
+  lastName: { type: String, required: true }, // Added to match JobApplication
+  username: { type: String, required: true, unique: true }, // Changed to lowercase
+  password: { type: String, required: true }, // Changed to lowercase
+  contactNo: { type: String, required: true }, // Changed to lowercase, renamed from Contact_No
+  dob: { type: Date, required: true }, // Changed to lowercase
+  email: { type: String, required: true, unique: true }, // Changed to lowercase
+  address: { type: String, required: true }, // Changed to lowercase
+  role: { 
+    type: String, 
+    enum: ["SystemManager"], // Restrict to SystemManager role
+    default: "SystemManager" 
+  },
+  profileImage: { type: String }, // Added to match JobApplication
+  createdAt: { type: Date, default: Date.now }, // Added to match JobApplication
 });
 
-// Password Hashing
+// Password Hashing Middleware
 systemManagerSchema.pre("save", async function (next) {
-  if (!this.isModified("Password")) return next();
+  if (!this.isModified("password")) return next(); // Changed to lowercase
   try {
     const salt = await bcrypt.genSalt(10);
-    this.Password = await bcrypt.hash(this.Password, salt);
+    this.password = await bcrypt.hash(this.password, salt); // Changed to lowercase
     next();
   } catch (error) {
     next(error);
