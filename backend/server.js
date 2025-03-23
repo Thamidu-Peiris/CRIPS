@@ -18,7 +18,11 @@ const stockRoutes = require('./routes/InventoryM/StockRoute');
 
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 
+const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
+
+
 const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
+
 
 const csmRoutes = require('./routes/csm/csmRoutes');
 
@@ -31,6 +35,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
+
+
+app.use('/api/grower/tasks', growerTaskRoutes);//GH tasks
+app.use('/api/users', userRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api', contactRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api", supportRoutes);
+app.use('/api/auth', authRoutes);
 
 // Middleware
 app.use(cors({

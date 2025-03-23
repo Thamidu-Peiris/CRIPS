@@ -17,7 +17,7 @@ const ManagePlants = () => {
   useEffect(() => {
     const fetchPlants = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/plants");
+        const response = await fetch("http://localhost:5000/api/grower/plants");
         if (!response.ok) {
           throw new Error("Failed to fetch plants");
         }
@@ -74,7 +74,7 @@ const ManagePlants = () => {
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:5000/api/plants/${selectedPlant._id}`, {
+      const response = await fetch(`http://localhost:5000/api/grower/plants/${selectedPlant._id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +104,7 @@ const ManagePlants = () => {
   const handleDeleteClick = async (id) => {
     if (window.confirm("Are you sure you want to delete this plant?")) {
       try {
-        const response = await fetch(`http://localhost:5000/api/plants/${id}`, {
+        const response = await fetch(`http://localhost:5000/api/grower/plants/${id}`, {
           method: "DELETE",
         });
 
