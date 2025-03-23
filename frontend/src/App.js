@@ -34,6 +34,13 @@ import FinancialReport from './dashboards/SalesReports/FinancialReport.js';
 import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
+
+
+//Grower  Handler
+import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
+import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
+import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
+import ViewPlants from "./dashboards/GrowerHandler/ViewPlants";
 import GrowerHandlerDashboard from "./dashboards/GrowerHandler/GrowerHandlerDashboard.js";
 import GHProfileSettings from "./dashboards/GrowerHandler/GHProfileSettings.js";
 import GHUpdateProfile from "./dashboards/GrowerHandler/GHUpdateProfile.js";
@@ -65,6 +72,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
+        <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
@@ -80,6 +88,8 @@ function App() {
         <Route path="/dashboard/support/:id" element={<ViewTicket />} />
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
         <Route path="/plant/:id" element={<PlantDetails />} />
+        
+        //Grower Handler
         <Route path="/dashboard/settings" element={<UserProfileSettings />} />
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
@@ -103,6 +113,11 @@ function App() {
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/supplier-form" element={<SupplierForm />} />
 
+        <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
+        <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
+        <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
+        <Route path="/all-plants" element={<ViewPlants />} />
+        <Route path="/manage-plants" element={<ManagePlants />} />
 
       </Routes>
     </Router>
