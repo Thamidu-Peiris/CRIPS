@@ -66,6 +66,7 @@ app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/stocks', stockRoutes);
 
+
 // Add the new routes
 app.use('/api/grower/plants', growerPlantRoutes); // For GrowerHandler plants
 app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
@@ -82,6 +83,7 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Global error-handling middleware
 // Example placeholder route (remove if not needed)
 // app.use('/api/grower/plants', growerPlantRoutes); // ⚠️ Define growerPlantRoutes if needed
+
 
 // Global Error Handler
 app.use((err, req, res, next) => {
