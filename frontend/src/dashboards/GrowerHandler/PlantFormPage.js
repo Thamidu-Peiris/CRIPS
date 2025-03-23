@@ -36,7 +36,7 @@ const PlantFormPage = () => {
     console.log("Submitting form:", formData); // Debugging Step 1
 
     try {
-      const response = await fetch("http://localhost:5000/api/plants", {
+      const response = await fetch("http://localhost:5000/api/grower/plants", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

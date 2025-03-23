@@ -73,7 +73,7 @@ const GrowerHandlerDashboard = () => {
           </button>
         </div>
 
-        {/* Delete Plant */}
+        {/* Manage Tasks */}
        <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">
       <h2 className="text-lg font-semibold text-red-700">Manage all Tasks</h2>
       <p className="text-gray-500 mb-2">Manage and Monitor Tasks</p>

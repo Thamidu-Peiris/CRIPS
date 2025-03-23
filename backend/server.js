@@ -14,7 +14,19 @@ const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
-const stockRoutes = require('./routes/stockRoutes');
+const stockRoutes = require('./routes/InventoryM/StockRoute');
+
+
+const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+
+const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
+
+
+const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
+
+
+const csmRoutes = require('./routes/csm/csmRoutes');
+
 
 
 // Load environment variables
@@ -23,6 +35,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
+
+
+app.use('/api/grower/tasks', growerTaskRoutes);//GH tasks
+app.use('/api/users', userRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api', contactRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api", supportRoutes);
+app.use('/api/auth', authRoutes);
 
 // Middleware
 app.use(cors({
@@ -56,12 +77,31 @@ app.use('/api/auth', authRoutes);
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
+
+app.use('/api/sales', salesReportRoutes);
+
 app.use('/api/stocks', stockRoutes);
 
+
+// Add the new routes
+app.use('/api/grower/plants', growerPlantRoutes); // For GrowerHandler plants
+app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
+//csm routes
+app.use('/api/csm', csmRoutes);
+
+// Connect to MongoDB
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Global error-handling middleware
 // Example placeholder route (remove if not needed)
 // app.use('/api/grower/plants', growerPlantRoutes); // ⚠️ Define growerPlantRoutes if needed
 
-// Global Error Handler
+
+
 app.use((err, req, res, next) => {
   console.error("Error:", err.stack);
   res.status(500).json({
@@ -71,7 +111,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
