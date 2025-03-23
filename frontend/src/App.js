@@ -42,7 +42,7 @@ import AddCategory from "./dashboards/GrowerHandler/AddCategory";
 import ManageCategories from "./dashboards/GrowerHandler/ManageCategories";
 import AdminApplications from "./pages/SysManager/AdminApplications.js";
 import SystemManagerProfile from "./pages/SysManager/profile.js";
-
+import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 
 
 function App() {
@@ -92,6 +92,7 @@ function App() {
         <Route path="/grower-handler/manage-categories" element={<ManageCategories />} />
         <Route path="/admin-applications" element={<AdminApplications />} />
         <Route path="/SMprofile" element={<SystemManagerProfile />} /> // ✅ Add Route for
+        <Route path="/reporthub" element={<ReportHub/>} />
 
 
 
