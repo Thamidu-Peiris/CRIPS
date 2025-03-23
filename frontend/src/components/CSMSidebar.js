@@ -1,3 +1,4 @@
+// CRIPS\frontend\src\components\CSMSidebar.js
 import React, { useState } from "react";
 import { MdDashboard } from "react-icons/md";
 import { FiShoppingCart, FiDollarSign, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown } from "react-icons/fi";
