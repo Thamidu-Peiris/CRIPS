@@ -13,7 +13,7 @@ const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
-
+const csmRoutes = require('./routes/csm/csmRoutes');
 
 
 // Load environment variables from .env file
@@ -79,8 +79,8 @@ app.use('/api/suppliers', supplierRoutes);
 // Add the new routes
 app.use('/api/grower/plants', growerPlantRoutes); // For GrowerHandler plants
 app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
-
-
+//csm routes
+app.use('/api/csm', csmRoutes);
 
 // Connect to MongoDB
 mongoose
