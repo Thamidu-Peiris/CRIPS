@@ -15,7 +15,7 @@ const ViewPlants = () => {
   useEffect(() => {
     const fetchPlants = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/plants");
+        const response = await fetch("http://localhost:5000/api/grower/plants");
         if (!response.ok) {
           throw new Error("Failed to fetch plants");
         }
