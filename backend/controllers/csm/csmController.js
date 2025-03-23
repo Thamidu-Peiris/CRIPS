@@ -1,6 +1,6 @@
 // CRIPS\backend\controllers\csm\csmController.js
 const bcrypt = require("bcryptjs");
-const JobApplication = require("../../models/csm/JobApplication");
+const CsmModel = require("../../models/csm/csmModel");
 const multer = require('multer');
 const path = require('path');
 
@@ -19,7 +19,7 @@ const upload = multer({ storage });
 // Fetch Profile by ID
 const getProfileById = async (req, res) => {
   try {
-    const user = await JobApplication.findById(req.params.id).select("-password");
+    const user = await CsmModel.findById(req.params.id).select("-password");
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -35,7 +35,7 @@ const updateProfile = async (req, res) => {
   try {
     const { firstName, lastName, address, phoneNumber } = req.body;
 
-    const updatedUser = await JobApplication.findById(req.params.id);
+    const updatedUser = await CsmModel.findById(req.params.id);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -63,7 +63,7 @@ const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    const user = await JobApplication.findById(req.params.id);
+    const user = await CsmModel.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -93,14 +93,14 @@ const applyForJob = async (req, res) => {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    const existingUser = await JobApplication.findOne({ email });
+    const existingUser = await CsmModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "Email already registered" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newApplication = new JobApplication({
+    const newApplication = new CsmModel({
       jobTitle,
       firstName,
       lastName,
@@ -128,7 +128,7 @@ const login = async (req, res) => {
       return res.status(400).json({ error: "Email and Password are required" });
     }
 
-    const user = await JobApplication.findOne({ email });
+    const user = await CsmModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
