@@ -1,7 +1,7 @@
-// CRIPS\backend\models\csm\JobApplication.js
+// CRIPS\backend\models\csm\csmModel.js
 const mongoose = require("mongoose");
 
-const JobApplicationSchema = new mongoose.Schema({
+const csmModelSchema = new mongoose.Schema({
   jobTitle: { type: String, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
@@ -15,4 +15,4 @@ const JobApplicationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("JobApplication", JobApplicationSchema);
+module.exports = mongoose.model("csmModel", csmModelSchema);

@@ -1,4 +1,4 @@
-// CRIPS\backend\controllers\csm\jobController.js
+// CRIPS\backend\controllers\csm\csmController.js
 const bcrypt = require("bcryptjs");
 const JobApplication = require("../../models/csm/JobApplication");
 const multer = require('multer');
