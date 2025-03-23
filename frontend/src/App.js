@@ -35,6 +35,7 @@ import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 import EmpManage from './pages/SysManager/EmpManagement.js'
+import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 
 
 //Grower  Handler
@@ -100,6 +101,7 @@ function App() {
         <Route path="/productreport" element={<ProductReport />} />
         <Route path="/customerreport" element={<CustomerReport />} />
         <Route path="/salarysheet" element={<SalarySheet />} />
+        <Route path="/reporthub/" element={<ReportHub/>}/>
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/grower-handler/profile-settings" element={<GHProfileSettings />} />
         <Route path="/grower-handler/update-profile" element={<GHUpdateProfile />} />
