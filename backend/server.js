@@ -8,11 +8,12 @@ const plantRoutes = require('./routes/customer/plantRoutes');
 const contactRoutes = require('./routes/customer/contactRoutes');
 const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
-const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
-const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
+const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
+const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+
 
 
 // Load environment variables from .env file
@@ -70,13 +71,8 @@ mongoose
   });
 
 // Routes
-app.use('/api/users', userRoutes);
-app.use('/api/plants', plantRoutes);
-app.use('/api/contact', contactRoutes); // Distinct prefix for contactRoutes
-app.use("/api/jobs", jobRoutes);
-app.use("/api/support", supportRoutes); // Distinct prefix for supportRoutes
-app.use('/api/auth', authRoutes);
-app.use("/api/grower-handler", growerHandlerPlantRoutes);
+
+app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 
@@ -103,7 +99,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
