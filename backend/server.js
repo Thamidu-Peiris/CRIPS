@@ -14,7 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
-const stockRoutes = require('./routes/stockRoutes');
+const stockRoutes = require('./routes/InventoryM/StockRoute');
 
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const csmRoutes = require('./routes/csm/csmRoutes');
