@@ -1,53 +1,5 @@
 // CRIPS\backend\controllers\SM\smController.js
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import SystemManager from "../../models/SM/SysManagerModel.js";
-
-export const loginSystemManager = async (req, res) => {
-    console.log("Login request received:", req.body);
-
-    try {
-        if (!SystemManager) {
-            console.error("SystemManager model is not defined");
-            return res.status(500).json({ message: "Server Error", error: "SystemManager model is missing" });
-        }
-
-        const { username, password } = req.body;
-        const systemManager = await SystemManager.findOne({ username });
-
-        if (!systemManager) {
-            console.log("System Manager not found:", username);
-            return res.status(404).json({ message: "System Manager not found" });
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, systemManager.password);
-
-        if (!isPasswordValid) {
-            console.log("Invalid password attempt for:", username);
-            return res.status(401).json({ message: "Invalid password" });
-        }
-
-        const token = jwt.sign({ id: systemManager._id, role: "SystemManager" }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
-        // Create userInfo object to return
-        const userInfo = {
-            id: systemManager._id,
-            email: systemManager.email,
-            username: systemManager.username,
-            firstName: systemManager.firstName || "",
-            lastName: systemManager.lastName || "",
-            profileImage: systemManager.profileImage || "",
-            role: "SystemManager",
-            token, // Include the token
-        };
-
-        console.log("Login successful for:", username);
-        res.json({ message: "Login successful", token, user: userInfo });
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ message: "Failed to login", error: error.message });
-    }
-};
 
 // ... (registerSystemManager remains unchanged)
 
@@ -66,5 +18,73 @@ export const registerSystemManager = async (req, res) => {
     } catch (error) {
         console.error("Error registering System Manager:", error);
         res.status(500).json({ message: "Failed to register system manager", error: error.message });
+    }
+};
+
+// Update Profile (Updated to include firstName and lastName)
+export const updateProfile = async (req, res) => {
+    try {
+        console.log("updateProfile called in smController.js"); // Add this log
+        const userId = req.user.id;
+        console.log("User ID:", userId); // Add this log
+        const { firstName, lastName, username, email, contactNo, dob, address } = req.body;
+        console.log("Received update data:", { firstName, lastName, username, email, contactNo, dob, address }); // Add this log
+
+        const updatedAdmin = await SystemManager.findByIdAndUpdate(
+            userId,
+            {
+                firstName,
+                lastName,
+                username,
+                email,
+                contactNo,
+                dob,
+                address,
+            },
+            { new: true, runValidators: true } // Add runValidators to ensure schema validation
+        ).select("-password -createdAt -__v");
+
+        if (!updatedAdmin) {
+            console.log("System Manager not found for userId:", userId); // Add this log
+            return res.status(404).json({ success: false, message: "System Manager not found" });
+        }
+
+        console.log("Updated admin:", updatedAdmin); // Existing log
+
+        // Format the response to match the frontend's expectation
+        const updatedProfile = {
+            firstName: updatedAdmin.firstName,
+            lastName: updatedAdmin.lastName,
+            username: updatedAdmin.username,
+            email: updatedAdmin.email,
+            contactNo: updatedAdmin.contactNo,
+            dob: updatedAdmin.dob ? updatedAdmin.dob.toISOString().split("T")[0] : "",
+            address: updatedAdmin.address,
+        };
+
+        res.json({
+            message: "Profile updated successfully",
+            updatedProfile,
+        });
+    } catch (error) {
+        console.error("Error updating admin profile:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+};
+
+
+export const getProfile = async (req, res) => {
+    try {
+        console.log("getProfile called in smProfileController.js");
+        const userId = req.user.id;
+        console.log("Fetching profile for userId:", userId);
+        const admin = await SystemManager.findById(userId).select("-password -createdAt -__v");
+        if (!admin) {
+            return res.status(404).json({ success: false, message: "System Manager not found" });
+        }
+        res.json(admin);
+    } catch (error) {
+        console.error("Error fetching admin profile:", error);
+        res.status(500).json({ success: false, message: "Server error" });
     }
 };

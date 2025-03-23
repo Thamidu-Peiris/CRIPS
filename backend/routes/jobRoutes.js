@@ -62,4 +62,4 @@ router.put("/applications/:id", authMiddleware, isSystemManager, validateObjectI
 // Public route for checking application status
 router.get("/application/status", checkApplicationStatus);
 
-module.exports = router;
+module.exports = router; 

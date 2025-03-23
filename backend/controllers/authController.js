@@ -15,7 +15,7 @@ exports.universalLogin = async (req, res) => {
     // Check System Manager
     console.log("Checking SystemManager...", SystemManager.collection.name);
     user = await SystemManager.findOne({
-      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
     });
     if (user) {
       console.log("SystemManager found:", user);
