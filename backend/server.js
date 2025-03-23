@@ -13,6 +13,7 @@ const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 
 
 
@@ -75,10 +76,12 @@ mongoose
 app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
+app.use('/api/sales', salesReportRoutes);
 
 // Add the new routes
 app.use('/api/grower/plants', growerPlantRoutes); // For GrowerHandler plants
 app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
+
 
 
 
