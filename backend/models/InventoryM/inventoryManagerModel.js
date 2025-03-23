@@ -14,4 +14,4 @@ const InventoryManagerSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("InnventoryManager", InventoryManagerSchema);
+module.exports = mongoose.models.InventoryManager || mongoose.model("InventoryManager", InventoryManagerSchema);
