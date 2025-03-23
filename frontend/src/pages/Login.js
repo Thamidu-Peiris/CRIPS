@@ -31,7 +31,7 @@ const Login = () => {
       localStorage.setItem("userInfo", JSON.stringify(response.data.user));
       localStorage.setItem("userId", response.data.user.id);
       localStorage.setItem("token", response.data.token);
-      const role = response.data.role ? response.data.role.toLowerCase() : "";
+      const role = response.data.role || ""; // Keep the role as-is (do not lowercase)
       localStorage.setItem("role", role);
 
       console.log("[DEBUG] Stored in localStorage:");
@@ -41,10 +41,10 @@ const Login = () => {
       console.log("  userInfo:", localStorage.getItem("userInfo"));
 
       // Role-based redirection
-      if (role === "systemmanager") {
+      if (role === "SystemManager") {
         console.log("[DEBUG] Redirecting to /sm-dashboard");
         navigate("/sm-dashboard");
-      } else if (role === "customer service manager") {
+      } else if (role === "Customer Service Manager") {
         console.log("[DEBUG] Redirecting to /customer-service-dashboard");
         navigate("/customer-service-dashboard");
       } else if (role === "grower handler") {

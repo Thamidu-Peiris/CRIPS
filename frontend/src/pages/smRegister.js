@@ -5,13 +5,15 @@ import { useNavigate } from "react-router-dom";
 
 const RegisterSystemManager = () => {
     const [formData, setFormData] = useState({
-        UserName: "",
-        Password: "",
+        firstName: "", // Added
+        lastName: "",  // Added
+        username: "",  // Changed to lowercase
+        password: "",  // Changed to lowercase
         confirmPassword: "",
-        Contact_No: "",
-        DOB: "",
-        Email: "",
-        Address: "",
+        contactNo: "", // Changed to lowercase
+        dob: "",       // Changed to lowercase
+        email: "",     // Changed to lowercase
+        address: "",   // Changed to lowercase
     });
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -23,16 +25,19 @@ const RegisterSystemManager = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (formData.Password !== formData.confirmPassword) {
+        if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
             return;
         }
-    
+
+        // Remove confirmPassword from the data sent to the backend
+        const { confirmPassword, ...dataToSend } = formData;
+
         try {
-            console.log("Sending request with data:", formData); // Debugging
-    
-            const response = await axios.post("http://localhost:5000/api/systemManagers/register", formData);
-    
+            console.log("Sending request with data:", dataToSend); // Debugging
+
+            const response = await axios.post("http://localhost:5000/api/systemManagers/register", dataToSend);
+
             console.log("Response received:", response.data); // Debugging
             if (response.status === 201) {
                 alert("System Manager registered successfully");
@@ -43,7 +48,6 @@ const RegisterSystemManager = () => {
             setError(error.response?.data?.message || "Failed to register System Manager");
         }
     };
-    
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
@@ -52,11 +56,33 @@ const RegisterSystemManager = () => {
                 {error && <p className="text-red-500 text-center mb-4">{error}</p>}
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
+                        <label className="block text-sm font-medium text-gray-700">First Name</label>
+                        <input
+                            type="text"
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input
+                            type="text"
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                            required
+                        />
+                    </div>
+                    <div>
                         <label className="block text-sm font-medium text-gray-700">Username</label>
                         <input
                             type="text"
-                            name="UserName"
-                            value={formData.UserName}
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             required
@@ -66,8 +92,8 @@ const RegisterSystemManager = () => {
                         <label className="block text-sm font-medium text-gray-700">Password</label>
                         <input
                             type="password"
-                            name="Password"
-                            value={formData.Password}
+                            name="password"
+                            value={formData.password}
                             onChange={handleChange}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             required
@@ -88,8 +114,8 @@ const RegisterSystemManager = () => {
                         <label className="block text-sm font-medium text-gray-700">Contact No</label>
                         <input
                             type="text"
-                            name="Contact_No"
-                            value={formData.Contact_No}
+                            name="contactNo"
+                            value={formData.contactNo}
                             onChange={handleChange}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             required
@@ -99,8 +125,8 @@ const RegisterSystemManager = () => {
                         <label className="block text-sm font-medium text-gray-700">DOB</label>
                         <input
                             type="date"
-                            name="DOB"
-                            value={formData.DOB}
+                            name="dob"
+                            value={formData.dob}
                             onChange={handleChange}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             required
@@ -110,8 +136,8 @@ const RegisterSystemManager = () => {
                         <label className="block text-sm font-medium text-gray-700">Email</label>
                         <input
                             type="email"
-                            name="Email"
-                            value={formData.Email}
+                            name="email"
+                            value={formData.email}
                             onChange={handleChange}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             required
@@ -121,8 +147,8 @@ const RegisterSystemManager = () => {
                         <label className="block text-sm font-medium text-gray-700">Address</label>
                         <input
                             type="text"
-                            name="Address"
-                            value={formData.Address}
+                            name="address"
+                            value={formData.address}
                             onChange={handleChange}
                             className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                             required

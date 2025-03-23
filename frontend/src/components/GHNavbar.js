@@ -1,10 +1,11 @@
+// CRIPS\frontend\src\components\GHnavbar.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdNotificationsNone } from "react-icons/md";
 import { FaAngleDown } from "react-icons/fa";
 import { FiUser, FiSettings, FiLock, FiLogOut } from "react-icons/fi";
 
-const Navbar = () => {
+const GHNavbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -15,14 +16,14 @@ const Navbar = () => {
   const updateUserState = () => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (userInfo) {
-      setFirstName(userInfo.firstName || "Manager");
+      setFirstName(userInfo.firstName || "Grower");
       setLastName(userInfo.lastName || "");
       const imagePath = userInfo.profileImage
         ? `http://localhost:5000${userInfo.profileImage}`
         : "/default-profile.png";
       setProfileImage(imagePath);
     } else {
-      setFirstName("Manager");
+      setFirstName("Grower");
       setLastName("");
       setProfileImage("/default-profile.png");
     }
@@ -57,8 +58,10 @@ const Navbar = () => {
   const fullName = `${firstName} ${lastName}`.trim();
 
   return (
-    <div className="flex justify-between items-center bg-white p-4 shadow-md rounded-2xl">
-      <h1 className="text-2xl font-bold text-green-600 font-sans">Welcome, CS Manager</h1>
+    <div className="flex justify-between items-center bg-white p-6 shadow-lg rounded-2xl m-4">
+      <h1 className="text-2xl font-bold text-green-600 font-sans">
+        Welcome, Grower Handler
+      </h1>
 
       {/* Right Section (Notification + Profile) */}
       <div className="flex items-center space-x-6">
@@ -69,7 +72,6 @@ const Navbar = () => {
 
         {/* Profile Dropdown */}
         <div className="relative">
-          {/* Profile Button with Image */}
           <button
             onClick={() => setShowMenu(!showMenu)}
             className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 z-20"
@@ -91,19 +93,19 @@ const Navbar = () => {
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
               <ul className="py-2">
                 <li
-                  onClick={() => navigate("/profile-settings")}
+                  onClick={() => navigate("/grower-handler/profile-settings")}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiUser className="mr-2" /> Profile
                 </li>
                 <li
-                  onClick={() => navigate("/update-profile")}
+                  onClick={() => navigate("/grower-handler/update-profile")}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiSettings className="mr-2" /> Update Profile
                 </li>
                 <li
-                  onClick={() => navigate("/change-password")}
+                  onClick={() => navigate("/grower-handler/change-password")}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiLock className="mr-2" /> Change Password
@@ -123,4 +125,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default GHNavbar;
