@@ -10,8 +10,10 @@ const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
-const growerHandlerPlantRoutes = require("./routes/growerHandler/plantRoutes");
+const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
+const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+
 
 
 // Load environment variables from .env file
@@ -19,6 +21,24 @@ dotenv.config();
 
 const app = express();
 
+app.use(cors());
+app.use(express.json());
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+})
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error('MongoDB Connection Error:', err));
+
+app.use('/api/users', userRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api', contactRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api", supportRoutes);
+app.use('/api/auth', authRoutes);
 // Middleware
 app.use(express.json());
 
@@ -51,16 +71,24 @@ mongoose
   });
 
 // Routes
-app.use('/api/users', userRoutes);
-app.use('/api/plants', plantRoutes);
-app.use('/api/contact', contactRoutes); // Distinct prefix for contactRoutes
-app.use("/api/jobs", jobRoutes);
-app.use("/api/support", supportRoutes); // Distinct prefix for supportRoutes
-app.use('/api/auth', authRoutes);
-app.use("/api/grower-handler", growerHandlerPlantRoutes);
+
+app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 
+// Add the new routes
+app.use('/api/grower/plants', growerPlantRoutes); // For GrowerHandler plants
+app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
+
+
+
+// Connect to MongoDB
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Global error-handling middleware
 app.use((err, req, res, next) => {
   console.error("Error:", err.stack);
@@ -71,7 +99,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
