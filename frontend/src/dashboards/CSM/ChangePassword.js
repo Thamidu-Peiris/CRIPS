@@ -20,7 +20,7 @@ const ChangePassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`http://localhost:5000/api/jobs/profile/change-password/${userId}`, passwordData);
+      await axios.post(`http://localhost:5000/api/csm/profile/change-password/${userId}`, passwordData);
       setSuccess("Password changed successfully!");
       setError("");
       setPasswordData({ currentPassword: "", newPassword: "" });
