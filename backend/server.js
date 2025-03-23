@@ -17,7 +17,11 @@ const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
 
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+
+const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
+
 const csmRoutes = require('./routes/csm/csmRoutes');
+
 
 
 
@@ -64,6 +68,9 @@ app.use("/api/grower-handler", growerHandlerPlantRoutes);
 app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
+
+app.use('/api/sales', salesReportRoutes);
+
 app.use('/api/stocks', stockRoutes);
 
 
@@ -77,7 +84,17 @@ app.use('/api/csm', csmRoutes);
 // app.use('/api/grower/plants', growerPlantRoutes); // ⚠️ Define growerPlantRoutes if needed
 
 
-// Global Error Handler
+
+
+// Connect to MongoDB
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Global error-handling middleware
+
 app.use((err, req, res, next) => {
   console.error("Error:", err.stack);
   res.status(500).json({
