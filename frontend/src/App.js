@@ -34,6 +34,7 @@ import FinancialReport from './dashboards/SalesReports/FinancialReport.js';
 import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
+import EmpManage from './pages/SysManager/EmpManagement.js'
 
 
 //Grower  Handler
@@ -110,6 +111,7 @@ function App() {
         <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
         <Route path="/all-plants" element={<ViewPlants />} />
         <Route path="/manage-plants" element={<ManagePlants />} />
+        <Route path="/empmanage" element={<EmpManage />} />
 
       </Routes>
     </Router>
