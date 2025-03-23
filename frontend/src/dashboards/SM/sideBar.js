@@ -49,15 +49,15 @@ const Sidebar = () => {
         </li>
         <li>
           <Link
-            to="/employees"
+            to="/empmanage"
             className={`flex items-center p-3 rounded-xl transition duration-300 ${
-              location.pathname === "/employees"
+              location.pathname === "/empmanage"
                 ? "bg-cyan-500/20 text-cyan-400"
                 : "hover:bg-gray-800 text-gray-300 hover:text-cyan-400"
             }`}
           >
             <FaUsers className="mr-3 text-lg" />
-            Employees
+            Employees 
           </Link>
         </li>
         <li>
