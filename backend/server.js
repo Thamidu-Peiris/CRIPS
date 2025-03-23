@@ -13,7 +13,7 @@ const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
-
+const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
 
 
 // Load environment variables from .env file
@@ -33,6 +33,7 @@ mongoose.connect(process.env.MONGO_URI, {
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch(err => console.error('MongoDB Connection Error:', err));
 
+app.use('/api/grower/tasks', growerTaskRoutes);//GH tasks
 app.use('/api/users', userRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api', contactRoutes);

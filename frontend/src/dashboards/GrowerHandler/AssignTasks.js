@@ -9,6 +9,10 @@ const AssignTasks = () => {
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState(null);
+
+  
+  const cutters = ["Alex", "Ben", "Cody", "Dan", "Evan"];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,10 +24,10 @@ const AssignTasks = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting task:", taskData);
+    console.log("Submitting task:", taskData); // Debugging Step 1
 
     try {
-      const response = await fetch("http://localhost:5000/api/tasks", {
+      const response = await fetch("http://localhost:5000/api/grower/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,20 +35,38 @@ const AssignTasks = () => {
         body: JSON.stringify(taskData),
       });
 
+      console.log("Response:", response); // Debugging Step 2
+
       if (response.ok) {
         console.log("Task assigned successfully!");
         setIsSuccess(true);
+        setError(null);
 
+        // Reset form after successful submission
         setTaskData({
           taskName: "",
+          cutterName: "",
           priority: "",
           dueDate: "",
         });
       } else {
-        console.error("Failed to assign task");
+        const contentType = response.headers.get("content-type");
+        let errorData;
+
+        if (contentType && contentType.includes("application/json")) {
+          errorData = await response.json();
+          setError(errorData.message || "Failed to assign task");
+        } else {
+          const text = await response.text();
+          console.error("Non-JSON response:", text);
+          setError("Unexpected response from server");
+        }
+        setIsSuccess(false);
       }
     } catch (error) {
       console.error("Error assigning task:", error);
+      setError("Error assigning task: " + error.message);
+      setIsSuccess(false);
     }
   };
 
@@ -67,52 +89,67 @@ const AssignTasks = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Task Name */}
-            <input
-              type="text"
-              name="taskName"
-              value={taskData.taskName}
-              onChange={handleChange}
-              required
-              placeholder="Task Name"
-              className="w-full p-2 border rounded text-black placeholder-black"
-            />
-            {/* Cutter Name */}
+            <div>
+              <label className="block text-black mb-1">Task Name</label>
               <input
-              type="text"
-              name="cutterName"
-              value={taskData.cutterName}
-              onChange={handleChange}
-              required
-              placeholder="Cutter Name"
-              className="w-full p-2 border rounded text-black placeholder-black"
-            />
+                type="text"
+                name="taskName"
+                value={taskData.taskName}
+                onChange={handleChange}
+                required
+                placeholder="Task Name"
+                className="w-full p-2 border rounded text-black placeholder-black"
+              />
+            </div>
 
-
+            {/* Cutter Name Dropdown */}
+            <div>
+              <label className="block text-black mb-1">Cutter Name</label>
+              <select
+                name="cutterName"
+                value={taskData.cutterName}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded text-black"
+              >
+                <option value="">Select Cutter</option>
+                {cutters.map((cutter) => (
+                  <option key={cutter} value={cutter}>
+                    {cutter}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* Priority Level Dropdown */}
-            <select
-              name="priority"
-              value={taskData.priority}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded text-black"
-            >
-              <option value="">Select Priority Level</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
-            </select>
+            <div>
+              <label className="block text-black mb-1">Priority Level</label>
+              <select
+                name="priority"
+                value={taskData.priority}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded text-black"
+              >
+                <option value="">Select Priority Level</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
 
             {/* Due Date Calendar */}
-            <input
-              type="date"
-              name="dueDate"
-              value={taskData.dueDate}
-              onChange={handleChange}
-              placeholder="Deadline"
-              required
-              className="w-full p-2 border rounded text-black"
-            />
+            <div>
+              <label className="block text-black mb-1">Deadline</label>
+              <input
+                type="date"
+                name="dueDate"
+                value={taskData.dueDate}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded text-black"
+              />
+            </div>
 
             {/* Submit Button */}
             <button
@@ -127,6 +164,13 @@ const AssignTasks = () => {
           {isSuccess && (
             <div className="mt-4 p-4 bg-green-200 text-green-800 rounded text-center">
               Task assigned successfully!
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-200 text-red-800 rounded text-center">
+              {error}
             </div>
           )}
         </div>
