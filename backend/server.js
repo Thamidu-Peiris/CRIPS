@@ -12,9 +12,13 @@ const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
-const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
+const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/stockRoutes');
+
+const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+
+
 
 
 // Load environment variables
@@ -47,6 +51,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   });
 
 // Routes
+
 app.use('/api/users', userRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/contact', contactRoutes);
@@ -54,6 +59,9 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/support", supportRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
+
+
+app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/stocks', stockRoutes);
@@ -71,7 +79,9 @@ app.use((err, req, res, next) => {
   });
 });
 
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
