@@ -12,9 +12,10 @@ const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
-const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
+
 
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 
@@ -25,7 +26,6 @@ const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 
 
 const csmRoutes = require('./routes/csm/csmRoutes');
-
 
 
 
@@ -68,7 +68,6 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   });
 
 // Routes
-
 app.use('/api/users', userRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/contact', contactRoutes);
@@ -76,9 +75,6 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/support", supportRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
-
-
-app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 
@@ -114,7 +110,5 @@ app.use((err, req, res, next) => {
     error: err.message,
   });
 });
-
-
 
 
