@@ -1,4 +1,4 @@
-// CRIPS\backend\routes\csm\jobRoutes.js
+// CRIPS\backend\routes\csm\csmRoutes.js
 const express = require("express");
 const router = express.Router();
 const jobController = require("../../controllers/csm/csmController");
