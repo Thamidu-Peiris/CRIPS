@@ -2,23 +2,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import CustomerHeader from "../../components/CustomerHeader";
-import Sidebar from "../../dashboards/SM/sideBar"; // Import the same Sidebar as the dashboard
-import { FaSearch, FaArrowLeft, FaDownload, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa"; // Icons for visual appeal
+import Sidebar from "../../dashboards/SM/sideBar";
+import { FaSearch, FaArrowLeft, FaDownload, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa";
 
 const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
-  const [filteredApplications, setFilteredApplications] = useState([]); // For search/filter
+  const [filteredApplications, setFilteredApplications] = useState([]);
   const [rejectionReason, setRejectionReason] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [managerName, setManagerName] = useState(""); // State for manager's name
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [managerName, setManagerName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  // Clear success message after 5 seconds
   useEffect(() => {
     if (successMessage) {
       const timer = setTimeout(() => setSuccessMessage(""), 5000);
@@ -26,7 +24,6 @@ const AdminApplications = () => {
     }
   }, [successMessage]);
 
-  // Fetch manager's name and check if the user is a System Manager
   useEffect(() => {
     let userInfo;
     try {
@@ -49,7 +46,6 @@ const AdminApplications = () => {
     }
   }, [navigate]);
 
-  // Fetch all applications
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -73,8 +69,12 @@ const AdminApplications = () => {
           ...app,
           status: app.status || "pending",
         }));
+
+        // Sort applications by createdAt in descending order (newest first)
+        updatedApplications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
         setApplications(updatedApplications);
-        setFilteredApplications(updatedApplications); // Initialize filtered applications
+        setFilteredApplications(updatedApplications);
       } catch (error) {
         console.error("Error fetching applications:", error.response?.data || error.message);
         setError(error.response?.data?.message || "Failed to fetch applications. Please try again.");
@@ -93,7 +93,6 @@ const AdminApplications = () => {
     fetchApplications();
   }, [navigate]);
 
-  // Handle search/filter
   useEffect(() => {
     const filtered = applications.filter(app =>
       app.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -131,7 +130,10 @@ const AdminApplications = () => {
       });
       if (response.data.success) {
         setSuccessMessage(`Application ${status} successfully!`);
-        setApplications(applications.map(app => app._id === id ? { ...app, status: payload.status, rejectionReason: status === "rejected" ? rejectionReason : null } : app));
+        const updatedApplications = applications.map(app => app._id === id ? { ...app, status: payload.status, rejectionReason: status === "rejected" ? rejectionReason : null } : app);
+        // Re-sort after updating status to maintain newest-first order
+        updatedApplications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setApplications(updatedApplications);
         setRejectionReason("");
         setSelectedApplicationId(null);
       }
@@ -151,19 +153,19 @@ const AdminApplications = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar /> {/* Add the same sidebar as the dashboard */}
+    <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 font-sans">
+      <Sidebar />
       <div className="ml-64 flex-1 p-6">
         {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-lg shadow-lg mb-6">
+        <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-6 rounded-xl shadow-lg mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold">System Manager Dashboard - Job Applications</h1>
-              <p className="text-lg mt-2">Welcome, {managerName}!</p>
+              <h1 className="text-4xl font-extrabold tracking-tight">System Manager Dashboard - Job Applications</h1>
+              <p className="text-xl mt-2 font-light">Welcome, {managerName}!</p>
             </div>
             <button
-              onClick={() => navigate("/sm-dashboard")} // Navigate back to dashboard
-              className="flex items-center bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition duration-300"
+              onClick={() => navigate("/sm-dashboard")}
+              className="flex items-center bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white px-4 py-2 rounded-xl transition duration-300"
             >
               <FaArrowLeft className="mr-2" /> Back to Dashboard
             </button>
@@ -178,7 +180,7 @@ const AdminApplications = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, email, or job title..."
-              className="w-full p-3 pl-10 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-3 pl-10 border border-gray-700 rounded-xl bg-gray-900/50 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
             />
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
@@ -186,34 +188,34 @@ const AdminApplications = () => {
 
         {/* Error and Success Messages */}
         {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+          <div className="bg-red-500/20 border-l-4 border-red-500 text-red-300 p-4 mb-6 rounded-xl">
             <p>{error}</p>
           </div>
         )}
         {successMessage && (
-          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded">
+          <div className="bg-green-500/20 border-l-4 border-green-500 text-green-300 p-4 mb-6 rounded-xl">
             <p>{successMessage}</p>
           </div>
         )}
 
         {/* Applications List */}
         {loading ? (
-          <p className="text-center text-gray-600">Loading applications...</p>
+          <p className="text-center text-gray-300">Loading applications...</p>
         ) : filteredApplications.length === 0 ? (
-          <p className="text-center text-gray-600">No applications to review.</p>
+          <p className="text-center text-gray-300">No applications to review.</p>
         ) : (
           <div className="space-y-6">
             {filteredApplications.map((app) => (
-              <div key={app._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 p-6">
+              <div key={app._id} className="bg-gray-800/80 backdrop-blur-lg rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-blue-600">{app.jobTitle}</h3>
+                  <h3 className="text-xl font-semibold text-cyan-400">{app.jobTitle}</h3>
                   <span
                     className={`text-sm px-3 py-1 rounded-full ${
                       app.status.toLowerCase() === "approved"
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-green-500/20 text-green-400"
                         : app.status.toLowerCase() === "pending"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
+                        ? "bg-yellow-500/20 text-yellow-400"
+                        : "bg-red-500/20 text-red-400"
                     } flex items-center`}
                   >
                     {app.status.toLowerCase() === "approved" && <FaCheckCircle className="mr-1" />}
@@ -224,64 +226,63 @@ const AdminApplications = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p><strong>Name:</strong> {app.firstName} {app.lastName}</p>
-                    <p><strong>Username:</strong> {app.username}</p>
-                    <p><strong>Email:</strong> {app.email}</p>
-                    <p><strong>Phone Number:</strong> {app.phoneNumber}</p>
+                    <p className="text-gray-300"><strong className="text-white">Name:</strong> {app.firstName} {app.lastName}</p>
+                    <p className="text-gray-300"><strong className="text-white">Username:</strong> {app.username}</p>
+                    <p className="text-gray-300"><strong className="text-white">Email:</strong> {app.email}</p>
+                    <p className="text-gray-300"><strong className="text-white">Phone Number:</strong> {app.phoneNumber}</p>
                   </div>
                   <div>
-                    <p><strong>Address:</strong> {app.address}</p>
-                    <p><strong>Start Date:</strong> {app.startDate && !isNaN(new Date(app.startDate)) ? new Date(app.startDate).toLocaleDateString() : "Not provided"}</p>
-                    <p>
-                      <strong>Cover Letter:</strong>{" "}
+                    <p className="text-gray-300"><strong className="text-white">Address:</strong> {app.address}</p>
+                    <p className="text-gray-300"><strong className="text-white">Start Date:</strong> {app.startDate && !isNaN(new Date(app.startDate)) ? new Date(app.startDate).toLocaleDateString() : "Not provided"}</p>
+                    <p className="text-gray-300">
+                      <strong className="text-white">Cover Letter:</strong>{" "}
                       {app.coverLetter ? (
-                        <a href={`http://localhost:5000/${app.coverLetter}`} className="text-blue-600 hover:underline flex items-center">
+                        <a href={`http://localhost:5000/${app.coverLetter}`} className="text-cyan-400 hover:underline flex items-center">
                           <FaDownload className="mr-1" /> Download
                         </a>
                       ) : (
                         "Not provided"
                       )}
                     </p>
-                    <p>
-                      <strong>Resume:</strong>{" "}
-                      <a href={`http://localhost:5000/${app.resume}`} className="text-blue-600 hover:underline flex items-center">
+                    <p className="text-gray-300">
+                      <strong className="text-white">Resume:</strong>{" "}
+                      <a href={`http://localhost:5000/${app.resume}`} className="text-cyan-400 hover:underline flex items-center">
                         <FaDownload className="mr-1" /> Download
                       </a>
                     </p>
                   </div>
                 </div>
                 {app.status.toLowerCase() === "rejected" && app.rejectionReason && (
-                  <p className="mt-4 text-red-600"><strong>Rejection Reason:</strong> {app.rejectionReason}</p>
+                  <p className="mt-4 text-red-400"><strong className="text-white">Rejection Reason:</strong> {app.rejectionReason}</p>
                 )}
-                {console.log("Application status for", app._id, ":", app.status)}
                 {app.status.toLowerCase() === "pending" ? (
                   <div className="mt-4 flex space-x-4">
                     <button
                       onClick={() => handleAction(app._id, "approved")}
-                      className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300 font-medium flex items-center"
+                      className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-2 rounded-xl hover:from-green-600 hover:to-teal-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
                       <FaCheckCircle className="mr-2" /> {loading ? "Processing..." : "Approve"}
                     </button>
                     <button
                       onClick={() => setSelectedApplicationId(app._id)}
-                      className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
+                      className="bg-gradient-to-r from-pink-500 to-red-500 text-white px-6 py-2 rounded-xl hover:from-pink-600 hover:to-red-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
                       <FaTimesCircle className="mr-2" /> {loading ? "Processing..." : "Reject"}
                     </button>
                   </div>
                 ) : (
-                  <p className="mt-4 text-gray-500">Action not available for status: {app.status}</p>
+                  <p className="mt-4 text-gray-400">Action not available for status: {app.status}</p>
                 )}
                 {selectedApplicationId === app._id && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-600 mb-1">Reason for Rejection *</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Reason for Rejection *</label>
                     <textarea
                       value={rejectionReason}
                       onChange={(e) => setRejectionReason(e.target.value)}
                       placeholder="Enter reason for rejection"
-                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-3 border border-gray-700 rounded-xl bg-gray-900/50 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
                       rows="3"
                       required
                       disabled={loading}
@@ -289,14 +290,14 @@ const AdminApplications = () => {
                     <div className="mt-2 flex space-x-4">
                       <button
                         onClick={() => handleAction(app._id, "rejected")}
-                        className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300 font-medium"
+                        className="bg-gradient-to-r from-pink-500 to-red-500 text-white px-6 py-2 rounded-xl hover:from-pink-600 hover:to-red-600 transition-colors duration-300 font-medium"
                         disabled={loading}
                       >
                         {loading ? "Processing..." : "Submit Rejection"}
                       </button>
                       <button
                         onClick={() => setSelectedApplicationId(null)}
-                        className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors duration-300 font-medium"
+                        className="bg-gradient-to-r from-gray-700 to-gray-600 text-white px-6 py-2 rounded-xl hover:from-gray-800 hover:to-gray-700 transition-colors duration-300 font-medium"
                         disabled={loading}
                       >
                         Cancel
