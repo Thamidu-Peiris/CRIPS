@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Careers from "./pages/Careers"; 
 import Login from './pages/Login.js';
 import CustomerRegister from "./pages/CustomerRegister";
-import Shops from './dashboards/Customer/Shop';// customerdashboard
+//import Shops from './dashboards/Customer/Shop';// customerdashboard
 import Layout from './components/Layout';
 import Cart from "./components/Cart";
 import OrdersPage from "./pages/OrdersPage"; 
@@ -36,11 +36,18 @@ import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 import EmpManage from './pages/SysManager/EmpManagement.js'
 
+
 import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
 import CustomersList from "./dashboards/CSM/CustomersList";
 
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
-import CustomerManagement from './dashboards/CSM/CustomerManagement.js';
+
+
+
+
+
+
+
 
 
 
