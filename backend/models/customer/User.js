@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema({
   companyName: { type: String },
   businessAddress: { type: String },
   taxId: { type: String },
-  profileImage: { type: String }
+  profileImage: { type: String },
+  status: { type: String, default: 'pending', enum: ['pending', 'approved', 'declined'] } // Add status field
 });
 
 const User = mongoose.model('User', userSchema);
