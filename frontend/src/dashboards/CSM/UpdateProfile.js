@@ -22,7 +22,7 @@ const UpdateProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`);
+        const response = await axios.get(`http://localhost:5000/api/csm/profile/${userId}`);
         setFormData({
           firstName: response.data.firstName || "",
           lastName: response.data.lastName || "",
@@ -68,7 +68,7 @@ const UpdateProfile = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/jobs/profile/update/${userId}`,
+        `http://localhost:5000/api/csm/profile/update/${userId}`,
         formDataToSend,
         {
           headers: {
@@ -76,6 +76,8 @@ const UpdateProfile = () => {
           },
         }
       );
+      
+      
       setSuccess("Profile updated successfully!");
       setError("");
 

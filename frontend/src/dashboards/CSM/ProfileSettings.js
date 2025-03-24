@@ -28,21 +28,23 @@ const ProfileSettings = () => {
         return;
       }
 
-      if (role !== "customer service manager") {
-        setError("Access denied. This page is for CSMs only.");
-        console.log("[DEBUG] Role mismatch, redirecting to shop");
-        navigate("/shop");
-        return;
-      }
+      // ✅ FIX: Make the role check case-insensitive and handle empty role
+if (!role || role.toLowerCase() !== "customer service manager") {
+  setError("Access denied. This page is for CSMs only.");
+  console.log("[DEBUG] Role mismatch, redirecting to shop");
+  navigate("/shop");
+  return;
+}
+
 
       try {
-        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/jobs/profile/${userId}`);
+        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/csm/profile/${userId}`);
         console.log("[DEBUG] Request headers:", {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         });
 
-        const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/api/csm/profile/${userId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
