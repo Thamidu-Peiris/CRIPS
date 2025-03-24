@@ -51,16 +51,12 @@ import AddCategory from "./dashboards/GrowerHandler/AddCategory";
 import ManageCategories from "./dashboards/GrowerHandler/ManageCategories";
 import AdminApplications from "./pages/SysManager/AdminApplications.js";
 import SystemManagerProfile from "./pages/SysManager/profile.js";
-
 import Dashboard from './components/InventoryM/Dashboard.js';
 import StockList from './components/InventoryM/StockList.js';
 import AddStock from './components/InventoryM/AddStock.js';
 import SupplierList from './components/SupplierM/SupplierList.js';
 import SupplierForm from './components/SupplierM/SupplierForm.js';
 import './components/InventoryM/styles.css';
-
-import ReportHub from "./dashboards/SalesReports/ReportHub.js";
-
 
 
 function App() {
@@ -113,15 +109,11 @@ function App() {
         <Route path="/grower-handler/manage-categories" element={<ManageCategories />} />
         <Route path="/admin-applications" element={<AdminApplications />} />
         <Route path="/SMprofile" element={<SystemManagerProfile />} /> // ✅ Add Route for
-
         <Route path="/inventrymanagerdashboard" element={<Dashboard />} />
         <Route path="/in-stock" element={<StockList />} />
         <Route path="/add-stock" element={<AddStock />} />
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/supplier-form" element={<SupplierForm />} />
-
-        <Route path="/reporthub" element={<ReportHub/>} />
-
 
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />

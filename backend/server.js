@@ -12,9 +12,10 @@ const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
 const authRoutes = require('./routes/authRoutes');
 const systemManagerRoutes = require('./routes/SM/smRoute');
-const growerHandlerPlantRoutes = require('./routes/growerHandler/plantRoutes');
+const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
+
 
 const growerPlantRoutes = require('./routes/growerHandler/plantRoutes');
 
@@ -25,7 +26,6 @@ const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 
 
 const csmRoutes = require('./routes/csm/csmRoutes');
-
 
 
 
@@ -68,7 +68,6 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   });
 
 // Routes
-
 app.use('/api/users', userRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/contact', contactRoutes);
@@ -76,9 +75,6 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/support", supportRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
-
-
-app.use('/api/grower/plants', growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
 
@@ -93,12 +89,6 @@ app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
 //csm routes
 app.use('/api/csm', csmRoutes);
 
-// Example placeholder route (remove if not needed)
-// app.use('/api/grower/plants', growerPlantRoutes); // ⚠️ Define growerPlantRoutes if needed
-
-
-
-
 // Connect to MongoDB
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -107,6 +97,10 @@ mongoose
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Global error-handling middleware
+// Example placeholder route (remove if not needed)
+// app.use('/api/grower/plants', growerPlantRoutes); // ⚠️ Define growerPlantRoutes if needed
+
+
 
 app.use((err, req, res, next) => {
   console.error("Error:", err.stack);
@@ -117,9 +111,4 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-// Start Server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
 
