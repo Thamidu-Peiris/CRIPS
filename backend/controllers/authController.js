@@ -3,6 +3,8 @@ const SystemManager = require("../models/SM/SysManagerModel");
 const InventoryManager = require("../models/InventoryM/inventoryManagerModel");
 const User = require("../models/customer/User");
 const CSM = require("../models/csm/csmModel");
+const salseManager = require("../models/salesManager/salesManagerModel")
+const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -58,6 +60,31 @@ exports.universalLogin = async (req, res) => {
         role = "Customer Service Manager"; // CSM
       }
     }
+
+     // salseManager-check
+    if (!user) {
+      console.log("check salseManager...", salseManager.collection.name);
+      user = await salseManager.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+      });
+  
+      if (user) {
+        console.log("salseManager found:", user);
+        role = "Sales Manager"; // Match the database (uppercase)
+      }}
+
+    // check Grower Handler
+    if (!user) {
+      console.log("Checking Grower Handler...", GrowerHandler.collection.name);
+      user = await GrowerHandler.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+      });
+  
+      if (user) {
+        console.log("GrowerHandler found:", user);
+        role = "Grower Handler"; // Match the database (uppercase)
+      }}
+
 
     console.log("User found:", user);
     if (!user) return res.status(404).json({ message: "User not found" });
