@@ -50,7 +50,7 @@ import AddCategory from "./dashboards/GrowerHandler/AddCategory";
 import ManageCategories from "./dashboards/GrowerHandler/ManageCategories";
 import AdminApplications from "./pages/SysManager/AdminApplications.js";
 import SystemManagerProfile from "./pages/SysManager/profile.js";
-import Dashboard from './components/InventoryM/Dashboard.js';
+import imDashboard from './components/InventoryM/Dashboard.js';
 import StockList from './components/InventoryM/StockList.js';
 import AddStock from './components/InventoryM/AddStock.js';
 import SupplierList from './components/SupplierM/SupplierList.js';
@@ -107,8 +107,8 @@ function App() {
         <Route path="/grower-handler/add-category" element={<AddCategory />} />
         <Route path="/grower-handler/manage-categories" element={<ManageCategories />} />
         <Route path="/admin-applications" element={<AdminApplications />} />
-        <Route path="/SMprofile" element={<SystemManagerProfile />} /> // ✅ Add Route for
-        <Route path="/inventrymanagerdashboard" element={<Dashboard />} />
+        <Route path="/SMprofile" element={<SystemManagerProfile />} />
+        <Route path="/imdashboard" element={<imDashboard />} />
         <Route path="/in-stock" element={<StockList />} />
         <Route path="/add-stock" element={<AddStock />} />
         <Route path="/suppliers" element={<SupplierList />} />
