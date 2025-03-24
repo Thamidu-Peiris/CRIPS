@@ -23,12 +23,10 @@ const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
 const environmentalDataRoutes = require('./routes/GrowerHandler/environmentalData');//GH env add data
 
 
+const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes');
+const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
 const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
-
-
 const csmRoutes = require('./routes/csm/csmRoutes');
-
-
 
 // Load environment variables
 dotenv.config();
@@ -63,18 +61,17 @@ if (!MONGO_URI) {
   process.exit(1);
 }
 
-// Connect to MongoDB
-mongoose.connect(MONGO_URI)
+// Connect to MongoDB (removed duplicate connection)
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   });
 
-
-// Routes
-
-//app.use('/api/plants', plantRoutes);
+// Routes (removed duplicates)
+app.use('/api/users', userRoutes);
+app.use('/api/plants', plantRoutes);
 app.use('/api/contact', contactRoutes);
 
 app.use("/api/support", supportRoutes);
@@ -82,26 +79,17 @@ app.use("/api/support", supportRoutes);
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
-
-app.use('/api/sales', salesReportRoutes);
-
 app.use('/api/stocks', stockRoutes);
-
-
-// Add the new routes
-app.use('/api/grower/plants', growerPlantRoutes); // For GrowerHandler plants
-app.use('/api/tasks', jobRoutes); // For tasks (same as /api/jobs)
-//csm routes
+app.use('/api/grower/plants', growerPlantRoutes);
+app.use('/api/grower/tasks', growerTaskRoutes); //GH tasks
+app.use('/api/tasks', jobRoutes);
+app.use('/api/sales', salesReportRoutes);
 app.use('/api/csm', csmRoutes);
 
 // Connect to MongoDB
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware
-// Example placeholder route (remove if not needed)
-// app.use('/api/grower/plants', growerPlantRoutes); // ⚠️ Define growerPlantRoutes if needed
-
-
-
 app.use((err, req, res, next) => {
   console.error("Error:", err.stack);
   res.status(500).json({
@@ -110,5 +98,3 @@ app.use((err, req, res, next) => {
     error: err.message,
   });
 });
-
-
