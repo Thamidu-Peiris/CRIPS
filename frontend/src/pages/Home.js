@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
+import axios from 'axios';
+
 
 const Home = () => {
   const images = ["/hero-image1.jpg", "/hero-image2.jpg", "/hero-image3.jpg"];
@@ -13,6 +15,11 @@ const Home = () => {
       setCurrentImage((prevImage) => (prevImage + 1) % images.length);
     }, 5000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    axios.post('http://localhost:5000/api/visitor/record')
+      .catch(err => console.error('Failed to record visit:', err));
   }, []);
 
   const handlePlantClick = () => {

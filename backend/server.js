@@ -28,6 +28,7 @@ const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
 const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 const csmRoutes = require('./routes/csm/csmRoutes');
 const csmCustomerRoutes = require('./routes/csm/csmCustomerRoutes');
+const visitorRoutes = require('./routes/SM/visitorRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -86,6 +87,7 @@ app.use('/api/tasks', jobRoutes);
 app.use('/api/sales', salesReportRoutes);
 app.use('/api/csm', csmRoutes);
 app.use('/api/csm/customers', csmCustomerRoutes);
+app.use('/api/visitor', visitorRoutes);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware
