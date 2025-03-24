@@ -92,7 +92,7 @@ const GrowerHandlerDashboard = () => {
                 <p className="text-gray-500 mb-2">Manage and Monitor Tasks</p>
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                  onClick={() => navigate("/dashboards/GrowerHandler/manage-tasks")} // Note
+                  onClick={() => navigate("/dashboards/GrowerHandler/manage-tasks")}
                 >
                   Manage Tasks
                 </button>
@@ -103,6 +103,18 @@ const GrowerHandlerDashboard = () => {
             <div className="bg-white p-4 rounded-lg shadow-md">
               <h3 className="text-lg font-semibold">Environmental Monitoring</h3>
               <p className="text-gray-600 mb-4">Track plant conditions in real-time.</p>
+
+              {/* Add Environmental Data */}
+              <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition mb-4">
+                <h4 className="text-md font-semibold text-indigo-700">Add Environmental Data</h4>
+                <p className="text-gray-500 mb-2">Manually enter environmental conditions for plants.</p>
+                <button
+                  className="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                  onClick={() => navigate("/dashboards/GrowerHandler/add-environmental-data")}
+                >
+                  Add Data
+                </button>
+              </div>
 
               {/* Environmental Monitoring */}
               <div className="p-4 border rounded-lg shadow-md hover:shadow-lg transition">

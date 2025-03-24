@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ManageTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -6,13 +7,17 @@ const ManageTasks = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [priorityFilter, setPriorityFilter] = useState("All");
-  const [sortByDeadline, setSortByDeadline] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [deadlineSort, setDeadlineSort] = useState("Closest First");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [editingTask, setEditingTask] = useState(null);
 
+  const navigate = useNavigate();
+
   const cutters = ["Alex", "Ben", "Cody", "Dan", "Evan"];
   const priorities = ["All", "High", "Medium", "Low"];
-  const statuses = ["Incomplete", "In Progress", "Complete"];
+  const statuses = ["All", "Incomplete", "In Progress", "Complete"];
+  const deadlineSortOptions = ["Closest First", "Latest First"];
 
   // Update current date every second
   useEffect(() => {
@@ -69,22 +74,34 @@ const ManageTasks = () => {
       updatedTasks = updatedTasks.filter(task => task.priority === priorityFilter);
     }
 
-    // Sort by deadline (closest first)
-    if (sortByDeadline) {
+    // Filter by status
+    if (statusFilter !== "All") {
+      updatedTasks = updatedTasks.filter(task => task.status === statusFilter);
+    }
+
+    // Sort by deadline
+    if (deadlineSort === "Closest First") {
       updatedTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    } else if (deadlineSort === "Latest First") {
+      updatedTasks.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
     }
 
     setFilteredTasks(updatedTasks);
-  }, [priorityFilter, sortByDeadline, tasks]);
+  }, [priorityFilter, statusFilter, deadlineSort, tasks]);
 
   // Handle priority filter change
   const handlePriorityFilterChange = (e) => {
     setPriorityFilter(e.target.value);
   };
 
-  // Handle sort by deadline toggle
-  const handleSortByDeadline = () => {
-    setSortByDeadline(!sortByDeadline);
+  // Handle status filter change
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  // Handle deadline sort change
+  const handleDeadlineSortChange = (e) => {
+    setDeadlineSort(e.target.value);
   };
 
   // Handle task deletion
@@ -115,6 +132,15 @@ const ManageTasks = () => {
   // Handle task update (start editing)
   const handleEdit = (task) => {
     setEditingTask({ ...task });
+  };
+
+  // Handle action selection from dropdown
+  const handleActionSelect = (action, task) => {
+    if (action === "Update") {
+      handleEdit(task);
+    } else if (action === "Delete") {
+      handleDelete(task._id);
+    }
   };
 
   // Handle input change for editing
@@ -155,9 +181,11 @@ const ManageTasks = () => {
     }
   };
 
-  // Check if deadline has passed
-  const isDeadlinePassed = (dueDate) => {
-    return new Date(dueDate) < currentDate;
+  // Check if deadline has passed (only for incomplete or in-progress tasks)
+  const isDeadlinePassed = (dueDate, status) => {
+    const isPastDue = new Date(dueDate) < currentDate;
+    const isNotCompleted = status !== "Complete"; // Only mark as overdue if not completed
+    return isPastDue && isNotCompleted;
   };
 
   return (
@@ -175,31 +203,61 @@ const ManageTasks = () => {
       {/* Scrollable Container */}
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center">
         <div className="max-w-5xl w-full bg-white bg-opacity-90 shadow-md rounded-lg p-6 mt-4 mb-4 overflow-y-auto max-h-[90vh]">
-          <h2 className="text-2xl font-semibold text-center mb-6">Manage Tasks</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-center">Manage Tasks</h2>
+            <button
+              onClick={() => navigate("/dashboards/GrowerHandler")}
+              className="p-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+            >
+              Back to Dashboard
+            </button>
+          </div>
 
           {/* Filters and Sorting */}
           <div className="flex justify-between mb-4">
-            <div>
-              <label className="text-black mr-2">Filter by Priority:</label>
-              <select
-                value={priorityFilter}
-                onChange={handlePriorityFilterChange}
-                className="p-2 border rounded text-black"
-              >
-                {priorities.map((priority) => (
-                  <option key={priority} value={priority}>
-                    {priority}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <button
-                onClick={handleSortByDeadline}
-                className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                {sortByDeadline ? "Unsort Deadline" : "Sort by Deadline (Closest First)"}
-              </button>
+            <div className="flex space-x-4">
+              <div>
+                <label className="text-black mr-2">Filter by Priority:</label>
+                <select
+                  value={priorityFilter}
+                  onChange={handlePriorityFilterChange}
+                  className="p-2 border rounded text-black"
+                >
+                  {priorities.map((priority) => (
+                    <option key={priority} value={priority}>
+                      {priority}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-black mr-2">Filter by Status:</label>
+                <select
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                  className="p-2 border rounded text-black"
+                >
+                  {statuses.map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-black mr-2">Sort by Deadline:</label>
+                <select
+                  value={deadlineSort}
+                  onChange={handleDeadlineSortChange}
+                  className="p-2 border rounded text-black"
+                >
+                  {deadlineSortOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -228,7 +286,7 @@ const ManageTasks = () => {
                     <th className="border border-gray-300 p-2 text-black">Due Date</th>
                     <th className="border border-gray-300 p-2 text-black">Status</th>
                     <th className="border border-gray-300 p-2 text-black">Created At</th>
-                    <th className="border border-gray-300 p-2 text-black">Actions</th>
+                    <th className="border border-gray-300 p-2 text-black">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -239,7 +297,7 @@ const ManageTasks = () => {
                       <td className="border border-gray-300 p-2 text-black">{task.priority}</td>
                       <td className="border border-gray-300 p-2 text-black">
                         {new Date(task.dueDate).toLocaleDateString()}
-                        {isDeadlinePassed(task.dueDate) && (
+                        {isDeadlinePassed(task.dueDate, task.status) && (
                           <span className="ml-2 text-red-600 font-bold"> (Overdue!)</span>
                         )}
                       </td>
@@ -260,18 +318,17 @@ const ManageTasks = () => {
                         {new Date(task.createdAt).toLocaleString()}
                       </td>
                       <td className="border border-gray-300 p-2 text-black">
-                        <button
-                          onClick={() => handleEdit(task)}
-                          className="mr-2 p-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                        <select
+                          onChange={(e) => handleActionSelect(e.target.value, task)}
+                          className="p-1 border rounded text-black"
+                          defaultValue=""
                         >
-                          Update
-                        </button>
-                        <button
-                          onClick={() => handleDelete(task._id)}
-                          className="p-1 bg-red-500 text-white rounded hover:bg-red-600"
-                        >
-                          Delete
-                        </button>
+                          <option value="" disabled>
+                            Action
+                          </option>
+                          <option value="Update">Update</option>
+                          <option value="Delete">Delete</option>
+                        </select>
                       </td>
                     </tr>
                   ))}
