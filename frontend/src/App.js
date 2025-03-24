@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Careers from "./pages/Careers"; 
 import Login from './pages/Login.js';
 import CustomerRegister from "./pages/CustomerRegister";
-import Shops from './dashboards/Customer/Shop';// customerdashboard
+//import Shops from './dashboards/Customer/Shop';// customerdashboard
 import Layout from './components/Layout';
 import Cart from "./components/Cart";
 import OrdersPage from "./pages/OrdersPage"; 
@@ -35,14 +35,21 @@ import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 import EmpManage from './pages/SysManager/EmpManagement.js'
+
 import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
 import CustomersList from "./dashboards/CSM/CustomersList";
+
+import ReportHub from "./dashboards/SalesReports/ReportHub.js";
+
+
 
 //Grower  Handler
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
 import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
 import ViewPlants from "./dashboards/GrowerHandler/ViewPlants";
+import ManageTasks from './dashboards/GrowerHandler/ManageTasks';//GH Manage Tasks
+import AddEnvironmentalData from './dashboards/GrowerHandler/AddEnvironmentalData';//GH add env data
 import GrowerHandlerDashboard from "./dashboards/GrowerHandler/GrowerHandlerDashboard.js";
 import GHProfileSettings from "./dashboards/GrowerHandler/GHProfileSettings.js";
 import GHUpdateProfile from "./dashboards/GrowerHandler/GHUpdateProfile.js";
@@ -103,6 +110,7 @@ function App() {
         <Route path="/productreport" element={<ProductReport />} />
         <Route path="/customerreport" element={<CustomerReport />} />
         <Route path="/salarysheet" element={<SalarySheet />} />
+        <Route path="/reporthub/" element={<ReportHub/>}/>
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/grower-handler/profile-settings" element={<GHProfileSettings />} />
         <Route path="/grower-handler/update-profile" element={<GHUpdateProfile />} />
@@ -122,6 +130,8 @@ function App() {
         <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
         <Route path="/all-plants" element={<ViewPlants />} />
         <Route path="/manage-plants" element={<ManagePlants />} />
+        <Route path="/dashboards/GrowerHandler/manage-tasks" element={<ManageTasks />} />
+        <Route path="/dashboards/GrowerHandler/add-environmental-data" element={<AddEnvironmentalData />} />//GH Add env data
         <Route path="/empmanage" element={<EmpManage />} />
         
 
