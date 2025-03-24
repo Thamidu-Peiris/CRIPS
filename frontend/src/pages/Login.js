@@ -27,6 +27,15 @@ const Login = () => {
 
       console.log("[DEBUG] Login response:", response.data);
 
+      // Check if login is successful and user status (if provided) (T)
+      const user = response.data.user;
+      if (user && user.role === "Customers" || user.role === "Wholesale Dealers") {
+        // Temporary frontend check until backend enforces status
+        if (user.status && user.status.toLowerCase() !== "approved") {
+          throw new Error(`Your account is ${user.status}. Please wait for approval or contact support if declined.`);
+        }
+      }
+
       // Store user info, userId, role, and token in localStorage
       localStorage.setItem("userInfo", JSON.stringify(response.data.user));
       localStorage.setItem("userId", response.data.user.id);
@@ -53,7 +62,7 @@ const Login = () => {
       } else if (role === "cutters") {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
-      } else if (role === "inventory manager") {
+      } else if (role === "InventoryManager") {
         console.log("[DEBUG] Redirecting to /inventory-manager-dashboard");
         navigate("/inventory-manager-dashboard");
       } else if (role === "sales manager") {

@@ -1,9 +1,7 @@
-// CRIPS\frontend\src\pages\CustomerRegister.js
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import CustomerHeader from "../components/CustomerHeader"; // Adjust the import path based on your structure
+import CustomerHeader from "../components/CustomerHeader";
 
 const CustomerRegister = () => {
   const navigate = useNavigate();
@@ -16,7 +14,7 @@ const CustomerRegister = () => {
     phoneNumber: "",
     email: "",
     password: "",
-    confirmPassword: "", // Added confirmPassword
+    confirmPassword: "",
     companyName: "",
     businessAddress: "",
     taxId: "",
@@ -44,7 +42,6 @@ const CustomerRegister = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate password and confirmPassword match
     if (formData.password !== formData.confirmPassword) {
       alert("Passwords do not match!");
       return;
@@ -53,7 +50,7 @@ const CustomerRegister = () => {
     const formDataToSend = new FormData();
     formDataToSend.append("role", role);
     for (const key in formData) {
-      if (key !== "confirmPassword") { // Exclude confirmPassword from backend submission
+      if (key !== "confirmPassword") {
         formDataToSend.append(key, formData[key]);
       }
     }
@@ -65,13 +62,11 @@ const CustomerRegister = () => {
       const response = await axios.post("http://localhost:5000/api/users/register", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      // Store the full user object from the backend
-      localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-      alert("User registered successfully");
-      navigate("/shop"); // Redirect to shop instead of login
+      alert(response.data.message); // "Registration successful. Please wait for approval..."
+      navigate("/login"); // Redirect to login
     } catch (error) {
       console.error("Error registering user:", error);
-      alert("Failed to register user");
+      alert(error.response?.data?.message || "Failed to register user");
     }
   };
 
@@ -88,7 +83,6 @@ const CustomerRegister = () => {
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
-        {/* 🔹 Customer Header */}
         <CustomerHeader />
       </nav>
 
@@ -127,146 +121,31 @@ const CustomerRegister = () => {
 
             {role === "Customers" ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <input
-                  name="firstName"
-                  onChange={handleChange}
-                  placeholder="First Name"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="lastName"
-                  onChange={handleChange}
-                  placeholder="Last Name"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="username"
-                  onChange={handleChange}
-                  placeholder="Username"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="address"
-                  onChange={handleChange}
-                  placeholder="Address"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="phoneNumber"
-                  onChange={handleChange}
-                  placeholder="Phone Number"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="email"
-                  onChange={handleChange}
-                  placeholder="Email"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="password"
-                  onChange={handleChange}
-                  placeholder="Password"
-                  type="password"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="confirmPassword"
-                  onChange={handleChange}
-                  placeholder="Confirm Password"
-                  type="password"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                /> {/* Added Confirm Password */}
+                <input name="firstName" onChange={handleChange} placeholder="First Name" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="lastName" onChange={handleChange} placeholder="Last Name" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="username" onChange={handleChange} placeholder="Username" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="address" onChange={handleChange} placeholder="Address" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="phoneNumber" onChange={handleChange} placeholder="Phone Number" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="email" onChange={handleChange} placeholder="Email" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="password" onChange={handleChange} placeholder="Password" type="password" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="confirmPassword" onChange={handleChange} placeholder="Confirm Password" type="password" className="p-3 border rounded-lg bg-gray-100" required />
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <input
-                  name="companyName"
-                  onChange={handleChange}
-                  placeholder="Company Name"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="firstName"
-                  onChange={handleChange}
-                  placeholder="First Name"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="lastName"
-                  onChange={handleChange}
-                  placeholder="Last Name"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="username"
-                  onChange={handleChange}
-                  placeholder="Username"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="businessAddress"
-                  onChange={handleChange}
-                  placeholder="Business Address"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="taxId"
-                  onChange={handleChange}
-                  placeholder="Tax ID"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="phoneNumber"
-                  onChange={handleChange}
-                  placeholder="Phone Number"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="email"
-                  onChange={handleChange}
-                  placeholder="Email"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="password"
-                  onChange={handleChange}
-                  placeholder="Password"
-                  type="password"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                />
-                <input
-                  name="confirmPassword"
-                  onChange={handleChange}
-                  placeholder="Confirm Password"
-                  type="password"
-                  className="p-3 border rounded-lg bg-gray-100"
-                  required
-                /> {/* Added Confirm Password */}
+                <input name="companyName" onChange={handleChange} placeholder="Company Name" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="firstName" onChange={handleChange} placeholder="First Name" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="lastName" onChange={handleChange} placeholder="Last Name" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="username" onChange={handleChange} placeholder="Username" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="businessAddress" onChange={handleChange} placeholder="Business Address" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="taxId" onChange={handleChange} placeholder="Tax ID" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="phoneNumber" onChange={handleChange} placeholder="Phone Number" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="email" onChange={handleChange} placeholder="Email" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="password" onChange={handleChange} placeholder="Password" type="password" className="p-3 border rounded-lg bg-gray-100" required />
+                <input name="confirmPassword" onChange={handleChange} placeholder="Confirm Password" type="password" className="p-3 border rounded-lg bg-gray-100" required />
               </div>
             )}
 
-            <button
-              type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition duration-300"
-            >
+            <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition duration-300">
               Register
             </button>
           </form>
