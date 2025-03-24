@@ -18,8 +18,8 @@ const stockRoutes = require('./routes/InventoryM/StockRoute');
 
 
 
-const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes')
-const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
+//const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes')
+//const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
 const environmentalDataRoutes = require('./routes/GrowerHandler/environmentalData');//GH env add data
 
 
