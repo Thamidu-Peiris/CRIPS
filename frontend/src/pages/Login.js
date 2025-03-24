@@ -53,7 +53,7 @@ const Login = () => {
       } else if (role === "cutters") {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
-      } else if (role === "inventory manager") {
+      } else if (role === "InventoryManager") {
         console.log("[DEBUG] Redirecting to /inventory-manager-dashboard");
         navigate("/inventory-manager-dashboard");
       } else if (role === "sales manager") {

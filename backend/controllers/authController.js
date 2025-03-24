@@ -1,5 +1,6 @@
 // backend/controllers/SM/authController.js
 const SystemManager = require("../models/SM/SysManagerModel");
+const InventoryManager = require("../models/InventoryM/inventoryManagerModel");
 const User = require("../models/customer/User");
 const CSM = require("../models/csm/csmModel");
 const bcrypt = require("bcryptjs");
@@ -21,6 +22,18 @@ exports.universalLogin = async (req, res) => {
       console.log("SystemManager found:", user);
       role = "SystemManager"; // Match the database (uppercase)
     }
+
+    // check InventoryManager
+    if (!user) {
+    console.log("Checking InventoryManager...", InventoryManager.collection.name);
+    user = await InventoryManager.findOne({
+      $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+    });
+
+    if (user) {
+      console.log("InventoryManager found:", user);
+      role = "InventoryManager"; // Match the database (uppercase)
+    }}
 
     // Check Customer
     if (!user) {
