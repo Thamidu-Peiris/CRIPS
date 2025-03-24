@@ -1,20 +1,40 @@
-//CRIPS\backend\controllers\customer\userController.js
 const User = require('../../models/customer/User');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
 
-// Configure multer for file uploads
+// Configure multer for file uploads with validation
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Save files to the uploads directory
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Unique filename with timestamp
+    cb(null, Date.now() + path.extname(file.originalname));
   },
 });
 
-const upload = multer({ storage });
+// File filter for allowed types
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png/;
+  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedTypes.test(file.mimetype);
+  if (extname && mimetype) {
+    return cb(null, true);
+  }
+  cb(new Error('Only JPEG/JPG/PNG images are allowed'));
+};
+
+// Pre-configure upload as single-file middleware without size limit
+const upload = multer({
+  storage,
+  fileFilter, // No limits specified
+}).single('profileImage');
+
+// Ensure uploads directory exists
+const fs = require('fs');
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
 
 const createUser = async (req, res) => {
   const { role, firstName, lastName, username, address, phoneNumber, email, password, companyName, businessAddress, taxId } = req.body;
@@ -22,7 +42,7 @@ const createUser = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Email already registered' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -39,12 +59,12 @@ const createUser = async (req, res) => {
       businessAddress,
       taxId,
       profileImage: req.file ? `/uploads/${req.file.filename}` : undefined,
+      status: 'pending',
     });
 
     await newUser.save();
-    // Updated response to include user data (excluding password for security)
-    res.status(201).json({ 
-      message: 'User registered successfully',
+    res.status(201).json({
+      message: 'Registration successful. Please wait for approval from the Customer Service Manager.',
       user: {
         id: newUser._id,
         email: newUser.email,
@@ -58,7 +78,8 @@ const createUser = async (req, res) => {
         companyName: newUser.companyName,
         businessAddress: newUser.businessAddress,
         taxId: newUser.taxId,
-      }
+        status: newUser.status,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: 'Failed to register user', error: error.message });
@@ -70,19 +91,21 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    if (user.status !== 'approved') {
+      return res.status(403).json({
+        message: `Your account is ${user.status}. Please wait for approval or contact support if declined.`,
+      });
     }
 
     res.status(200).json({
       success: true,
       message: 'Login successful',
       user: {
+        id: user._id,
         email: user.email,
         username: user.username,
         firstName: user.firstName,
@@ -90,14 +113,15 @@ const loginUser = async (req, res) => {
         phoneNumber: user.phoneNumber,
         address: user.address,
         profileImage: user.profileImage,
+        status: user.status,
+        role: user.role,
       },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Login failed', error });
+    res.status(500).json({ message: 'Login failed', error: error.message });
   }
 };
 
-// New deleteUser function
 const deleteUser = async (req, res) => {
   const { email } = req.body;
 
@@ -108,52 +132,53 @@ const deleteUser = async (req, res) => {
     }
     res.status(200).json({ message: 'Account deleted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to delete account', error });
+    res.status(500).json({ message: 'Failed to delete account', error: error.message });
   }
 };
 
 const updateUserProfile = async (req, res) => {
-  const { email, firstName, lastName, phoneNumber, address } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    console.log("User before update:", user);
-
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.phoneNumber = phoneNumber || user.phoneNumber;
-    user.address = address || user.address;
-
-    if (req.file) {
-      user.profileImage = `/uploads/${req.file.filename}`;
-      console.log("New profile image path set:", user.profileImage);
+  upload(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: err.message });
     }
 
-    await user.save();
-    console.log("User after update:", user);
+    const { email, firstName, lastName, phoneNumber, address } = req.body;
 
-    res.status(200).json({
-      message: 'Profile updated successfully',
-      user: {
-        email: user.email,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phoneNumber: user.phoneNumber,
-        address: user.address,
-        profileImage: user.profileImage,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update profile', error });
-  }
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      user.firstName = firstName || user.firstName;
+      user.lastName = lastName || user.lastName;
+      user.phoneNumber = phoneNumber || user.phoneNumber;
+      user.address = address || user.address;
+
+      if (req.file) {
+        user.profileImage = `/uploads/${req.file.filename}`;
+      }
+
+      await user.save();
+
+      res.status(200).json({
+        message: 'Profile updated successfully',
+        user: {
+          email: user.email,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          phoneNumber: user.phoneNumber,
+          address: user.address,
+          profileImage: user.profileImage,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to update profile', error: error.message });
+    }
+  });
 };
 
-// New changePassword function
 const changePassword = async (req, res) => {
   const { email, currentPassword, newPassword } = req.body;
 
@@ -174,9 +199,8 @@ const changePassword = async (req, res) => {
 
     res.status(200).json({ message: 'Password changed successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to change password', error });
+    res.status(500).json({ message: 'Failed to change password', error: error.message });
   }
 };
-
 
 module.exports = { createUser, loginUser, updateUserProfile, changePassword, deleteUser, upload };

@@ -53,6 +53,16 @@ exports.universalLogin = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
+    // Add status check for Customers and Wholesale Dealers (T)
+    if (user && (role === "Customers" || role === "Wholesale Dealers")) {
+      const userStatus = (user.status || "pending").toLowerCase();
+      if (userStatus !== "approved") {
+        return res.status(403).json({
+          message: `Your account is ${userStatus}. Please wait for approval or contact support if declined.`,
+        });
+      }
+    }
+
     const token = jwt.sign(
       { id: user._id, role },
       process.env.JWT_SECRET || "your_jwt_secret",
@@ -67,6 +77,7 @@ exports.universalLogin = async (req, res) => {
       lastName: user.lastName || "",
       profileImage: user.profileImage || "",
       role,
+      status: user.status || "pending" // Include status in response for frontend(T)
     };
 
     res.status(200).json({
