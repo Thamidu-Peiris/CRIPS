@@ -13,6 +13,17 @@ router.get('/pending', async (req, res) => {
   }
 });
 
+// Get all approved customers
+router.get('/approved', async (req, res) => {
+  try {
+    const approvedCustomers = await User.find({ status: 'approved' }).select('-password');
+    res.json(approvedCustomers);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch approved customers', error });
+  }
+});
+
+
 // Approve Customer
 router.put('/:id/approve', async (req, res) => {
   try {

@@ -26,9 +26,10 @@ const CustomerManagement = () => {
   };
 
   const handleApprove = async (id) => {
+    if (!window.confirm("Are you sure you want to approve this customer?")) return;
     try {
       await axios.put(`http://localhost:5000/api/csm/customers/${id}/approve`);
-      fetchPendingCustomers(); // Refresh list after approval
+      fetchPendingCustomers();
     } catch (err) {
       console.error("Approval failed", err);
       setError("Failed to approve customer. Please try again.");
@@ -36,9 +37,10 @@ const CustomerManagement = () => {
   };
 
   const handleReject = async (id) => {
+    if (!window.confirm("Are you sure you want to reject this customer?")) return;
     try {
       await axios.put(`http://localhost:5000/api/csm/customers/${id}/decline`);
-      fetchPendingCustomers(); // Refresh list after rejection
+      fetchPendingCustomers();
     } catch (err) {
       console.error("Rejection failed", err);
       setError("Failed to reject customer. Please try again.");
