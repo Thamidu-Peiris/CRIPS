@@ -11,7 +11,7 @@ import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import CustomerServiceDashboard from "./dashboards/CSM/CustomerServiceDashboard";
 import CuttersDashboard from "./dashboards/CuttersDashboard";
-
+//import InventoryManagerDashboard from "./dashboards/InventoryManagerDashboard";
 import SalesManagerDashboard from "./dashboards/SalesManagerDashboard";
 import ProfileSettings from "./dashboards/CSM/ProfileSettings";
 import ChangePassword from "./dashboards/CSM/ChangePassword"; 
@@ -53,15 +53,14 @@ import AddCategory from "./dashboards/GrowerHandler/AddCategory";
 import ManageCategories from "./dashboards/GrowerHandler/ManageCategories";
 import AdminApplications from "./pages/SysManager/AdminApplications.js";
 import SystemManagerProfile from "./pages/SysManager/profile.js";
-
-import InventoryManagerDashboard from ".//components/InventoryM/Dashboard.js";
+import Dashboard from './components/InventoryM/Dashboard.js';
 import StockList from './components/InventoryM/StockList.js';
 import AddStock from './components/InventoryM/AddStock.js';
 import SupplierList from './components/SupplierM/SupplierList.js';
 import SupplierForm from './components/SupplierM/SupplierForm.js';
 import './components/InventoryM/styles.css';
 
-
+//<Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 function App() {
   return (
     <Router>
@@ -80,6 +79,7 @@ function App() {
         <Route path="/csm/customer-management" element={<CustomerManagement />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
+        
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
         <Route path="/profile-settings" element={<ProfileSettings />} />
         <Route path="/change-password" element={<ChangePassword />} />
@@ -111,8 +111,8 @@ function App() {
         <Route path="/grower-handler/add-category" element={<AddCategory />} />
         <Route path="/grower-handler/manage-categories" element={<ManageCategories />} />
         <Route path="/admin-applications" element={<AdminApplications />} />
-        <Route path="/SMprofile" element={<SystemManagerProfile />} />
-        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
+        <Route path="/SMprofile" element={<SystemManagerProfile />} /> // ✅ Add Route for
+        <Route path="/inventrymanagerdashboard" element={<Dashboard />} />
         <Route path="/in-stock" element={<StockList />} />
         <Route path="/add-stock" element={<AddStock />} />
         <Route path="/suppliers" element={<SupplierList />} />
