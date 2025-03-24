@@ -92,7 +92,7 @@ const GrowerHandlerDashboard = () => {
                 <p className="text-gray-500 mb-2">Manage and Monitor Tasks</p>
                 <button
                   className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700"
-                  onClick={() => navigate("/manage-task")} // Note
+                  onClick={() => navigate("/dashboards/GrowerHandler/manage-tasks")} // Note
                 >
                   Manage Tasks
                 </button>

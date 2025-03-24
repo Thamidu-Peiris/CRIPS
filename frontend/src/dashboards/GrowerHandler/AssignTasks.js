@@ -6,13 +6,14 @@ const AssignTasks = () => {
     cutterName: "",
     priority: "",
     dueDate: "",
+    status: "Incomplete", // Default status
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  
   const cutters = ["Alex", "Ben", "Cody", "Dan", "Evan"];
+  const statuses = ["Incomplete", "In Progress", "Complete"]; // Status options
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,7 +25,7 @@ const AssignTasks = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting task:", taskData); // Debugging Step 1
+    console.log("Submitting task:", taskData);
 
     try {
       const response = await fetch("http://localhost:5000/api/grower/tasks", {
@@ -35,7 +36,7 @@ const AssignTasks = () => {
         body: JSON.stringify(taskData),
       });
 
-      console.log("Response:", response); // Debugging Step 2
+      console.log("Response:", response);
 
       if (response.ok) {
         console.log("Task assigned successfully!");
@@ -48,6 +49,7 @@ const AssignTasks = () => {
           cutterName: "",
           priority: "",
           dueDate: "",
+          status: "Incomplete", // Reset to default
         });
       } else {
         const contentType = response.headers.get("content-type");
@@ -149,6 +151,24 @@ const AssignTasks = () => {
                 required
                 className="w-full p-2 border rounded text-black"
               />
+            </div>
+
+            {/* Status Dropdown */}
+            <div>
+              <label className="block text-black mb-1">Status</label>
+              <select
+                name="status"
+                value={taskData.status}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded text-black"
+              >
+                {statuses.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Submit Button */}
