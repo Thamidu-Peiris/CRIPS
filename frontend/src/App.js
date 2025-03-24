@@ -36,6 +36,7 @@ import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 import EmpManage from './pages/SysManager/EmpManagement.js'
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
+import CustomerManagement from './dashboards/CSM/CustomerManagement.js';
 
 
 //Grower  Handler
@@ -75,6 +76,7 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
+        <Route path="/csm/customer-management" element={<CustomerManagement />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
@@ -122,6 +124,8 @@ function App() {
         <Route path="/all-plants" element={<ViewPlants />} />
         <Route path="/manage-plants" element={<ManagePlants />} />
         <Route path="/empmanage" element={<EmpManage />} />
+        
+
 
       </Routes>
     </Router>
