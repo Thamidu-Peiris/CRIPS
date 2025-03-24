@@ -73,6 +73,14 @@ import SupplierList from './components/SupplierM/SupplierList.js';
 import SupplierForm from './components/SupplierM/SupplierForm.js';
 import './components/InventoryM/styles.css';
 
+import ShipmentStatus from './dashboards/TransportManager/ShipmentStatus.js'
+import QualityCheckLog from "./dashboards/TransportManager/QualityCheckLog.js";
+import FuelTracker from "./dashboards/TransportManager/FuelTracker.js";
+import ShipmentScheduler from "./dashboards/TransportManager/ShipmentScheduler.js";
+import RouteOptimizer from "./dashboards/TransportManager/RouteOptimizer.js";
+import TransportReports from "./dashboards/TransportManager/TransportReports.js";
+import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
+
 //<Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 function App() {
   return (
@@ -141,8 +149,14 @@ function App() {
         <Route path="/dashboards/GrowerHandler/manage-tasks" element={<ManageTasks />} />
         <Route path="/dashboards/GrowerHandler/add-environmental-data" element={<AddEnvironmentalData />} />//GH Add env data
         <Route path="/empmanage" element={<EmpManage />} />
-        
 
+        <Route path="/ShipmentStatus" element={<ShipmentStatus />} />
+        <Route path="/quality-check-log" element={<QualityCheckLog />} />
+        <Route path="/fuel-tracker" element={<FuelTracker />} />
+        <Route path="/shipment-scheduler" element={<ShipmentScheduler />} />
+        <Route path="/route-optimizer" element={<RouteOptimizer />} />
+        <Route path="/transport-reports" element={<TransportReports />} />
+        <Route path="/transport-dashboard" element={<TransportManagerDashboard />} />
 
       </Routes>
     </Router>

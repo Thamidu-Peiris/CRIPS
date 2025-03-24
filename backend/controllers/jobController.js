@@ -3,8 +3,9 @@ const JobApplication = require("../models/JobApplication");
 const CustomerServiceManager = require("../models/csm/csmModel");
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
 const Cutters = require("../models/cutters/cuttersModel");
-const InventoryManager = require("../models/inventoryM/inventoryManagerModel");
+const InventoryManager = require("../models/InventoryM/inventoryManagerModel");
 const SalesManager = require("../models/salesManager/salesManagerModel");
+const TransportManager = require("../models/TransportManager/TransportManagerModel");
 const bcrypt = require("bcryptjs");
 
 // Map job titles to models
@@ -14,6 +15,7 @@ const roleModelMap = {
   "Cutters": Cutters,
   "Inventory Manager": InventoryManager,
   "Sales Manager": SalesManager,
+  "TransportManager": TransportManager,
 };
 
 // Email validation regex

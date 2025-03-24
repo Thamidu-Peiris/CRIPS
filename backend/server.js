@@ -29,6 +29,12 @@ const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 const csmRoutes = require('./routes/csm/csmRoutes');
 const csmCustomerRoutes = require('./routes/csm/csmCustomerRoutes');
 const visitorRoutes = require('./routes/SM/visitorRoutes');
+const shipmentRoutes = require('./routes/TransportManager/shipmentRoutes');
+const qualityRoutes = require('./routes//TransportManager/qualityRoutes');
+const fuelRoutes = require('./routes/TransportManager/fuelRoutes');
+const scheduleRoutes = require('./routes/TransportManager/scheduleRoutes');
+const reportRoutes = require('./routes/TransportManager/reportRoutes');
+const transportDashboardRoutes = require('./routes/TransportManager/transportDashboardRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -52,7 +58,12 @@ app.use('/api', contactRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", supportRoutes);
 app.use('/api/auth', authRoutes);
-
+app.use('/api/shipments', shipmentRoutes);
+app.use('/api/quality', qualityRoutes);
+app.use('/api/fuel', fuelRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/transport', transportDashboardRoutes);
 
 
 

@@ -53,6 +53,10 @@ const Careers = () => {
       title: "Sales Manager",
       description: "Drive sales and build relationships with clients in the aqua plant industry.",
     },
+    {
+      title: "TransportManager",
+      description: "Oversee transportation operations, track shipments, optimize fuel consumption, ensure quality during transit, and manage logistics in the aqua plant industry."
+    }
   ];
 
   const handleApplyClick = (jobTitle) => {
