@@ -56,21 +56,21 @@ const Login = () => {
       } else if (role === "Customer Service Manager") {
         console.log("[DEBUG] Redirecting to /customer-service-dashboard");
         navigate("/customer-service-dashboard");
-      } else if (role === "grower handler") {
+      } else if (role === "Grower Handler") {
         console.log("[DEBUG] Redirecting to /grower-handler-dashboard");
-        navigate("/grower-handler-dashboard");
+        navigate("/dashboards/GrowerHandler");
       } else if (role === "cutters") {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
       } else if (role === "InventoryManager") {
         console.log("[DEBUG] Redirecting to /inventory-manager-dashboard");
         navigate("/inventory-manager-dashboard");
-      } else if (role === "sales manager") {
+      } else if (role === "Sales Manager") {
         console.log("[DEBUG] Redirecting to /sales-manager-dashboard");
         navigate("/sales-manager-dashboard");
       } else {
         console.log("[DEBUG] Redirecting to /shop (default for Customer)");
-        navigate("/shop");
+        
       }
     } catch (error) {
       console.error("[DEBUG] Error logging in:", error.response?.data || error.message);
