@@ -13,7 +13,6 @@ const ManagePlants = () => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isSuccessMessage, setIsSuccessMessage] = useState("");
 
-  // Fetch plants from the database
   useEffect(() => {
     const fetchPlants = async () => {
       try {
@@ -34,18 +33,15 @@ const ManagePlants = () => {
     fetchPlants();
   }, []);
 
-  // Handle Search and Filter
   const handleSearchAndFilter = (search, category) => {
     let updatedPlants = [...plants];
 
-    // Apply search
     if (search) {
       updatedPlants = updatedPlants.filter((plant) =>
         plant.plantName.toLowerCase().includes(search.toLowerCase())
       );
     }
 
-    // Apply filter by speciesCategory
     if (category) {
       updatedPlants = updatedPlants.filter((plant) => plant.speciesCategory === category);
     }
@@ -65,9 +61,8 @@ const ManagePlants = () => {
     handleSearchAndFilter(searchTerm, category);
   };
 
-  // Handle Update
   const handleUpdateClick = (plant) => {
-    setSelectedPlant({ ...plant }); // Create a copy to avoid mutating the original
+    setSelectedPlant({ ...plant });
     setIsUpdateModalOpen(true);
   };
 
@@ -91,7 +86,7 @@ const ManagePlants = () => {
         p._id === selectedPlant._id ? { ...p, ...updatedPlant } : p
       );
       setPlants(updatedPlants);
-      handleSearchAndFilter(searchTerm, filterCategory); // Reapply search and filter
+      handleSearchAndFilter(searchTerm, filterCategory);
       setIsSuccessMessage("Plant updated successfully!");
       setIsUpdateModalOpen(false);
     } catch (err) {
@@ -100,7 +95,6 @@ const ManagePlants = () => {
     }
   };
 
-  // Handle Delete
   const handleDeleteClick = async (id) => {
     if (window.confirm("Are you sure you want to delete this plant?")) {
       try {
@@ -114,7 +108,7 @@ const ManagePlants = () => {
 
         const updatedPlants = plants.filter((plant) => plant._id !== id);
         setPlants(updatedPlants);
-        handleSearchAndFilter(searchTerm, filterCategory); // Reapply search and filter
+        handleSearchAndFilter(searchTerm, filterCategory);
         setIsSuccessMessage("Plant deleted successfully!");
       } catch (err) {
         console.error("Error deleting plant:", err);
@@ -123,7 +117,6 @@ const ManagePlants = () => {
     }
   };
 
-  // Handle form input changes in the update modal
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setSelectedPlant((prev) => ({ ...prev, [name]: value }));
@@ -165,7 +158,6 @@ const ManagePlants = () => {
         </button>
       </div>
 
-      {/* Search & Filter */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div>
           <label htmlFor="search" className="mr-2 text-gray-700">Search by Name:</label>
@@ -196,7 +188,6 @@ const ManagePlants = () => {
         </div>
       </div>
 
-      {/* Success/Error Message */}
       {isSuccessMessage && (
         <div
           className={`p-3 rounded mb-6 ${
@@ -209,11 +200,11 @@ const ManagePlants = () => {
         </div>
       )}
 
-      {/* Plants Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border border-gray-300">
           <thead>
             <tr className="bg-gray-100">
+              <th className="border p-2 text-left">Plant ID</th>
               <th className="border p-2 text-left">Image</th>
               <th className="border p-2 text-left">Plant Name</th>
               <th className="border p-2 text-left">Scientific Name</th>
@@ -223,9 +214,6 @@ const ManagePlants = () => {
               <th className="border p-2 text-left">pH (Min-Max)</th>
               <th className="border p-2 text-left">CO2 Requirement</th>
               <th className="border p-2 text-left">Fertilizer Requirement</th>
-              <th className="border p-2 text-left">Stock</th>
-              <th className="border p-2 text-left">Price</th>
-              <th className="border p-2 text-left">Supplier</th>
               <th className="border p-2 text-left">Description</th>
               <th className="border p-2 text-left">Batch Status</th>
               <th className="border p-2 text-left">Availability</th>
@@ -235,6 +223,7 @@ const ManagePlants = () => {
           <tbody>
             {filteredPlants.map((plant) => (
               <tr key={plant._id} className="hover:bg-gray-50">
+                <td className="border p-2">{plant.plantId}</td>
                 <td className="border p-2">
                   <img
                     src={plant.plantImage || fallbackImage}
@@ -255,9 +244,6 @@ const ManagePlants = () => {
                 </td>
                 <td className="border p-2">{plant.co2Requirement || "Not specified"}</td>
                 <td className="border p-2">{plant.fertilizerRequirement || "Not specified"}</td>
-                <td className="border p-2">{plant.stockQuantity}</td>
-                <td className="border p-2">${plant.pricePerUnit}</td>
-                <td className="border p-2">{plant.supplierName}</td>
                 <td className="border p-2">{plant.description || "No description"}</td>
                 <td className="border p-2">{plant.plantBatchStatus || "Not specified"}</td>
                 <td className="border p-2">{plant.plantAvailability || "Not specified"}</td>
@@ -271,7 +257,7 @@ const ManagePlants = () => {
                       } else if (action === "delete") {
                         handleDeleteClick(plant._id);
                       }
-                      e.target.value = ""; // Reset the dropdown
+                      e.target.value = "";
                     }}
                   >
                     <option value="">Actions</option>
@@ -285,12 +271,22 @@ const ManagePlants = () => {
         </table>
       </div>
 
-      {/* Update Modal */}
       {isUpdateModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg max-h-[80vh] overflow-y-auto w-full max-w-2xl">
             <h3 className="text-xl font-semibold mb-4 text-blue-700">Update Plant</h3>
             <form onSubmit={handleUpdateSubmit} className="space-y-3">
+              <div>
+                <label className="block text-gray-700">Plant ID</label>
+                <input
+                  type="text"
+                  name="plantId"
+                  value={selectedPlant.plantId}
+                  onChange={handleInputChange}
+                  className="w-full p-2 border rounded text-black"
+                  required
+                />
+              </div>
               <div>
                 <label className="block text-gray-700">Plant Name</label>
                 <input
@@ -409,40 +405,6 @@ const ManagePlants = () => {
                   value={selectedPlant.fertilizerRequirement || ""}
                   onChange={handleInputChange}
                   className="w-full p-2 border rounded text-black"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700">Stock Quantity</label>
-                <input
-                  type="number"
-                  name="stockQuantity"
-                  value={selectedPlant.stockQuantity}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded text-black"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700">Price Per Unit ($)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="pricePerUnit"
-                  value={selectedPlant.pricePerUnit}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded text-black"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700">Supplier Name</label>
-                <input
-                  type="text"
-                  name="supplierName"
-                  value={selectedPlant.supplierName}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border rounded text-black"
-                  required
                 />
               </div>
               <div>
