@@ -1,4 +1,4 @@
-// backend/controllers/reportController.js
+// backend/controllers/SalesManager/reportController.js
 const Transaction = require("../../models/salesManager/FinancialModel");
 const Customer = require("../../models/salesManager/CustomerModel");
 const Payroll = require("../../models/salesManager/PayrollModel");
@@ -310,10 +310,117 @@ const getDashboardData = async (req, res) => {
   }
 };
 
+// Add a new salary sheet entry
+const addSalarySheet = async (req, res) => {
+  try {
+    const { entries, month, year } = req.body;
+
+    // Validate input
+    if (!entries || !Array.isArray(entries) || !month || !year) {
+      return res.status(400).json({ error: "Entries, month, and year are required" });
+    }
+
+    // Add month and year to each entry and save to database
+    const payrollEntries = entries.map((entry) => ({
+      ...entry,
+      month: Number(month),
+      year: Number(year),
+    }));
+
+    const savedEntries = await Payroll.insertMany(payrollEntries);
+    res.status(201).json({ message: "Salary sheet created successfully", entries: savedEntries });
+  } catch (error) {
+    console.error("Error adding salary sheet:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Fetch salary sheet for a specific month and year
+const getSalarySheet = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+
+    if (!month || !year) {
+      return res.status(400).json({ error: "Month and year are required" });
+    }
+
+    const payrollEntries = await Payroll.find({
+      month: Number(month),
+      year: Number(year),
+    }).sort({ employeeName: 1 });
+
+    res.status(200).json(payrollEntries);
+  } catch (error) {
+    console.error("Error fetching salary sheet:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// New: Update a salary sheet entry
+const updateSalarySheetEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { employeeName, designation, basicSalary, allowances, deductions, netSalary } = req.body;
+
+    // Validate input
+    if (!employeeName || !designation || !basicSalary || !netSalary) {
+      return res.status(400).json({ error: "All required fields must be provided" });
+    }
+
+    // Find and update the entry
+    const updatedEntry = await Payroll.findByIdAndUpdate(
+      id,
+      {
+        employeeName,
+        designation,
+        basicSalary: Number(basicSalary),
+        allowances: Number(allowances) || 0,
+        deductions: Number(deductions) || 0,
+        netSalary: Number(netSalary),
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedEntry) {
+      return res.status(404).json({ error: "Salary sheet entry not found" });
+    }
+
+    console.log("Updated entry:", updatedEntry);
+    res.status(200).json({ message: "Salary sheet entry updated successfully", entry: updatedEntry });
+  } catch (error) {
+    console.error("Error updating salary sheet entry:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// New: Delete a salary sheet entry
+const deleteSalarySheetEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find and delete the entry
+    const deletedEntry = await Payroll.findByIdAndDelete(id);
+
+    if (!deletedEntry) {
+      return res.status(404).json({ error: "Salary sheet entry not found" });
+    }
+
+    console.log("Deleted entry:", deletedEntry);
+    res.status(200).json({ message: "Salary sheet entry deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting salary sheet entry:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   getFinancialReport,
   getCustomerReport,
   getPayrollReport,
   getProductPerformanceReport,
   getDashboardData,
+  addSalarySheet,
+  getSalarySheet,
+  updateSalarySheetEntry,
+  deleteSalarySheetEntry,
 };
