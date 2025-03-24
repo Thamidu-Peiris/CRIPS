@@ -5,6 +5,7 @@ const User = require("../models/customer/User");
 const CSM = require("../models/csm/csmModel");
 const salseManager = require("../models/salesManager/salesManagerModel")
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
+const TransportManager = require("../models/TransportManager/TransportManagerModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -36,6 +37,18 @@ exports.universalLogin = async (req, res) => {
       console.log("InventoryManager found:", user);
       role = "InventoryManager"; // Match the database (uppercase)
     }}
+
+    // check TransportManager
+    if (!user) {
+      console.log("Checking TransportManager...", TransportManager.collection.name);
+      user = await TransportManager.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+      });
+  
+      if (user) {
+        console.log("TransportManager found:", user);
+        role = "TransportManager"; // Match the database (uppercase)
+      }}
 
     // Check Customer
     if (!user) {
