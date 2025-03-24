@@ -44,6 +44,8 @@ import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
 import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
 import ViewPlants from "./dashboards/GrowerHandler/ViewPlants";
+import ManageTasks from './dashboards/GrowerHandler/ManageTasks';//GH Manage Tasks
+import AddEnvironmentalData from './dashboards/GrowerHandler/AddEnvironmentalData';//GH add env data
 import GrowerHandlerDashboard from "./dashboards/GrowerHandler/GrowerHandlerDashboard.js";
 import GHProfileSettings from "./dashboards/GrowerHandler/GHProfileSettings.js";
 import GHUpdateProfile from "./dashboards/GrowerHandler/GHUpdateProfile.js";
@@ -123,6 +125,8 @@ function App() {
         <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
         <Route path="/all-plants" element={<ViewPlants />} />
         <Route path="/manage-plants" element={<ManagePlants />} />
+        <Route path="/dashboards/GrowerHandler/manage-tasks" element={<ManageTasks />} />
+        <Route path="/dashboards/GrowerHandler/add-environmental-data" element={<AddEnvironmentalData />} />//GH Add env data
         <Route path="/empmanage" element={<EmpManage />} />
         
 
