@@ -35,8 +35,13 @@ import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 import EmpManage from './pages/SysManager/EmpManagement.js'
+
+import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
+import CustomersList from "./dashboards/CSM/CustomersList";
+
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 import CustomerManagement from './dashboards/CSM/CustomerManagement.js';
+
 
 
 //Grower  Handler
@@ -77,7 +82,8 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
-        <Route path="/csm/customer-management" element={<CustomerManagement />} />
+        <Route path="/csm/customer-requests" element={<CustomerRequests />} />
+        <Route path="/customers-list" element={<CustomersList />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         
