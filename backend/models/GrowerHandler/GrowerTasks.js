@@ -18,6 +18,12 @@ const growerTaskSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  status: {
+    type: String,
+    enum: ['Incomplete', 'In Progress', 'Complete'],
+    default: 'Incomplete',
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
