@@ -15,11 +15,20 @@ const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
+
+
+
+//const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes')
+//const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
+const environmentalDataRoutes = require('./routes/GrowerHandler/environmentalData');//GH env add data
+
+
 const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes');
 const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
 const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 const csmRoutes = require('./routes/csm/csmRoutes');
 const csmCustomerRoutes = require('./routes/csm/csmCustomerRoutes');
+const visitorRoutes = require('./routes/SM/visitorRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -35,6 +44,18 @@ app.use(cors({
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use('/api/grower/tasks', growerTaskRoutes);//GH tasks
+app.use('/api/grower/environmental-data', environmentalDataRoutes);//GH add env data
+app.use('/api/users', userRoutes);
+app.use('/api/plants', plantRoutes);
+app.use('/api', contactRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/api", supportRoutes);
+app.use('/api/auth', authRoutes);
+
+
+
+
 // Validate MongoDB URI
 if (!MONGO_URI) {
   console.error(" Error: MONGO_URI is not defined in .env");
@@ -45,7 +66,7 @@ if (!MONGO_URI) {
 mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => {
-    console.error(" MongoDB connection error:", err);
+    console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   });
 
@@ -53,9 +74,9 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 app.use('/api/users', userRoutes);
 app.use('/api/plants', plantRoutes);
 app.use('/api/contact', contactRoutes);
-app.use("/api/jobs", jobRoutes);
+
 app.use("/api/support", supportRoutes);
-app.use('/api/auth', authRoutes);
+
 app.use("/api/grower-handler", growerHandlerPlantRoutes);
 app.use('/api/systemManagers', systemManagerRoutes);
 app.use('/api/suppliers', supplierRoutes);
@@ -66,6 +87,7 @@ app.use('/api/tasks', jobRoutes);
 app.use('/api/sales', salesReportRoutes);
 app.use('/api/csm', csmRoutes);
 app.use('/api/csm/customers', csmCustomerRoutes);
+app.use('/api/visitor', visitorRoutes);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware

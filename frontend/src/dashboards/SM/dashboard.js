@@ -41,25 +41,40 @@ const Dashboard = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const salesResponse = await axios.get("http://localhost:5000/api/stats/sales");
-      const stockResponse = await axios.get("http://localhost:5000/api/stats/stock");
-      const visitorsResponse = await axios.get("http://localhost:5000/api/stats/visitors");
-      const ordersResponse = await axios.get("http://localhost:5000/api/orders/recent");
-
-      setStats({
-        sales: salesResponse.data.total || 0,
-        stock: stockResponse.data.total || 0,
-        visitors: visitorsResponse.data.total || 0,
-      });
-      setOrders(ordersResponse.data || []);
+  
+      // Try to fetch visitor stats first
+      const visitorsResponse = await axios.get("http://localhost:5000/api/visitor/stats");
+      setStats(prevStats => ({
+        ...prevStats,
+        visitors: visitorsResponse.data.dayCount || 0,
+      }));
+  
+      // Optional: Try other endpoints but ignore their errors for now
+      try {
+        const salesResponse = await axios.get("http://localhost:5000/api/stats/sales");
+        const stockResponse = await axios.get("http://localhost:5000/api/stats/stock");
+        const ordersResponse = await axios.get("http://localhost:5000/api/orders/recent");
+  
+        setStats(prevStats => ({
+          ...prevStats,
+          sales: salesResponse.data.total || 0,
+          stock: stockResponse.data.total || 0,
+        }));
+        setOrders(ordersResponse.data || []);
+      } catch (innerErr) {
+        console.warn("Other APIs not ready:", innerErr);
+        // Don't set error, so visitors still show
+      }
+  
     } catch (error) {
-      console.error("Error fetching dashboard data:", error);
-      setError("Failed to load dashboard data. Please try again later.");
+      console.error("Error fetching visitor stats:", error);
+      setError("Failed to load visitor data.");
     } finally {
       setLoading(false);
     }
   };
+  
+  
 
   const handleQuickAction = (path) => {
     navigate(path);
