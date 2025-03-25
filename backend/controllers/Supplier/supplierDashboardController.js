@@ -1,6 +1,6 @@
-const Order = require('../../models/InventoryM/OrderStock');
+const Order = require('../../models/InventoryM/OrderStock'); // Use the correct Order model
 
-// Get all orders for the supplier
+// ✅ Get all orders for the supplier
 exports.getSupplierOrders = async (req, res) => {
   try {
     const orders = await Order.find({ supplierId: req.params.supplierId });
@@ -10,7 +10,7 @@ exports.getSupplierOrders = async (req, res) => {
   }
 };
 
-// Approve the order and log status history
+// ✅ Approve the order and log status history
 exports.approveOrder = async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -18,7 +18,7 @@ exports.approveOrder = async (req, res) => {
       {
         status: 'confirmed',
         approvedDate: new Date(),
-        $push: { statusHistory: { status: 'confirmed' } }
+        $push: { statusHistory: { status: 'confirmed', updatedAt: new Date() } }
       },
       { new: true }
     );
@@ -28,7 +28,7 @@ exports.approveOrder = async (req, res) => {
   }
 };
 
-// Ship the order and log status history
+// ✅ Ship the order and log status history
 exports.shipOrder = async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -36,7 +36,7 @@ exports.shipOrder = async (req, res) => {
       {
         status: 'shipped',
         shippedDate: new Date(),
-        $push: { statusHistory: { status: 'shipped' } }
+        $push: { statusHistory: { status: 'shipped', updatedAt: new Date() } }
       },
       { new: true }
     );

@@ -29,7 +29,7 @@ const Careers = () => {
     termsAccepted: false,
   });
   const [supplierFormData, setSupplierFormData] = useState({
-    supplierId: "",
+    NIC: "",
     name: "",
     companyName: "",
     contactNumber: "",
@@ -170,7 +170,7 @@ const Careers = () => {
 
   const handleSupplierClear = () => {
     setSupplierFormData({
-      supplierId: "",
+      NIC: "",
       name: "",
       companyName: "",
       contactNumber: "",
@@ -278,7 +278,7 @@ const Careers = () => {
   
     // Construct FormData
     const supplierFormDataToSend = new FormData();
-    supplierFormDataToSend.append("supplierId", supplierFormData.supplierId);
+    supplierFormDataToSend.append("NIC", supplierFormData.NIC);
     supplierFormDataToSend.append("name", supplierFormData.name);
     supplierFormDataToSend.append("companyName", supplierFormData.companyName);
     supplierFormDataToSend.append("contactNumber", supplierFormData.contactNumber);
@@ -693,12 +693,12 @@ const Careers = () => {
           <h3 className="text-lg font-semibold text-gray-700 mb-3">Supplier Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Supplier ID *</label>
+              <label className="block text-sm font-medium text-gray-600 mb-1">NIC *</label>
               <input
-                name="supplierId"
-                value={supplierFormData.supplierId}
+                name="NIC"
+                value={supplierFormData.NIC}
                 onChange={handleSupplierChange}
-                placeholder="Supplier ID"
+                placeholder="Supplier NIC"
                 className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />

@@ -63,8 +63,11 @@ const Login = () => {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
       }else if (role === "TransportManager") {
-        console.log("[DEBUG] Redirecting to /cutters-dashboard");
+        console.log("[DEBUG] Redirecting to /TM-dashboard");
         navigate("/transport-dashboard");
+      }else if (role === "supplier") {
+        console.log("[DEBUG] Redirecting to /supplier-dashboard");
+        navigate("/supplier-dashboard");
       }
        else if (role === "InventoryManager") {
         console.log("[DEBUG] Redirecting to /inventory-manager-dashboard");
