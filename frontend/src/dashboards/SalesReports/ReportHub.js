@@ -52,7 +52,7 @@ const ReportHub = () => {
         if (response.ok) {
 
           console.log(`Response data for ${reportType}:`, data);
-          let dataArray;
+         // let dataArray;
           if (reportType === "payroll") {
             // Extract the payroll array from the response
             dataArray = Array.isArray(data.payroll) ? data.payroll : [];
