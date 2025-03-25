@@ -1,7 +1,6 @@
-// CRIPS\frontend\src\dashboards\SM\sideBar.js
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaUser, FaUsers, FaChartBar, FaCog, FaBriefcase, FaEnvelope, FaStar, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaUser, FaUsers, FaChartBar, FaCog, FaBriefcase, FaEnvelope, FaStar, FaSignOutAlt, FaBox } from "react-icons/fa";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -97,6 +96,19 @@ const Sidebar = () => {
           >
             <FaBriefcase className="mr-3 text-lg" />
             Job Applications
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/approve-suppliers"
+            className={`flex items-center p-3 rounded-xl transition duration-300 ${
+              location.pathname === "/approve-suppliers"
+                ? "bg-cyan-500/20 text-cyan-400"
+                : "hover:bg-gray-800 text-gray-300 hover:text-cyan-400"
+            }`}
+          >
+            <FaBox className="mr-3 text-lg" />
+            Approve Suppliers
           </Link>
         </li>
         <li>

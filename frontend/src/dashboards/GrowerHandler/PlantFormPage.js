@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 const PlantFormPage = () => {
   const [formData, setFormData] = useState({
+    plantId: "",
     plantName: "",
     scientificName: "",
     speciesCategory: "",
@@ -12,9 +13,6 @@ const PlantFormPage = () => {
     pHMax: "",
     co2Requirement: "",
     fertilizerRequirement: "",
-    stockQuantity: "",
-    pricePerUnit: "",
-    supplierName: "",
     plantImage: "",
     description: "",
     plantBatchStatus: "",
@@ -22,6 +20,7 @@ const PlantFormPage = () => {
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,24 +32,34 @@ const PlantFormPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form:", formData); // Debugging Step 1
+    setErrorMessage("");
+    console.log("Submitting form:", formData);
 
     try {
+      // Convert string values to numbers for numeric fields
+      const convertedFormData = {
+        ...formData,
+        waterTemperatureMin: parseFloat(formData.waterTemperatureMin),
+        waterTemperatureMax: parseFloat(formData.waterTemperatureMax),
+        pHMin: parseFloat(formData.pHMin),
+        pHMax: parseFloat(formData.pHMax),
+      };
+
       const response = await fetch("http://localhost:5000/api/grower/plants", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(convertedFormData),
       });
 
-      console.log("Response:", response); // Debugging Step 2
+      console.log("Response:", response);
 
       if (response.ok) {
         console.log("Plant data successfully submitted!");
         setIsSuccess(true);
-
         setFormData({
+          plantId: "",
           plantName: "",
           scientificName: "",
           speciesCategory: "",
@@ -61,25 +70,24 @@ const PlantFormPage = () => {
           pHMax: "",
           co2Requirement: "",
           fertilizerRequirement: "",
-          stockQuantity: "",
-          pricePerUnit: "",
-          supplierName: "",
           plantImage: "",
           description: "",
           plantBatchStatus: "",
           plantAvailability: "",
         });
       } else {
-        console.error("Failed to submit plant data");
+        const errorData = await response.json();
+        console.error("Failed to submit plant data:", errorData.message);
+        setErrorMessage(errorData.message || "Failed to submit plant data.");
       }
     } catch (error) {
       console.error("Error submitting plant data:", error);
+      setErrorMessage("An unexpected error occurred while submitting the form.");
     }
   };
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden">
-      {/* Video Background */}
       <video
         autoPlay
         loop
@@ -89,13 +97,20 @@ const PlantFormPage = () => {
         <source src="/AddPlantbackground.mp4" type="video/mp4" />
       </video>
 
-      {/* Scrollable Form Container */}
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center">
         <div className="max-w-lg w-full bg-white bg-opacity-90 shadow-md rounded-lg p-6 mt-4 mb-4 overflow-y-auto max-h-[90vh]">
           <h2 className="text-2xl font-semibold text-center mb-6">Add a New Plant</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4 overflow-y-auto">
-            {/* Plant Name */}
+            <input
+              type="text"
+              name="plantId"
+              value={formData.plantId}
+              onChange={handleChange}
+              required
+              placeholder="Plant ID "
+              className="w-full p-2 border rounded text-black placeholder-black"
+            />
             <input
               type="text"
               name="plantName"
@@ -105,8 +120,6 @@ const PlantFormPage = () => {
               placeholder="Plant Name"
               className="w-full p-2 border rounded text-black placeholder-black"
             />
-
-            {/* Scientific Name */}
             <input
               type="text"
               name="scientificName"
@@ -116,8 +129,6 @@ const PlantFormPage = () => {
               placeholder="Scientific Name"
               className="w-full p-2 border rounded text-black placeholder-black"
             />
-
-            {/* Species Category */}
             <select
               name="speciesCategory"
               value={formData.speciesCategory}
@@ -132,8 +143,6 @@ const PlantFormPage = () => {
               <option value="Marginal">Marginal</option>
               <option value="Mosses">Mosses</option>
             </select>
-
-            {/* Light Requirement */}
             <select
               name="lightRequirement"
               value={formData.lightRequirement}
@@ -146,8 +155,6 @@ const PlantFormPage = () => {
               <option value="Medium">Medium</option>
               <option value="High">High</option>
             </select>
-
-            {/* Water Temperature */}
             <input
               type="number"
               name="waterTemperatureMin"
@@ -166,8 +173,6 @@ const PlantFormPage = () => {
               placeholder="Water Temperature Max (°C)"
               className="w-full p-2 border rounded text-black placeholder-black"
             />
-
-            {/* pH Range */}
             <input
               type="number"
               name="pHMin"
@@ -186,8 +191,6 @@ const PlantFormPage = () => {
               placeholder="pH Max"
               className="w-full p-2 border rounded text-black placeholder-black"
             />
-
-            {/* CO2 Requirement */}
             <select
               name="co2Requirement"
               value={formData.co2Requirement}
@@ -200,8 +203,6 @@ const PlantFormPage = () => {
               <option value="Moderate">Moderate</option>
               <option value="High">High</option>
             </select>
-
-            {/* Fertilizer Requirement */}
             <select
               name="fertilizerRequirement"
               value={formData.fertilizerRequirement}
@@ -214,41 +215,6 @@ const PlantFormPage = () => {
               <option value="Biweekly">Biweekly</option>
               <option value="Monthly">Monthly</option>
             </select>
-
-            {/* Stock Quantity */}
-            <input
-              type="number"
-              name="stockQuantity"
-              value={formData.stockQuantity}
-              onChange={handleChange}
-              required
-              placeholder="Stock Quantity"
-              className="w-full p-2 border rounded text-black placeholder-black"
-            />
-
-            {/* Price Per Unit */}
-            <input
-              type="number"
-              name="pricePerUnit"
-              value={formData.pricePerUnit}
-              onChange={handleChange}
-              required
-              placeholder="Price Per Unit"
-              className="w-full p-2 border rounded text-black placeholder-black"
-            />
-
-            {/* Supplier Name */}
-            <input
-              type="text"
-              name="supplierName"
-              value={formData.supplierName}
-              onChange={handleChange}
-              required
-              placeholder="Supplier Name"
-              className="w-full p-2 border rounded text-black placeholder-black"
-            />
-
-            {/* Plant Image URL */}
             <input
               type="text"
               name="plantImage"
@@ -257,8 +223,6 @@ const PlantFormPage = () => {
               placeholder="Plant Image URL"
               className="w-full p-2 border rounded text-black placeholder-black"
             />
-
-            {/* Description */}
             <textarea
               name="description"
               value={formData.description}
@@ -267,8 +231,6 @@ const PlantFormPage = () => {
               className="w-full p-2 border rounded text-black placeholder-black"
               rows="4"
             />
-
-            {/* Plant Batch Status */}
             <select
               name="plantBatchStatus"
               value={formData.plantBatchStatus}
@@ -280,8 +242,6 @@ const PlantFormPage = () => {
               <option value="Inactive">Inactive</option>
               <option value="Discontinued">Discontinued</option>
             </select>
-
-            {/* Plant Availability */}
             <select
               name="plantAvailability"
               value={formData.plantAvailability}
@@ -293,8 +253,6 @@ const PlantFormPage = () => {
               <option value="Out of Stock">Out of Stock</option>
               <option value="Preorder">Preorder</option>
             </select>
-
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
@@ -303,10 +261,14 @@ const PlantFormPage = () => {
             </button>
           </form>
 
-          {/* Success Message */}
           {isSuccess && (
             <div className="mt-4 p-4 bg-green-200 text-green-800 rounded text-center">
               Plant added successfully!
+            </div>
+          )}
+          {errorMessage && (
+            <div className="mt-4 p-4 bg-red-200 text-red-800 rounded text-center">
+              {errorMessage}
             </div>
           )}
         </div>

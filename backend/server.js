@@ -6,7 +6,7 @@ const path = require('path');
 
 // Route Imports
 const userRoutes = require('./routes/customer/userRoutes');
-const plantRoutes = require('./routes/customer/plantRoutes');
+//const plantRoutes = require('./routes/customer/plantRoutes');
 const contactRoutes = require('./routes/customer/contactRoutes');
 const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
@@ -29,6 +29,14 @@ const salesReportRoutes = require('./routes/SalesM/salesReportRoutes');
 const csmRoutes = require('./routes/csm/csmRoutes');
 const csmCustomerRoutes = require('./routes/csm/csmCustomerRoutes');
 const visitorRoutes = require('./routes/SM/visitorRoutes');
+const shipmentRoutes = require('./routes/TransportManager/shipmentRoutes');
+const qualityRoutes = require('./routes//TransportManager/qualityRoutes');
+const fuelRoutes = require('./routes/TransportManager/fuelRoutes');
+const scheduleRoutes = require('./routes/TransportManager/scheduleRoutes');
+const reportRoutes = require('./routes/TransportManager/reportRoutes');
+const transportDashboardRoutes = require('./routes/TransportManager/transportDashboardRoutes');
+const supplierDashboardRoutes = require('./routes/SupplierM/supplierDashboardRoutes');
+const orderStockRoutes = require('./routes/SupplierM/orderStockRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -41,19 +49,25 @@ app.use(cors({
   origin: ["http://localhost:5173", "http://localhost:3000"],
   credentials: true
 }));
+app.use(express.urlencoded({ extended: true })); // Added to parse FormData
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/grower/tasks', growerTaskRoutes);//GH tasks
 app.use('/api/grower/environmental-data', environmentalDataRoutes);//GH add env data
 app.use('/api/users', userRoutes);
-app.use('/api/plants', plantRoutes);
+
 app.use('/api', contactRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", supportRoutes);
 app.use('/api/auth', authRoutes);
-
-
+app.use('/api/shipments', shipmentRoutes);
+app.use('/api/quality', qualityRoutes);
+app.use('/api/fuel', fuelRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/transport', transportDashboardRoutes);
+app.use('/uploads', express.static('uploads'));
 
 
 // Validate MongoDB URI
@@ -72,7 +86,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // Routes (removed duplicates)
 app.use('/api/users', userRoutes);
-app.use('/api/plants', plantRoutes);
+
 app.use('/api/contact', contactRoutes);
 
 app.use("/api/support", supportRoutes);
@@ -88,6 +102,8 @@ app.use('/api/sales', salesReportRoutes);
 app.use('/api/csm', csmRoutes);
 app.use('/api/csm/customers', csmCustomerRoutes);
 app.use('/api/visitor', visitorRoutes);
+app.use('/api/supplier-dashboard', supplierDashboardRoutes);
+app.use('/api/order-stock', orderStockRoutes);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware

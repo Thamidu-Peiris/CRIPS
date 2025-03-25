@@ -262,7 +262,9 @@ const SalarySheet = () => {
     document.body.removeChild(link);
   };
 
+
   // Export to PDF
+  // Updated: Export to PDF
   const exportToPDF = () => {
     if (salarySheet.length === 0) {
       alert("No data available to export.");

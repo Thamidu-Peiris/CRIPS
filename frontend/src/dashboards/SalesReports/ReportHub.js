@@ -50,6 +50,7 @@ const ReportHub = () => {
         const data = await response.json();
 
         if (response.ok) {
+
           console.log(`Response data for ${reportType}:`, data);
           let dataArray;
           if (reportType === "payroll") {
@@ -67,6 +68,10 @@ const ReportHub = () => {
           } else {
             dataArray = Array.isArray(data) ? data : [];
           }
+
+          // Ensure data is an array; if not, convert it to an array or set to empty array
+          console.log(`Response data for ${reportType}:`, data); // Debug log
+          const dataArray = Array.isArray(data) ? data : [];
           setReportData(dataArray);
         } else {
           console.error(`Error fetching ${reportType} report:`, data.error);
