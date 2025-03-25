@@ -45,7 +45,7 @@ export default function SupplierList() {
         <table className="supplier-table">
           <thead>
             <tr>
-              <th>Supplier ID</th>
+              <th>Supplier NIC</th>
               <th>Supplier Name</th>
               <th>Company</th>
               <th>Contact Number</th>

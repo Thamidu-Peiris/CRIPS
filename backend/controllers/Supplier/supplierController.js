@@ -10,7 +10,7 @@ exports.registerSupplier = async (req, res) => {
     console.log("Raw req.body keys:", Object.keys(req.body));
 
     const {
-      supplierId,
+      NIC,
       name,
       companyName,
       username,
@@ -22,7 +22,7 @@ exports.registerSupplier = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!supplierId || !name || !username || !contactNumber || !email || !address || !password) {
+    if (!NIC || !name || !username || !contactNumber || !email || !address || !password) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
@@ -60,7 +60,7 @@ exports.registerSupplier = async (req, res) => {
 
     // Create new supplier
     const newSupplier = new Supplier({
-      supplierId,
+      NIC,
       name,
       companyName,
       username,

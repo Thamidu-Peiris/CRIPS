@@ -6,6 +6,7 @@ const CSM = require("../models/csm/csmModel");
 const salseManager = require("../models/salesManager/salesManagerModel")
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
 const TransportManager = require("../models/TransportManager/TransportManagerModel");
+const Supplier = require("../models/SupplierM/Supplier");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
@@ -48,6 +49,18 @@ exports.universalLogin = async (req, res) => {
       if (user) {
         console.log("TransportManager found:", user);
         role = "TransportManager"; // Match the database (uppercase)
+      }}
+
+      // check supplier
+    if (!user) {
+      console.log("Checking supplier...", Supplier.collection.name);
+      user = await Supplier.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+      });
+  
+      if (user) {
+        console.log("Supplier found:", user);
+        role = "supplier"; // Match the database (uppercase)
       }}
 
     // Check Customer
