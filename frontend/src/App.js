@@ -72,7 +72,6 @@ import StockList from './components/InventoryM/StockList.js';
 import AddStock from './components/InventoryM/AddStock.js';
 import SupplierList from './components/SupplierM/SupplierList.js';
 import SupplierForm from './components/SupplierM/SupplierForm.js';
-import './components/InventoryM/styles.css';
 
 import ShipmentStatus from './dashboards/TransportManager/ShipmentStatus.js'
 import QualityCheckLog from "./dashboards/TransportManager/QualityCheckLog.js";
