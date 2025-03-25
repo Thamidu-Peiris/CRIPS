@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
 
-const reviewSchema = new mongoose.Schema({
-  username: { type: String, required: true },
-  rating: { type: Number, required: true, min: 1, max: 5 },
-  comment: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-});
-
 const plantSchema = new mongoose.Schema({
+  plantId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   plantName: {
     type: String,
     required: true,
@@ -48,18 +46,6 @@ const plantSchema = new mongoose.Schema({
   fertilizerRequirement: {
     type: String,
   },
-  stockQuantity: {
-    type: Number,
-    required: true,
-  },
-  pricePerUnit: {
-    type: Number,
-    required: true,
-  },
-  supplierName: {
-    type: String,
-    required: true,
-  },
   plantImage: {
     type: String,
   },
@@ -77,6 +63,5 @@ const plantSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
-
 
 module.exports = mongoose.model('Plant', plantSchema, 'growerplants');

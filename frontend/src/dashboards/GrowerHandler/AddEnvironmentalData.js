@@ -92,7 +92,7 @@ const AddEnvironmentalData = () => {
         muted
         className="absolute top-0 left-0 w-full h-full object-cover"
       >
-        <source src="/AssignTaskBackground.mp4" type="video/mp4" />
+        <source src="/AddEnvBackground.mp4" type="video/mp4" />
       </video>
 
       {/* Scrollable Form Container */}
