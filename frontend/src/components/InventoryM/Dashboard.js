@@ -2,78 +2,117 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 import Navbar from './Navbar';
-
+import './styles.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
-  const chartRef = useRef(null);   // Canvas Reference
-  const chartInstanceRef = useRef(null); // Chart Instance Reference
+  const chartRef = useRef(null);
+  const chartInstanceRef = useRef(null);
   const [stocks, setStocks] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/stocks').then(res => setStocks(res.data));
     axios.get('http://localhost:5000/api/suppliers').then(res => setSuppliers(res.data));
   }, []);
 
+  // ✅ Render Chart
   useEffect(() => {
-    if (stocks.length && suppliers.length && chartRef.current) {
-      // Destroy old chart instance if exists
+    if (chartRef.current && stocks.length && suppliers.length) {
       if (chartInstanceRef.current) chartInstanceRef.current.destroy();
 
-      // Create new chart instance
+      const stockTotal = stocks.reduce((sum, s) => sum + s.quantity, 0);
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: 'bar',
         data: {
           labels: ['Total Stock Quantity', 'Total Suppliers'],
           datasets: [{
             label: 'Inventory Overview',
-            data: [stocks.reduce((sum, s) => sum + s.quantity, 0), suppliers.length],
-            backgroundColor: ['#4e73df', '#1cc88a']
+            data: [stockTotal, suppliers.length],
+            backgroundColor: ['#4caf50', '#81c784']
           }]
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true }
+          }
         }
       });
     }
   }, [stocks, suppliers]);
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div>
       <Navbar />
-      <h1>Inventory Management Dashboard</h1>
+      <div className="dashboard-container plant-theme">
+        <h1 className="dashboard-title">🌿 Plant Inventory Dashboard 🌱</h1>
 
-      <div style={{ width: '80%', height: '300px' }}>
-        <canvas ref={chartRef}></canvas>
-      </div>
+        {/* ✅ Chart Section */}
+        <div className="chart-container">
+          <canvas ref={chartRef}></canvas>
+        </div>
 
-      <h3>Stock Alert (Quantity &lt; 40)</h3>
-      <table border="1">
-        <thead><tr><th>Stock ID</th><th>Plant Name</th><th>Quantity</th><th>Status</th></tr></thead>
-        <tbody>
-          {stocks.map(s => (
-            <tr key={s._id}>
-              <td>{s._id}</td>
-              <td>{s.plantName}</td>
-              <td>{s.quantity}</td>
-              <td style={{ color: s.quantity < 40 ? 'red' : 'green' }}>
-                {s.quantity < 40 ? 'Out of Stock' : 'Available'}
-              </td>
+        {/* ✅ Stock Alert Table */}
+        <h3 className="section-title">🌱 Stock Alert</h3>
+        <table className="dashboard-table">
+          <thead>
+            <tr>
+              <th style={{ fontSize: '18px' }}>Stock ID</th>
+              <th style={{ fontSize: '18px' }}>Plant Name</th>
+              <th style={{ fontSize: '18px' }}>Quantity</th>
+              <th style={{ fontSize: '18px' }}>Status</th>
+              <th style={{ fontSize: '18px' }}>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {stocks.map((s, index) => (
+              <tr key={s._id}>
+                <td>STOCK_{index + 1}</td>
+                <td>{s.plantName}</td>
+                <td>{s.quantity}</td>
+                <td style={{ color: s.quantity < 40 ? '#d32f2f' : '#388e3c' }}>
+                  {s.quantity < 40 ? '🌱 Low Stock' : '✅ Stock'}
+                </td>
+                <td>
+                  {s.quantity < 40 && (
+                    <button className="order-btn" onClick={() => navigate('/order-low-stocks')}>
+                      Order Low Stock
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <h3>Top Providing Products</h3>
-      <table border="1">
-        <thead><tr><th>Plant ID</th><th>Quantity</th><th>Plant Name</th></tr></thead>
-        <tbody>
-          {stocks.sort((a, b) => b.quantity - a.quantity).slice(0, 5).map((s) => (
-            <tr key={s._id}><td>{s.plantId}</td><td>{s.quantity}</td><td>{s.plantName}</td></tr>
-          ))}
-        </tbody>
-      </table>
+        {/* ✅ Top Providing Plants (Only if Quantity > 30) */}
+        <h3 className="section-title">🌿 Top Providing Plants </h3>
+        <table className="dashboard-table">
+          <thead>
+            <tr>
+              <th style={{ fontSize: '18px' }}>Stock ID</th>
+              <th style={{ fontSize: '18px' }}>Quantity</th>
+              <th style={{ fontSize: '18px' }}>Plant Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stocks
+              .filter((s) => s.quantity > 30)
+              .sort((a, b) => b.quantity - a.quantity)
+              .slice(0, 5)
+              .map((s, index) => (
+                <tr key={s._id}>
+                  <td>STOCK_{index + 1}</td>
+                  <td>{s.quantity}</td>
+                  <td>{s.plantName}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

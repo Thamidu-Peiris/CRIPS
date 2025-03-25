@@ -35,6 +35,8 @@ const fuelRoutes = require('./routes/TransportManager/fuelRoutes');
 const scheduleRoutes = require('./routes/TransportManager/scheduleRoutes');
 const reportRoutes = require('./routes/TransportManager/reportRoutes');
 const transportDashboardRoutes = require('./routes/TransportManager/transportDashboardRoutes');
+const supplierDashboardRoutes = require('./routes/SupplierM/supplierDashboardRoutes');
+const orderStockRoutes = require('./routes/SupplierM/orderStockRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -47,6 +49,7 @@ app.use(cors({
   origin: ["http://localhost:5173", "http://localhost:3000"],
   credentials: true
 }));
+app.use(express.urlencoded({ extended: true })); // Added to parse FormData
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -64,7 +67,7 @@ app.use('/api/fuel', fuelRoutes);
 app.use('/api/schedules', scheduleRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
-
+app.use('/uploads', express.static('uploads'));
 
 
 // Validate MongoDB URI
@@ -99,6 +102,8 @@ app.use('/api/sales', salesReportRoutes);
 app.use('/api/csm', csmRoutes);
 app.use('/api/csm/customers', csmCustomerRoutes);
 app.use('/api/visitor', visitorRoutes);
+app.use('/api/supplier-dashboard', supplierDashboardRoutes);
+app.use('/api/order-stock', orderStockRoutes);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware

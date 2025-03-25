@@ -121,19 +121,18 @@ const getPayrollReport = async (req, res) => {
       return res.status(400).json({ error: "month and year are required" });
     }
 
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0);
-
-    // Fetch payroll data for the specified month
+    // Fetch payroll data for the specified month and year
     const payroll = await Payroll.find({
-      date: { $gte: startDate, $lte: endDate },
-    });
+      month: Number(month),
+      year: Number(year),
+    }).sort({ employeeName: 1 });
 
     // Calculate total payroll cost
     const totalPayroll = await Payroll.aggregate([
       {
         $match: {
-          date: { $gte: startDate, $lte: endDate },
+          month: Number(month),
+          year: Number(year),
         },
       },
       {

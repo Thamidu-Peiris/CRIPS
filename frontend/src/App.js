@@ -11,7 +11,7 @@ import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import CustomerServiceDashboard from "./dashboards/CSM/CustomerServiceDashboard";
 import CuttersDashboard from "./dashboards/CuttersDashboard";
-//import InventoryManagerDashboard from "./dashboards/InventoryManagerDashboard";
+import InventoryManagerDashboard from "./components/InventoryM/Dashboard.js";
 import SalesManagerDashboard from "./dashboards/SalesManagerDashboard";
 import ProfileSettings from "./dashboards/CSM/ProfileSettings";
 import ChangePassword from "./dashboards/CSM/ChangePassword"; 
@@ -81,8 +81,10 @@ import ShipmentScheduler from "./dashboards/TransportManager/ShipmentScheduler.j
 import RouteOptimizer from "./dashboards/TransportManager/RouteOptimizer.js";
 import TransportReports from "./dashboards/TransportManager/TransportReports.js";
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
+import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
+import OrderStock from './components/InventoryM/OrderStock.js';
+import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
 
-//<Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 function App() {
   return (
     <Router>
@@ -97,9 +99,9 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
-        <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
+        <Route path="/csm/dashboard" element={<CustomerServiceDashboard />} />
         <Route path="/csm/customer-requests" element={<CustomerRequests />} />
-        <Route path="/customers-list" element={<CustomersList />} />
+        <Route path="/csm/customers-list" element={<CustomersList />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         
@@ -108,10 +110,10 @@ function App() {
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
         <Route path="/dashboard/support" element={<CustomerSupport />} />
-        <Route path="/dashboard/support-tickets" element={<SupportTickets />} />
+        <Route path="/csm/support-tickets" element={<SupportTickets />} />
         <Route path="/dashboard/create-ticket" element={<CreateTicket />} />
         <Route path="/dashboard/view-ticket/:id" element={<ViewTicket />} />
-        <Route path="/dashboard/knowledge-base" element={<KnowledgeBase />} />
+        <Route path="/csm/knowledge-base" element={<KnowledgeBase />} />
         <Route path="/dashboard/support" element={<ManageSupportTickets />} />
         <Route path="/dashboard/support/:id" element={<ViewTicket />} />
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
@@ -141,6 +143,7 @@ function App() {
         <Route path="/add-stock" element={<AddStock />} />
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/supplier-form" element={<SupplierForm />} />
+        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
@@ -159,6 +162,9 @@ function App() {
         <Route path="/route-optimizer" element={<RouteOptimizer />} />
         <Route path="/transport-reports" element={<TransportReports />} />
         <Route path="/transport-dashboard" element={<TransportManagerDashboard />} />
+        <Route path="/approve-suppliers" element={<ApproveSuppliers />} />  
+        <Route path="/Order-stock" element={<OrderStock />} />
+        <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
 
       </Routes>
     </Router>

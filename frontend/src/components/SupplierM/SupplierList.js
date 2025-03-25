@@ -7,65 +7,66 @@ export default function SupplierList() {
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState("");
 
+  // ✅ Fetch approved suppliers on load
   useEffect(() => {
-    axios.get('http://localhost:5000/api/suppliers')
-      .then((res) => setSuppliers(res.data));
+    fetchApprovedSuppliers();
   }, []);
 
-  // Filtered suppliers for search
+  const fetchApprovedSuppliers = () => {
+    axios.get('http://localhost:5000/api/suppliers')
+      .then((res) => setSuppliers(res.data))
+      .catch((err) => console.error('Error fetching suppliers:', err));
+  };
+
+  // ✅ Search filter with safe optional chaining
   const filteredSuppliers = suppliers.filter((s) =>
-    s.companyName.toLowerCase().includes(search.toLowerCase()) ||
-    s.plantName.toLowerCase().includes(search.toLowerCase()) ||
-    s.location.toLowerCase().includes(search.toLowerCase())
+    s?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    s?.companyName?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="supplier-container">
+    <div>
       <Navbar />
-      <h2>Suppliers List</h2>
+      <div className="supplier-container">
+        <h2 className="page-title">🌿 Approved Suppliers List 🌿</h2>
 
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="🔍 Quick search"
-        className="supplier-search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+        {/* ✅ Search Bar */}
+        <div className="supplier-actions">
+          <input
+            type="text"
+            placeholder="🔍 Search Supplier"
+            className="supplier-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-      {/* Add Supplier Button */}
-      <button className="add-supplier-btn">+ New Suppliers</button>
-
-      {/* Supplier Table */}
-      <table className="supplier-table">
-        <thead>
-          <tr>
-            <th>Supplier ID</th>
-            <th>Supplier Name</th>
-            <th>Plant ID</th>
-            <th>Plant Name</th>
-            <th>Quantity</th>
-            <th>Location</th>
-            <th>Payment</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredSuppliers.map((s, index) => (
-            <tr key={s._id}>
-              <td>{index + 1}</td>
-              <td>{s.companyName}</td>
-              <td>#{s.plantId}</td>
-              <td>{s.plantName}</td>
-              <td>{s.quantity}</td>
-              <td>{s.location}</td>
-              <td style={{ fontWeight: "600" }}>{s.payment}</td>
+        {/* ✅ Supplier Table */}
+        <table className="supplier-table">
+          <thead>
+            <tr>
+              <th>Supplier NIC</th>
+              <th>Supplier Name</th>
+              <th>Company</th>
+              <th>Contact Number</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Update Button */}
-      <button className="update-btn">Update Supplier details</button>
+          </thead>
+          <tbody>
+          {filteredSuppliers.map((supplier, index) => (
+    <tr key={supplier._id}>
+      <td>SUP_{index + 1}</td>
+      <td>{supplier.name}</td>
+      <td>{supplier.companyName}</td>
+      <td>{supplier.contactNumber}</td>
+      <td style={{ color: supplier.status === 'approved' ? 'green' : 'red', fontWeight: "600" }}>
+        {supplier.status}
+      </td>
+    </tr>
+  ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

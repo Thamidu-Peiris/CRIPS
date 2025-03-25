@@ -50,6 +50,25 @@ const ReportHub = () => {
         const data = await response.json();
 
         if (response.ok) {
+
+          console.log(`Response data for ${reportType}:`, data);
+          let dataArray;
+          if (reportType === "payroll") {
+            // Extract the payroll array from the response
+            dataArray = Array.isArray(data.payroll) ? data.payroll : [];
+          } else if (reportType === "financial") {
+            // Extract the transactions array from the financial report response
+            dataArray = Array.isArray(data.transactions) ? data.transactions : [];
+          } else if (reportType === "customer") {
+            // Extract the topCustomers array from the customer report response
+            dataArray = Array.isArray(data.topCustomers) ? data.topCustomers : [];
+          } else if (reportType === "product") {
+            // Extract the products array from the product report response
+            dataArray = Array.isArray(data.products) ? data.products : [];
+          } else {
+            dataArray = Array.isArray(data) ? data : [];
+          }
+
           // Ensure data is an array; if not, convert it to an array or set to empty array
           console.log(`Response data for ${reportType}:`, data); // Debug log
           const dataArray = Array.isArray(data) ? data : [];
