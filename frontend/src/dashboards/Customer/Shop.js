@@ -10,10 +10,11 @@ const Shop = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
+  // ✅ Fetch plants once
   useEffect(() => {
     const fetchPlants = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/grower-handler/");
+        const response = await fetch("http://localhost:5000/api/grower/plants"); // ✅ Correct API endpoint
         const data = await response.json();
         setPlants(data);
       } catch (error) {
