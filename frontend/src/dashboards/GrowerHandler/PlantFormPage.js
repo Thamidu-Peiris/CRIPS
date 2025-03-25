@@ -108,7 +108,7 @@ const PlantFormPage = () => {
               value={formData.plantId}
               onChange={handleChange}
               required
-              placeholder="Plant ID (e.g., CR007)"
+              placeholder="Plant ID "
               className="w-full p-2 border rounded text-black placeholder-black"
             />
             <input
