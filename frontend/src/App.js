@@ -11,7 +11,7 @@ import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
 import CustomerServiceDashboard from "./dashboards/CSM/CustomerServiceDashboard";
 import CuttersDashboard from "./dashboards/CuttersDashboard";
-//import InventoryManagerDashboard from "./dashboards/InventoryManagerDashboard";
+import InventoryManagerDashboard from "./components/InventoryM/Dashboard.js";
 import SalesManagerDashboard from "./dashboards/SalesManagerDashboard";
 import ProfileSettings from "./dashboards/CSM/ProfileSettings";
 import ChangePassword from "./dashboards/CSM/ChangePassword"; 
@@ -82,7 +82,6 @@ import RouteOptimizer from "./dashboards/TransportManager/RouteOptimizer.js";
 import TransportReports from "./dashboards/TransportManager/TransportReports.js";
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
 
-//<Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 function App() {
   return (
     <Router>
@@ -159,6 +158,7 @@ function App() {
         <Route path="/route-optimizer" element={<RouteOptimizer />} />
         <Route path="/transport-reports" element={<TransportReports />} />
         <Route path="/transport-dashboard" element={<TransportManagerDashboard />} />
+        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 
       </Routes>
     </Router>
