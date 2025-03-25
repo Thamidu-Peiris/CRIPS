@@ -7,21 +7,21 @@ export default function SupplierList() {
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState("");
 
-  // ✅ Auto-fetch approved suppliers
+  // ✅ Fetch approved suppliers on load
   useEffect(() => {
     fetchApprovedSuppliers();
   }, []);
 
   const fetchApprovedSuppliers = () => {
-    axios.get('http://localhost:5000/api/suppliers/approved')
+    axios.get('http://localhost:5000/api/suppliers')
       .then((res) => setSuppliers(res.data))
       .catch((err) => console.error('Error fetching suppliers:', err));
   };
 
-  // ✅ Search Function
+  // ✅ Search filter with safe optional chaining
   const filteredSuppliers = suppliers.filter((s) =>
-    s.supplierName.toLowerCase().includes(search.toLowerCase()) ||
-    s.company.toLowerCase().includes(search.toLowerCase())
+    s?.name?.toLowerCase().includes(search.toLowerCase()) ||
+    s?.companyName?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -53,17 +53,17 @@ export default function SupplierList() {
             </tr>
           </thead>
           <tbody>
-            {filteredSuppliers.map((supplier, index) => (
-              <tr key={supplier._id}>
-                <td>SUP_{index + 1}</td>
-                <td>{supplier.supplierName}</td>
-                <td>{supplier.company}</td>
-                <td>{supplier.contactNumber}</td>
-                <td style={{ color: supplier.status === 'Approved' ? 'green' : 'red', fontWeight: "600" }}>
-                  {supplier.status}
-                </td>
-              </tr>
-            ))}
+          {filteredSuppliers.map((supplier, index) => (
+    <tr key={supplier._id}>
+      <td>SUP_{index + 1}</td>
+      <td>{supplier.name}</td>
+      <td>{supplier.companyName}</td>
+      <td>{supplier.contactNumber}</td>
+      <td style={{ color: supplier.status === 'approved' ? 'green' : 'red', fontWeight: "600" }}>
+        {supplier.status}
+      </td>
+    </tr>
+  ))}
           </tbody>
         </table>
       </div>
