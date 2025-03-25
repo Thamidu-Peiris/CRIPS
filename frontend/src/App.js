@@ -83,7 +83,7 @@ import TransportReports from "./dashboards/TransportManager/TransportReports.js"
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
 import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
 import OrderStock from './components/InventoryM/OrderStock.js';
-
+import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
 
 function App() {
   return (
@@ -164,6 +164,7 @@ function App() {
         <Route path="/transport-dashboard" element={<TransportManagerDashboard />} />
         <Route path="/approve-suppliers" element={<ApproveSuppliers />} />  
         <Route path="/Order-stock" element={<OrderStock />} />
+        <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
 
       </Routes>
     </Router>
