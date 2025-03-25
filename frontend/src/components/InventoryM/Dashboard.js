@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 import Navbar from './Navbar';
-import './styles.css';
 import { useNavigate } from 'react-router-dom';
 
 export default function Dashboard() {
@@ -17,11 +16,9 @@ export default function Dashboard() {
     axios.get('http://localhost:5000/api/suppliers').then(res => setSuppliers(res.data));
   }, []);
 
-  // ✅ Render Chart
   useEffect(() => {
     if (chartRef.current && stocks.length && suppliers.length) {
       if (chartInstanceRef.current) chartInstanceRef.current.destroy();
-
       const stockTotal = stocks.reduce((sum, s) => sum + s.quantity, 0);
       chartInstanceRef.current = new Chart(chartRef.current, {
         type: 'bar',
@@ -33,83 +30,69 @@ export default function Dashboard() {
             backgroundColor: ['#4caf50', '#81c784']
           }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
       });
     }
   }, [stocks, suppliers]);
 
   return (
-    <div>
+    <div className="bg-green-50 min-h-screen">
       <Navbar />
-      <div className="dashboard-container plant-theme">
-        <h1 className="dashboard-title">🌿 Plant Inventory Dashboard 🌱</h1>
-
-        {/* ✅ Chart Section */}
-        <div className="chart-container">
-          <canvas ref={chartRef}></canvas>
+      <div className="max-w-7xl mx-auto p-8 bg-white rounded-xl shadow-lg">
+        <h1 className="text-4xl font-bold text-green-800 text-center mb-8">🌿 Plant Inventory Dashboard 🌱</h1>
+        <div className="bg-white rounded-lg shadow p-6 mb-10">
+          <canvas ref={chartRef} className="w-full h-80"></canvas>
         </div>
 
-        {/* ✅ Stock Alert Table */}
-        <h3 className="section-title">🌱 Stock Alert</h3>
-        <table className="dashboard-table">
+        {/* Stock Alerts */}
+        <h3 className="text-3xl font-bold text-green-700 mb-4">🌱 Stock Alert</h3>
+        <table className="w-full table-auto border">
           <thead>
-            <tr>
-              <th style={{ fontSize: '18px' }}>Stock ID</th>
-              <th style={{ fontSize: '18px' }}>Plant Name</th>
-              <th style={{ fontSize: '18px' }}>Quantity</th>
-              <th style={{ fontSize: '18px' }}>Status</th>
-              <th style={{ fontSize: '18px' }}>Action</th>
+            <tr className="bg-green-700 text-white">
+              <th className="p-4">Stock ID</th>
+              <th>Plant Name</th>
+              <th>Quantity</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {stocks.map((s, index) => (
-              <tr key={s._id}>
+              <tr key={s._id} className="text-center border-b">
                 <td>STOCK_{index + 1}</td>
                 <td>{s.plantName}</td>
                 <td>{s.quantity}</td>
-                <td style={{ color: s.quantity < 40 ? '#d32f2f' : '#388e3c' }}>
+                <td className={`${s.quantity < 40 ? 'text-red-600' : 'text-green-700'}`}>
                   {s.quantity < 40 ? '🌱 Low Stock' : '✅ Stock'}
                 </td>
                 <td>
-                  {s.quantity < 40 && (
-                    <button className="order-btn" onClick={() => navigate('/order-low-stocks')}>
-                      Order Low Stock
-                    </button>
-                  )}
+                  {s.quantity < 40 &&
+                    <button onClick={() => navigate('/order-low-stocks')}
+                      className="bg-green-500 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded">Order Low Stock</button>}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* ✅ Top Providing Plants (Only if Quantity > 30) */}
-        <h3 className="section-title">🌿 Top Providing Plants </h3>
-        <table className="dashboard-table">
+        {/* Top Providing Products */}
+        <h3 className="text-3xl font-bold text-green-700 mt-10 mb-4">🌿 Top Providing Plants</h3>
+        <table className="w-full table-auto border">
           <thead>
-            <tr>
-              <th style={{ fontSize: '18px' }}>Stock ID</th>
-              <th style={{ fontSize: '18px' }}>Quantity</th>
-              <th style={{ fontSize: '18px' }}>Plant Name</th>
+            <tr className="bg-green-700 text-white">
+              <th className="p-4">Stock ID</th>
+              <th>Quantity</th>
+              <th>Plant Name</th>
             </tr>
           </thead>
           <tbody>
-            {stocks
-              .filter((s) => s.quantity > 30)
-              .sort((a, b) => b.quantity - a.quantity)
-              .slice(0, 5)
-              .map((s, index) => (
-                <tr key={s._id}>
-                  <td>STOCK_{index + 1}</td>
-                  <td>{s.quantity}</td>
-                  <td>{s.plantName}</td>
-                </tr>
-              ))}
+            {stocks.filter(s => s.quantity > 30).sort((a, b) => b.quantity - a.quantity).slice(0, 5).map((s, index) => (
+              <tr key={s._id} className="text-center border-b">
+                <td>STOCK_{index + 1}</td>
+                <td>{s.quantity}</td>
+                <td>{s.plantName}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import Navbar from '../../components/InventoryM/Navbar'; // Same as the desired Navbar
+import Navbar from '../../components/InventoryM/Navbar'; 
 import { useNavigate } from 'react-router-dom';
 import { FaTruck } from 'react-icons/fa';
-import '../../components/InventoryM/styles.css'; // Same CSS file as StockList
 
 const OrderStock = () => {
   const [category, setCategory] = useState('Seed');
   const [suppliers, setSuppliers] = useState([]);
-  const [selectedSupplier, setSelectedSupplier] = useState(null); // Store the full supplier object
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
@@ -16,30 +15,27 @@ const OrderStock = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Fetch suppliers when category changes or on button click
   const handleFetchSuppliers = async () => {
     try {
       const res = await axios.get(`http://localhost:5000/api/order-stock/suppliers/${category}`);
       setSuppliers(res.data);
+      setSelectedSupplier(null);
       setError('');
-      setSelectedSupplier(null); // Reset selected supplier when fetching new suppliers
     } catch (err) {
-      setError('Failed to fetch suppliers');
+      setError('❌ Failed to fetch suppliers');
       setSuppliers([]);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // ✅ Get the inventory manager ID from localStorage
     const inventoryManagerId = localStorage.getItem('userId');
-  
+
     if (!selectedSupplier || !quantity || !unit || !deliveryDate || !inventoryManagerId) {
-      setError('All fields are required including manager ID');
+      setError('❌ All fields are required!');
       return;
     }
-  
+
     try {
       const orderPayload = {
         itemType: category,
@@ -47,80 +43,84 @@ const OrderStock = () => {
         unit,
         deliveryDate,
         supplierId: selectedSupplier._id,
-        inventoryManagerId: inventoryManagerId // ✅ Correct MongoDB ObjectId
+        inventoryManagerId,
       };
-  
-      const res = await axios.post('http://localhost:5000/api/order-stock/place-order', orderPayload);
-      setSuccess('Order Placed Successfully!');
+
+      await axios.post('http://localhost:5000/api/order-stock/place-order', orderPayload);
+      setSuccess('✅ Order Placed Successfully!');
       setError('');
-      console.log("Order Response:", res.data);
+      setQuantity('');
+      setUnit('');
+      setDeliveryDate('');
+      setSelectedSupplier(null);
+      setSuppliers([]);
     } catch (err) {
       console.error("Order Error:", err);
-      setError('Failed to place order');
+      setError('❌ Failed to place order');
     }
   };
 
   return (
-    <div>
-      {/* Use the same Navbar as StockList */}
+    <div className="bg-green-50 min-h-screen">
       <Navbar />
+      <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-8">
+        <h2 className="text-3xl font-bold text-green-800 text-center mb-6">🌿 Order Low Stock 🌿</h2>
 
-      <div className="stock-container">
-        {/* Plant-themed title similar to StockList */}
-        <h2 className="page-title">🌱 Order Stock - Plant Inventory 🌱</h2>
-
-        {/* Display success or error messages */}
-        {success && <p className="success-msg">{success}</p>}
-        {error && <p className="error-msg">{error}</p>}
+        {success && <p className="bg-green-200 text-green-900 font-semibold p-4 rounded mb-4">{success}</p>}
+        {error && <p className="bg-red-200 text-red-900 font-semibold p-4 rounded mb-4">{error}</p>}
 
         {/* Category Selection */}
-        <div className="category-selector mb-6">
-          <label className="block mb-2 text-lg">Select Category:</label>
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="p-2 rounded text-black"
-          >
-            <option value="Seed">Seed</option>
-            <option value="Fertilizer">Fertilizer</option>
-            <option value="Cups">Cups</option>
-            <option value="Media">Media</option>
-          </select>
-          <button
-            onClick={handleFetchSuppliers}
-            className="ml-4 add-stock-btn" // Use same button style as StockList
-          >
-            Fetch Suppliers
-          </button>
+        <div className="mb-8">
+          <label className="font-semibold text-green-800 block mb-2">Select Supply Category:</label>
+          <div className="flex items-center gap-4">
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="p-3 rounded border border-green-300 w-64 bg-green-100"
+            >
+              <option value="Seed">Seed</option>
+              <option value="Fertilizer">Fertilizer</option>
+              <option value="Cups">Cups</option>
+              <option value="Media">Media</option>
+            </select>
+            <button
+              onClick={handleFetchSuppliers}
+              className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700"
+            >
+              Fetch Suppliers
+            </button>
+          </div>
         </div>
 
-        {/* Suppliers Table (similar to StockList table) */}
+        {/* Supplier Table */}
         {suppliers.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-xl mb-4">Suppliers offering {category}:</h3>
-            <table className="stock-table">
-              <thead>
+          <div className="mb-8">
+            <h3 className="text-2xl font-semibold text-green-800 mb-4">Available Suppliers</h3>
+            <table className="w-full table-auto border border-green-300">
+              <thead className="bg-green-700 text-white">
                 <tr>
-                  <th>Supplier Name</th>
-                  <th>Company Name</th>
-                  <th>Email</th>
-                  <th>Contact Number</th>
-                  <th>Action</th>
+                  <th className="p-4">Supplier Name</th>
+                  <th className="p-4">Company</th>
+                  <th className="p-4">Email</th>
+                  <th className="p-4">Contact</th>
+                  <th className="p-4">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {suppliers.map((supplier) => (
-                  <tr key={supplier._id}>
-                    <td>{supplier.name}</td>
-                    <td>{supplier.companyName}</td>
-                    <td>{supplier.email}</td>
-                    <td>{supplier.contactNumber}</td>
-                    <td>
+                  <tr key={supplier._id} className="text-center border-b hover:bg-green-50">
+                    <td className="p-4">{supplier.name}</td>
+                    <td className="p-4">{supplier.companyName}</td>
+                    <td className="p-4">{supplier.email}</td>
+                    <td className="p-4">{supplier.contactNumber}</td>
+                    <td className="p-4">
                       <button
                         onClick={() => setSelectedSupplier(supplier)}
                         className={`${
-                          selectedSupplier?._id === supplier._id ? 'update-btn' : 'edit-btn'
-                        }`}
+                          selectedSupplier?._id === supplier._id
+                            ? 'bg-green-700 text-white'
+                            : 'bg-green-500 text-white'
+                        } px-4 py-2 rounded hover:bg-green-600`}
                       >
                         {selectedSupplier?._id === supplier._id ? 'Selected' : 'Select'}
                       </button>
@@ -132,42 +132,49 @@ const OrderStock = () => {
           </div>
         )}
 
-        {/* Order Form (only shown if a supplier is selected) */}
+        {/* Order Form */}
         {selectedSupplier && (
-          <form onSubmit={handleSubmit} className="stock-form">
-            <h3 className="text-xl mb-4">Place Order for {selectedSupplier.name}</h3>
-            <div className="mb-4">
-              <label className="block mb-2">Quantity:</label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <h3 className="text-2xl font-semibold text-green-800">Place Order for {selectedSupplier.name}</h3>
+
+            <div>
+              <label className="block text-green-800 font-semibold mb-2">Quantity:</label>
               <input
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 required
-                className="p-2 text-black rounded w-full"
+                className="p-3 border border-green-300 rounded w-full"
               />
             </div>
-            <div className="mb-4">
-              <label className="block mb-2">Unit (kg/pack/etc):</label>
+
+            <div>
+              <label className="block text-green-800 font-semibold mb-2">Unit (kg/pack/etc):</label>
               <input
                 type="text"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
                 required
-                className="p-2 text-black rounded w-full"
+                className="p-3 border border-green-300 rounded w-full"
               />
             </div>
-            <div className="mb-4">
-              <label className="block mb-2">Delivery Date:</label>
+
+            <div>
+              <label className="block text-green-800 font-semibold mb-2">Delivery Date:</label>
               <input
                 type="date"
                 value={deliveryDate}
                 onChange={(e) => setDeliveryDate(e.target.value)}
                 required
-                className="p-2 text-black rounded w-full"
+                className="p-3 border border-green-300 rounded w-full"
               />
             </div>
-            <button type="submit" className="add-stock-btn flex items-center">
-              <FaTruck className="mr-2" /> Submit Order
+
+            <button
+              type="submit"
+              className="bg-green-700 text-white px-6 py-3 rounded flex items-center gap-2 hover:bg-green-800"
+            >
+              <FaTruck /> Submit Order
             </button>
           </form>
         )}
