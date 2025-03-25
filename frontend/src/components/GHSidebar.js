@@ -1,3 +1,4 @@
+// CRIPS\frontend\src\components\GHSidebar.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
