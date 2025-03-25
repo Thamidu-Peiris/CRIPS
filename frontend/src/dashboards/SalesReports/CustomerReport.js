@@ -1,25 +1,122 @@
-// CRIPS\frontend\src\dashboards\SalesReports\CustomerReport.js
+//CRIPS\frontend\src\dashboards\SalesReports\CustomerReport.js
 import React from "react";
 import { Link } from "react-router-dom";
+import { PieChart, Pie, Cell } from "recharts";
+
+// "Favorite Payment Method" pie chart static data
+const paymentMethodData = [
+  { name: "Credit Card", value: 41 },
+  { name: "Bank", value: 41 },
+  { name: "PayPal", value: 18 },
+];
+
+// "Top Customers" table static data
+const topCustomersData = [
+  { name: "A", totalPurchase: 8600 },
+  { name: "B", totalPurchase: 6500 },
+  { name: "C", totalPurchase: 5000 },
+  { name: "D", totalPurchase: 4350 },
+  { name: "E", totalPurchase: 3800 },
+];
+
+const COLORS = ["#0088FE", "#FF4560", "#FFBB28"]; 
 
 const CustomerReport = () => {
-    return (
-        <div className ="felx h-parent">
-            {/* Sidebar */}
-                  <div className="w-[275px] bg-gray-300 p-5">
-                    <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-                    <ul className="space-y-5">
-                      <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard</Link></li>
-                      <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Financial Report</Link></li>
-                      <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
-                      <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
-                      <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet</Link></li>
-                      <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300"> ⚙ Settings</Link></li>
-                    </ul>
-                  </div>
-        </div>
-    )
-}
+  return (
+    <div className="flex h-parent bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-[275px] bg-gray-300 p-5">
+        <h2 className="text-xl font-bold mb-5">Side Bar</h2>
+          <ul className="space-y-5">
+              <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard</Link></li>
+              <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📉 Financial Report</Link></li>
+              <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
+              <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
+              <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet</Link></li>
+              <li><Link to="/ReportHub" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Reports Hub</Link></li>
+              <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300"> ⚙ Settings</Link></li>
+            </ul>
+      </div>
 
+      {/* Main Content */}
+      <div className="w-4/5 p-6 text-center relative">
+        <div className="flex justify-between items-center mb-5">
+          <h1 className="text-3xl font-bold text-green-600">Customer Statistics Report</h1>
+          <button className="bg-green-500 px-4 py-2 rounded-full">Generate Report</button>
+        </div>
+
+        
+
+        {/* Charts and Tables Section */}
+        <div className="flex justify-between gap-1">
+          {/* Favorite Payment Method Pie Chart */}
+          <div className="bg-white shadow-lg rounded-lg p-1 ml-20 text-center border w-[500px]">
+            <h2 className="text-lg font-bold mb-4 mt-2">Favorite Payment Method</h2>
+            <div className="flex justify-center ">
+              <PieChart width={350} height={350}>
+                <Pie
+                  data={paymentMethodData}
+                  cx={160}
+                  cy={160}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}
+                  labelLine={true}
+                >
+                  {paymentMethodData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </div>
+          </div>
+
+          {/* Top Customers Table */}
+          <div className="bg-white shadow-lg rounded-lg p-5 border mr-20 w-[400px]">
+            <h2 className="text-lg font-bold mb-4 text-center">Top Customers</h2>
+            <table className="w-full text-left">
+              <thead>
+                <tr>
+                  <th className="p-2 text-center">Name</th>
+                  <th className="p-2 text-center">Total Purchase Price (Rs.)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topCustomersData.map((customer, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-2 text-center">{customer.name}</td>
+                    <td className="p-2 text-center">{customer.totalPurchase}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Summary Cards */}
+        <div className="flex justify-between items-center gap-10 mt-8 mr-20 ml-20">
+          <div className="bg-white shadow-lg rounded-lg p-5 text-center border w-[300px]">
+            <p className="font-semibold">New Customer (Last month)</p>
+            <h2 className="text-2xl font-bold">68</h2>
+          </div>
+
+          <div className="bg-white shadow-lg rounded-lg p-5 text-center border w-[300px]">
+            <p className="font-semibold">Total Purchases (Last month)</p>
+            <h2 className="text-2xl font-bold">15000</h2>
+          </div>
+
+          {/* Export Report*/}
+          <div className="w-[385px] h-[200px] p-5 bg-white rounded-lg shadow-lg flex flex-col justify-center items-center">
+              <p className="font-bold mb-2">Export File</p>
+                  <h2 className="text-sm font-semibold">Download as Excel Spreadsheet</h2>
+                  <h2 className="text-sm font-semibold">Download as PDF</h2>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
 
 export default CustomerReport;

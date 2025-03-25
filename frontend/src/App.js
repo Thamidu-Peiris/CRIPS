@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import Careers from "./pages/Careers"; 
 import Login from './pages/Login.js';
 import CustomerRegister from "./pages/CustomerRegister";
-import Shops from './dashboards/Customer/Shop';// customerdashboard
+//import Shops from './dashboards/Customer/Shop';// customerdashboard
 import Layout from './components/Layout';
 import Cart from "./components/Cart";
 import OrdersPage from "./pages/OrdersPage"; 
@@ -35,7 +35,20 @@ import CustomerReport from './dashboards/SalesReports/CustomerReport.js';
 import ProductReport from './dashboards/SalesReports/ProductReport.js';
 import SalarySheet from './dashboards/SalesReports/SalarySheet.js';
 import EmpManage from './pages/SysManager/EmpManagement.js'
-import CustomerManagement from './dashboards/CSM/CustomerManagement.js';
+
+
+import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
+import CustomersList from "./dashboards/CSM/CustomersList";
+
+import ReportHub from "./dashboards/SalesReports/ReportHub.js";
+
+
+
+
+
+
+
+
 
 
 //Grower  Handler
@@ -61,6 +74,14 @@ import SupplierList from './components/SupplierM/SupplierList.js';
 import SupplierForm from './components/SupplierM/SupplierForm.js';
 import './components/InventoryM/styles.css';
 
+import ShipmentStatus from './dashboards/TransportManager/ShipmentStatus.js'
+import QualityCheckLog from "./dashboards/TransportManager/QualityCheckLog.js";
+import FuelTracker from "./dashboards/TransportManager/FuelTracker.js";
+import ShipmentScheduler from "./dashboards/TransportManager/ShipmentScheduler.js";
+import RouteOptimizer from "./dashboards/TransportManager/RouteOptimizer.js";
+import TransportReports from "./dashboards/TransportManager/TransportReports.js";
+import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
+
 //<Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 function App() {
   return (
@@ -77,7 +98,8 @@ function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
-        <Route path="/csm/customer-management" element={<CustomerManagement />} />
+        <Route path="/csm/customer-requests" element={<CustomerRequests />} />
+        <Route path="/customers-list" element={<CustomersList />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         
@@ -105,6 +127,7 @@ function App() {
         <Route path="/productreport" element={<ProductReport />} />
         <Route path="/customerreport" element={<CustomerReport />} />
         <Route path="/salarysheet" element={<SalarySheet />} />
+        <Route path="/reporthub/" element={<ReportHub/>}/>
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/grower-handler/profile-settings" element={<GHProfileSettings />} />
         <Route path="/grower-handler/update-profile" element={<GHUpdateProfile />} />
@@ -128,8 +151,14 @@ function App() {
         <Route path="/dashboards/GrowerHandler/add-environmental-data" element={<AddEnvironmentalData />} />//GH Add env data
         <Route path="/monitor-environment" element={<EnvironmentalMonitoring />} />//GH env mon
         <Route path="/empmanage" element={<EmpManage />} />
-        
 
+        <Route path="/ShipmentStatus" element={<ShipmentStatus />} />
+        <Route path="/quality-check-log" element={<QualityCheckLog />} />
+        <Route path="/fuel-tracker" element={<FuelTracker />} />
+        <Route path="/shipment-scheduler" element={<ShipmentScheduler />} />
+        <Route path="/route-optimizer" element={<RouteOptimizer />} />
+        <Route path="/transport-reports" element={<TransportReports />} />
+        <Route path="/transport-dashboard" element={<TransportManagerDashboard />} />
 
       </Routes>
     </Router>

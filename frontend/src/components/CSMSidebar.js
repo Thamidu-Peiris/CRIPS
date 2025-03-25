@@ -205,13 +205,13 @@ const CSMSidebar = () => {
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
-                  href="/customer-management"
+                  href="/customers-list"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/customer-management");
+                    handleItemClick("/customers-list");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/customer-management"
+                    selectedItem === "/customers-list"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
@@ -221,13 +221,13 @@ const CSMSidebar = () => {
               </li>
               <li>
                 <a
-                  href="/csm/customer-management"
+                  href="/csm/customer-requests"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/csm/customer-management");
+                    handleItemClick("/csm/customer-requests");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/csm/customer-management"
+                    selectedItem === "/csm/customer-requests"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
