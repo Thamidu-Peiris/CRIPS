@@ -7,7 +7,7 @@ import { FiShoppingCart, FiDollarSign, FiTruck, FiHeadphones, FiUsers, FiTag, Fi
 const CSMSidebar = () => {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false);
   const [customerManagementOpen, setCustomerManagementOpen] = useState(false); // Add state for Customer Management dropdown
-  const [selectedItem, setSelectedItem] = useState("/customer-service-dashboard"); // Default selected item
+  const [selectedItem, setSelectedItem] = useState("/csm/dashboard"); // Default selected item
   const location = useLocation(); // Get current route
   const navigate = useNavigate(); // For programmatic navigation
 
@@ -18,7 +18,7 @@ const CSMSidebar = () => {
 
     // Automatically open Help Center dropdown if on a related route
     if (
-      currentPath === "/dashboard/knowledge-base" ||
+      currentPath === "/csm/knowledge-base" ||
       currentPath === "/dashboard/support-tickets"
     ) {
       setHelpCenterOpen(true);
@@ -60,13 +60,13 @@ const CSMSidebar = () => {
       <ul className="space-y-4">
         <li>
           <a
-            href="/customer-service-dashboard"
+            href="/csm/dashboard"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick("/customer-service-dashboard");
+              handleItemClick("/csm/dashboard");
             }}
             className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/customer-service-dashboard"
+              selectedItem === "/csm/dashboard"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
@@ -129,7 +129,7 @@ const CSMSidebar = () => {
             onClick={() => handleItemClick("#help-center")}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
               selectedItem === "#help-center" ||
-              selectedItem === "/dashboard/knowledge-base" ||
+              selectedItem === "/csm/knowledge-base" ||
               selectedItem === "/dashboard/support-tickets"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
@@ -147,13 +147,13 @@ const CSMSidebar = () => {
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
-                  href="/dashboard/knowledge-base"
+                  href="/csm/knowledge-base"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/dashboard/knowledge-base");
+                    handleItemClick("/csm/knowledge-base");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/dashboard/knowledge-base"
+                    selectedItem === "/csm/knowledge-base"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
@@ -163,13 +163,13 @@ const CSMSidebar = () => {
               </li>
               <li>
                 <a
-                  href="/dashboard/support-tickets"
+                  href="/csm/support-tickets"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/dashboard/support-tickets");
+                    handleItemClick("/csm/support-tickets");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/dashboard/support-tickets"
+                    selectedItem === "/csm/support-tickets"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
@@ -205,13 +205,13 @@ const CSMSidebar = () => {
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
-                  href="/customers-list"
+                  href="/csm/customers-list"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/customers-list");
+                    handleItemClick("/csm/customers-list");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/customers-list"
+                    selectedItem === "/csm/customers-list"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}

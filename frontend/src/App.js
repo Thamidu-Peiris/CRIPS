@@ -99,9 +99,9 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
-        <Route path="/customer-service-dashboard" element={<CustomerServiceDashboard />} />
+        <Route path="/csm/dashboard" element={<CustomerServiceDashboard />} />
         <Route path="/csm/customer-requests" element={<CustomerRequests />} />
-        <Route path="/customers-list" element={<CustomersList />} />
+        <Route path="/csm/customers-list" element={<CustomersList />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
         
@@ -110,10 +110,10 @@ function App() {
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/update-profile" element={<UpdateProfile />} />
         <Route path="/dashboard/support" element={<CustomerSupport />} />
-        <Route path="/dashboard/support-tickets" element={<SupportTickets />} />
+        <Route path="/csm/support-tickets" element={<SupportTickets />} />
         <Route path="/dashboard/create-ticket" element={<CreateTicket />} />
         <Route path="/dashboard/view-ticket/:id" element={<ViewTicket />} />
-        <Route path="/dashboard/knowledge-base" element={<KnowledgeBase />} />
+        <Route path="/csm/knowledge-base" element={<KnowledgeBase />} />
         <Route path="/dashboard/support" element={<ManageSupportTickets />} />
         <Route path="/dashboard/support/:id" element={<ViewTicket />} />
         <Route path="/dashboard/conversation/:id" element={<Conversation />} />
