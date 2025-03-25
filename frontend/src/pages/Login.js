@@ -72,7 +72,13 @@ const Login = () => {
       } else if (role === "Sales Manager") {
         console.log("[DEBUG] Redirecting to /sales-manager-dashboard");
         navigate("/sales-manager-dashboard");
-      } else {
+        
+      } else if (role === "Customers" || role === "Wholesale Dealers") {
+        console.log("[DEBUG] Redirecting to /customer-dashboard");
+        navigate("/shop");  // Adjust path as per your project route
+      }
+      
+      else {
         console.log("[DEBUG] Redirecting to /shop (default for Customer)");
         
       }

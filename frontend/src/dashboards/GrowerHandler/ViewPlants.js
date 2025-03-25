@@ -48,6 +48,8 @@ const ViewPlants = () => {
       updatedPlants.sort((a, b) => a.plantName.localeCompare(b.plantName));
     } else if (filter === "In Stock" || filter === "Out of Stock" || filter === "Preorder") {
       updatedPlants = updatedPlants.filter((plant) => plant.plantAvailability === filter);
+    } else if (filter === "Active" || filter === "Inactive" || filter === "Discontinued") {
+      updatedPlants = updatedPlants.filter((plant) => plant.plantBatchStatus === filter);
     }
 
     setFilteredPlants(updatedPlants);
@@ -142,6 +144,9 @@ const ViewPlants = () => {
             <option value="In Stock">In Stock</option>
             <option value="Out of Stock">Out of Stock</option>
             <option value="Preorder">Preorder</option>
+            <option value="Active">Active Batch</option>
+            <option value="Inactive">Inactive Batch</option>
+            <option value="Discontinued">Discontinued Batch</option>
           </select>
         </div>
       </div>
@@ -166,12 +171,7 @@ const ViewPlants = () => {
                   <h2 className="text-xl font-semibold text-gray-800">{plant.plantName}</h2>
                   <p className="text-gray-600 mt-2"><strong>Description:</strong> {plant.description || "No description available."}</p>
                   <p className="text-gray-600 mt-1"><strong>Availability:</strong> {plant.plantAvailability || "Not specified"}</p>
-                  <p className="text-gray-600 mt-1">
-                    <strong>Stock Quantity:</strong> {plant.stockQuantity}
-                    {plant.stockQuantity < 10 && (
-                      <span className="ml-2 text-red-500 font-semibold">(Low Stock!)</span>
-                    )}
-                  </p>
+                  <p className="text-gray-600 mt-1"><strong>Batch Status:</strong> {plant.plantBatchStatus || "Not specified"}</p>
                 </div>
               </div>
             ))}
