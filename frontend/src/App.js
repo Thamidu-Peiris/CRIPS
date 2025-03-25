@@ -81,6 +81,9 @@ import ShipmentScheduler from "./dashboards/TransportManager/ShipmentScheduler.j
 import RouteOptimizer from "./dashboards/TransportManager/RouteOptimizer.js";
 import TransportReports from "./dashboards/TransportManager/TransportReports.js";
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
+import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
+import OrderStock from './components/InventoryM/OrderStock.js';
+
 
 function App() {
   return (
@@ -140,6 +143,7 @@ function App() {
         <Route path="/add-stock" element={<AddStock />} />
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/supplier-form" element={<SupplierForm />} />
+        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
 
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
@@ -158,7 +162,8 @@ function App() {
         <Route path="/route-optimizer" element={<RouteOptimizer />} />
         <Route path="/transport-reports" element={<TransportReports />} />
         <Route path="/transport-dashboard" element={<TransportManagerDashboard />} />
-        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
+        <Route path="/approve-suppliers" element={<ApproveSuppliers />} />  
+        <Route path="/Order-stock" element={<OrderStock />} />
 
       </Routes>
     </Router>
