@@ -6,7 +6,7 @@ const path = require('path');
 
 // Route Imports
 const userRoutes = require('./routes/customer/userRoutes');
-const plantRoutes = require('./routes/customer/plantRoutes');
+//const plantRoutes = require('./routes/customer/plantRoutes');
 const contactRoutes = require('./routes/customer/contactRoutes');
 const jobRoutes = require("./routes/jobRoutes");
 const supportRoutes = require("./routes/customer/supportRoutes");
@@ -53,7 +53,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/grower/tasks', growerTaskRoutes);//GH tasks
 app.use('/api/grower/environmental-data', environmentalDataRoutes);//GH add env data
 app.use('/api/users', userRoutes);
-app.use('/api/plants', plantRoutes);
+
 app.use('/api', contactRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api", supportRoutes);
@@ -83,7 +83,7 @@ mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 // Routes (removed duplicates)
 app.use('/api/users', userRoutes);
-app.use('/api/plants', plantRoutes);
+
 app.use('/api/contact', contactRoutes);
 
 app.use("/api/support", supportRoutes);

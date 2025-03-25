@@ -150,5 +150,17 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ message: error.message || 'Server error' });
   }
 });
+// Get single plant by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const plant = await Plant.findById(req.params.id);
+    if (!plant) return res.status(404).json({ message: 'Plant not found' });
+    res.status(200).json(plant);
+  } catch (error) {
+    console.error('Error fetching plant:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 module.exports = router;
