@@ -1,4 +1,3 @@
-// CRIPS\frontend\src\components\GHSidebar.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
@@ -18,17 +17,32 @@ const GHSidebar = () => {
     const currentPath = location.pathname;
     setSelectedItem(currentPath);
 
+    // Plant Management Dropdown
     if (currentPath.includes("/plantFormPage") || currentPath.includes("/manage-plants") || currentPath.includes("/all-plants")) {
       setPlantManagementOpen(true);
+    } else {
+      setPlantManagementOpen(false);
     }
+
+    // Task Assignments Dropdown
     if (currentPath.includes("/assign-tasks") || currentPath.includes("/manage-tasks")) {
       setTaskMenuOpen(true);
+    } else {
+      setTaskMenuOpen(false);
     }
+
+    // Environmental Monitoring Dropdown
     if (currentPath.includes("/add-environmental-data") || currentPath.includes("/monitor-environment")) {
       setEnvMenuOpen(true);
+    } else {
+      setEnvMenuOpen(false);
     }
+
+    // Settings Dropdown
     if (currentPath.includes("/update-profile") || currentPath.includes("/change-password")) {
       setSettingsMenuOpen(true);
+    } else {
+      setSettingsMenuOpen(false);
     }
   }, [location.pathname]);
 
