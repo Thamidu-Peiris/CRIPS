@@ -109,7 +109,7 @@ const GHUpdateProfile = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <GHSidebar />
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-0">
         <GHNavbar />
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg mt-6">
           <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Update Profile</h2>

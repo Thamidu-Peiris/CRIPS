@@ -1,71 +1,66 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../InventoryM/Navbar';
-import '../InventoryM/styles.css';
 
 export default function SupplierList() {
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/suppliers')
-      .then((res) => setSuppliers(res.data));
+    // Fetch only approved suppliers
+    axios.get('http://localhost:5000/api/suppliers/approved')
+      .then((res) => setSuppliers(res.data))
+      .catch((err) => console.error('Error fetching suppliers:', err));
   }, []);
 
-  // Filtered suppliers for search
-  const filteredSuppliers = suppliers.filter((s) =>
-    s.companyName.toLowerCase().includes(search.toLowerCase()) ||
-    s.plantName.toLowerCase().includes(search.toLowerCase()) ||
-    s.location.toLowerCase().includes(search.toLowerCase())
+  const filteredSuppliers = suppliers.filter((supplier) =>
+    supplier.companyName.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
-    <div className="supplier-container">
+    <div className="bg-green-50 min-h-screen">
       <Navbar />
-      <h2>Suppliers List</h2>
+      <div className="max-w-7xl mx-auto p-8 bg-white rounded-xl shadow-lg mt-8">
+        <h2 className="text-4xl font-bold text-green-800 text-center mb-8">🌿 Approved Supplier List 🌿</h2>
 
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="🔍 Quick search"
-        className="supplier-search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+        {/* Search Bar */}
+        <div className="flex justify-between mb-6">
+          <input
+            type="text"
+            placeholder="🔍 Search Supplier by Company Name"
+            className="w-1/3 p-3 border border-green-400 rounded"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
-      {/* Add Supplier Button */}
-      <button className="add-supplier-btn">+ New Suppliers</button>
-
-      {/* Supplier Table */}
-      <table className="supplier-table">
-        <thead>
-          <tr>
-            <th>Supplier ID</th>
-            <th>Supplier Name</th>
-            <th>Plant ID</th>
-            <th>Plant Name</th>
-            <th>Quantity</th>
-            <th>Location</th>
-            <th>Payment</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredSuppliers.map((s, index) => (
-            <tr key={s._id}>
-              <td>{index + 1}</td>
-              <td>{s.companyName}</td>
-              <td>#{s.plantId}</td>
-              <td>{s.plantName}</td>
-              <td>{s.quantity}</td>
-              <td>{s.location}</td>
-              <td style={{ fontWeight: "600" }}>{s.payment}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Update Button */}
-      <button className="update-btn">Update Supplier details</button>
+        {filteredSuppliers.length === 0 ? (
+          <p className="text-center text-lg font-semibold">No approved suppliers found.</p>
+        ) : (
+          <table className="w-full table-auto border">
+            <thead>
+              <tr className="bg-green-700 text-white">
+                <th className="p-4">Supplier ID</th>
+                <th>Supplier Name</th>
+                <th>Company</th>
+                <th>Contact Number</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredSuppliers.map((supplier, index) => (
+                <tr key={supplier._id} className="text-center border-b">
+                  <td>SUP_{index + 1}</td>
+                  <td>{supplier.name}</td>
+                  <td>{supplier.companyName}</td>
+                  <td>{supplier.contactNumber}</td>
+                  <td className="font-semibold text-green-700">{supplier.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

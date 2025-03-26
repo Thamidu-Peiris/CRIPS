@@ -1,67 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
-import { FaLeaf, FaUsers, FaCog, FaChevronDown } from "react-icons/fa";
+import { FaLeaf, FaUsers, FaCog, FaChevronDown, FaFolder } from "react-icons/fa";
 
 const GHSidebar = () => {
-  const [plantManagementOpen, setPlantManagementOpen] = useState(false);
-  const [taskAssignmentsOpen, setTaskAssignmentsOpen] = useState(false);
-  const [envMonitoringOpen, setEnvMonitoringOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState("/grower-handler-dashboard");
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Sync selectedItem with current route on mount and route change
+  const [plantManagementOpen, setPlantManagementOpen] = useState(false);
+  const [taskMenuOpen, setTaskMenuOpen] = useState(false);
+  const [envMenuOpen, setEnvMenuOpen] = useState(false);
+  const [settingsMenuOpen, setSettingsMenuOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(location.pathname);
+
   useEffect(() => {
     const currentPath = location.pathname;
     setSelectedItem(currentPath);
 
-    // Automatically open dropdowns if on a related route
-    if (
-      currentPath === "/dashboards/GrowerHandler/plantFormPage" ||
-      currentPath === "/manage-plants" ||
-      currentPath === "/all-plants"
-    ) {
+    // Plant Management Dropdown
+    if (currentPath.includes("/plantFormPage") || currentPath.includes("/manage-plants") || currentPath.includes("/all-plants")) {
       setPlantManagementOpen(true);
     } else {
       setPlantManagementOpen(false);
     }
 
-    if (
-      currentPath === "/dashboards/GrowerHandler/assign-tasks" ||
-      currentPath === "/dashboards/GrowerHandler/manage-tasks"
-    ) {
-      setTaskAssignmentsOpen(true);
+    // Task Assignments Dropdown
+    if (currentPath.includes("/assign-tasks") || currentPath.includes("/manage-tasks")) {
+      setTaskMenuOpen(true);
     } else {
-      setTaskAssignmentsOpen(false);
+      setTaskMenuOpen(false);
     }
 
-    if (
-      currentPath === "/dashboards/GrowerHandler/add-environmental-data" ||
-      currentPath === "/monitor-environment"
-    ) {
-      setEnvMonitoringOpen(true);
+    // Environmental Monitoring Dropdown
+    if (currentPath.includes("/add-environmental-data") || currentPath.includes("/monitor-environment")) {
+      setEnvMenuOpen(true);
     } else {
-      setEnvMonitoringOpen(false);
+      setEnvMenuOpen(false);
+    }
+
+    // Settings Dropdown
+    if (currentPath.includes("/update-profile") || currentPath.includes("/change-password")) {
+      setSettingsMenuOpen(true);
+    } else {
+      setSettingsMenuOpen(false);
     }
   }, [location.pathname]);
 
-  const handleItemClick = (href, dropdown) => {
-    if (dropdown) {
-      // Toggle dropdown without navigating
-      if (dropdown === "plant-management") {
-        setPlantManagementOpen(!plantManagementOpen);
-      } else if (dropdown === "task-assignments") {
-        setTaskAssignmentsOpen(!taskAssignmentsOpen);
-      } else if (dropdown === "env-monitoring") {
-        setEnvMonitoringOpen(!envMonitoringOpen);
-      }
-      setSelectedItem(href);
-    } else {
-      // Navigate to the route and update selected item
-      setSelectedItem(href);
-      navigate(href);
-    }
+  const handleItemClick = (href) => {
+    setSelectedItem(href);
+    navigate(href);
   };
 
   return (
@@ -69,229 +56,183 @@ const GHSidebar = () => {
       <img src="/logo.png" alt="Logo" className="h-16 mx-auto pb-4" />
 
       <ul className="space-y-4">
+        {/* Dashboard */}
         <li>
           <a
             href="/grower-handler-dashboard"
-            onClick={(e) => {
-              e.preventDefault();
-              handleItemClick("/grower-handler-dashboard");
-            }}
-            className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/grower-handler-dashboard"
-                ? "bg-green-200 text-gray-800"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
+            onClick={(e) => { e.preventDefault(); handleItemClick("/grower-handler-dashboard"); }}
+            className={`flex items-center p-3 rounded-lg ${selectedItem === "/grower-handler-dashboard" ? "bg-green-200 text-gray-800" : "text-gray-700 hover:bg-gray-200"}`}
           >
             <MdDashboard className="mr-3" /> Dashboard
           </a>
         </li>
 
-        {/* Plant Management with Dropdown */}
+        {/* Categories */}
+        <li>
+          <a
+            href="/grower-handler/manage-categories"
+            onClick={(e) => { e.preventDefault(); handleItemClick("/grower-handler/manage-categories"); }}
+            className={`flex items-center p-3 rounded-lg ${selectedItem === "/grower-handler/manage-categories" ? "bg-green-200 text-gray-800" : "text-gray-700 hover:bg-gray-200"}`}
+          >
+            <FaFolder className="mr-3" /> Categories
+          </a>
+        </li>
+
+        {/* Plant Management */}
         <li>
           <button
-            onClick={() => handleItemClick("#plant-management", "plant-management")}
+            onClick={() => setPlantManagementOpen(!plantManagementOpen)}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
-              selectedItem === "#plant-management" ||
-              selectedItem === "/dashboards/GrowerHandler/plantFormPage" ||
-              selectedItem === "/manage-plants" ||
-              selectedItem === "/all-plants"
+              ["/dashboards/GrowerHandler/plantFormPage", "/manage-plants", "/all-plants"].includes(selectedItem)
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <span className="flex items-center">
-              <FaLeaf className="mr-3" /> Plant Management
-            </span>
-            <FaChevronDown
-              className={`transition-transform ${plantManagementOpen ? "rotate-180" : ""}`}
-            />
+            <span className="flex items-center"><FaLeaf className="mr-3" /> Plant Management</span>
+            <FaChevronDown className={`transition-transform ${plantManagementOpen ? "rotate-180" : ""}`} />
           </button>
-
           {plantManagementOpen && (
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
                   href="/dashboards/GrowerHandler/plantFormPage"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick("/dashboards/GrowerHandler/plantFormPage");
-                  }}
-                  className={`block p-2 rounded-lg ${
-                    selectedItem === "/dashboards/GrowerHandler/plantFormPage"
-                      ? "bg-green-200 text-gray-800"
-                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-                  }`}
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/dashboards/GrowerHandler/plantFormPage"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/dashboards/GrowerHandler/plantFormPage" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
                 >
-                  Add a Plant
+                  Add New Plant
                 </a>
               </li>
               <li>
                 <a
                   href="/manage-plants"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick("/manage-plants");
-                  }}
-                  className={`block p-2 rounded-lg ${
-                    selectedItem === "/manage-plants"
-                      ? "bg-green-200 text-gray-800"
-                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-                  }`}
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/manage-plants"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/manage-plants" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
                 >
-                  Manage Plants
+                  Manage Plant Details
                 </a>
               </li>
               <li>
                 <a
                   href="/all-plants"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick("/all-plants");
-                  }}
-                  className={`block p-2 rounded-lg ${
-                    selectedItem === "/all-plants"
-                      ? "bg-green-200 text-gray-800"
-                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-                  }`}
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/all-plants"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/all-plants" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
                 >
-                  View Plants
+                  View All Plants
                 </a>
               </li>
             </ul>
           )}
         </li>
 
-        {/* Task Assignments with Dropdown */}
+        {/* Task Assignments */}
         <li>
           <button
-            onClick={() => handleItemClick("#task-assignments", "task-assignments")}
+            onClick={() => setTaskMenuOpen(!taskMenuOpen)}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
-              selectedItem === "#task-assignments" ||
-              selectedItem === "/dashboards/GrowerHandler/assign-tasks" ||
-              selectedItem === "/dashboards/GrowerHandler/manage-tasks"
+              ["/dashboards/GrowerHandler/assign-tasks", "/dashboards/GrowerHandler/manage-tasks"].includes(selectedItem)
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <span className="flex items-center">
-              <FaUsers className="mr-3" /> Task Assignments
-            </span>
-            <FaChevronDown
-              className={`transition-transform ${taskAssignmentsOpen ? "rotate-180" : ""}`}
-            />
+            <span className="flex items-center"><FaUsers className="mr-3" /> Task Assignments</span>
+            <FaChevronDown className={`transition-transform ${taskMenuOpen ? "rotate-180" : ""}`} />
           </button>
-
-          {taskAssignmentsOpen && (
+          {taskMenuOpen && (
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
                   href="/dashboards/GrowerHandler/assign-tasks"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick("/dashboards/GrowerHandler/assign-tasks");
-                  }}
-                  className={`block p-2 rounded-lg ${
-                    selectedItem === "/dashboards/GrowerHandler/assign-tasks"
-                      ? "bg-green-200 text-gray-800"
-                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-                  }`}
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/dashboards/GrowerHandler/assign-tasks"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/dashboards/GrowerHandler/assign-tasks" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
                 >
-                  Assign
+                  Assign Tasks
                 </a>
               </li>
               <li>
                 <a
                   href="/dashboards/GrowerHandler/manage-tasks"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick("/dashboards/GrowerHandler/manage-tasks");
-                  }}
-                  className={`block p-2 rounded-lg ${
-                    selectedItem === "/dashboards/GrowerHandler/manage-tasks"
-                      ? "bg-green-200 text-gray-800"
-                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-                  }`}
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/dashboards/GrowerHandler/manage-tasks"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/dashboards/GrowerHandler/manage-tasks" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
                 >
-                  Manage Tasks
+                  Manage All Tasks
                 </a>
               </li>
             </ul>
           )}
         </li>
 
-        {/* Environmental Monitoring with Dropdown */}
-<li>
-  <button
-    onClick={() => handleItemClick("#env-monitoring", "env-monitoring")}
-    className={`flex items-center justify-between w-full p-3 rounded-lg ${
-      selectedItem === "#env-monitoring" ||
-      selectedItem === "/dashboards/GrowerHandler/add-environmental-data" ||
-      selectedItem === "/monitor-environment"
-        ? "bg-green-200 text-gray-800"
-        : "text-gray-700 hover:bg-gray-200"
-    }`}
-  >
-    <span className="flex items-center">
-      <FaLeaf className="mr-3" /> Monitor Environment
-    </span>
-    <FaChevronDown
-      className={`transition-transform ${envMonitoringOpen ? "rotate-180" : ""}`}
-    />
-  </button>
-
-  {envMonitoringOpen && (
-    <ul className="ml-8 mt-2 space-y-2">
-      <li>
-        <a
-          href="/dashboards/GrowerHandler/add-environmental-data"
-          onClick={(e) => {
-            e.preventDefault();
-            handleItemClick("/dashboards/GrowerHandler/add-environmental-data");
-          }}
-          className={`block p-2 rounded-lg ${
-            selectedItem === "/dashboards/GrowerHandler/add-environmental-data"
-              ? "bg-green-200 text-gray-800"
-              : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-          }`}
-        >
-          Add Data
-        </a>
-      </li>
-      <li>
-        <a
-          href="/monitor-environment"
-          onClick={(e) => {
-            e.preventDefault();
-            handleItemClick("/monitor-environment");
-          }}
-          className={`block p-2 rounded-lg ${
-            selectedItem === "/monitor-environment"
-              ? "bg-green-200 text-gray-800"
-              : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-          }`}
-        >
-          Monitor
-        </a>
-      </li>
-    </ul>
-  )}
-</li>
-
+        {/* Environmental Monitoring */}
         <li>
-          <a
-            href="/grower-handler/settings"
-            onClick={(e) => {
-              e.preventDefault();
-              handleItemClick("/grower-handler/settings");
-            }}
-            className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/grower-handler/settings"
+          <button
+            onClick={() => setEnvMenuOpen(!envMenuOpen)}
+            className={`flex items-center justify-between w-full p-3 rounded-lg ${
+              ["/dashboards/GrowerHandler/add-environmental-data", "/monitor-environment"].includes(selectedItem)
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <FaCog className="mr-3" /> Settings
-          </a>
+            <span className="flex items-center"><FaLeaf className="mr-3" /> Env. Monitoring</span>
+            <FaChevronDown className={`transition-transform ${envMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+          {envMenuOpen && (
+            <ul className="ml-8 mt-2 space-y-2">
+              <li>
+                <a
+                  href="/dashboards/GrowerHandler/add-environmental-data"
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/dashboards/GrowerHandler/add-environmental-data"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/dashboards/GrowerHandler/add-environmental-data" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
+                >
+                  Add Environmental Data
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/monitor-environment"
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/monitor-environment"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/monitor-environment" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
+                >
+                  Environmental Monitoring
+                </a>
+              </li>
+            </ul>
+          )}
+        </li>
+
+        {/* Settings */}
+        <li>
+          <button
+            onClick={() => setSettingsMenuOpen(!settingsMenuOpen)}
+            className={`flex items-center justify-between w-full p-3 rounded-lg ${
+              ["/grower-handler/update-profile", "/grower-handler/change-password"].includes(selectedItem)
+                ? "bg-green-200 text-gray-800"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <span className="flex items-center"><FaCog className="mr-3" /> Settings</span>
+            <FaChevronDown className={`transition-transform ${settingsMenuOpen ? "rotate-180" : ""}`} />
+          </button>
+          {settingsMenuOpen && (
+            <ul className="ml-8 mt-2 space-y-2">
+              <li>
+                <a
+                  href="/grower-handler/update-profile"
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/grower-handler/update-profile"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/grower-handler/update-profile" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
+                >
+                  Update Profile
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/grower-handler/change-password"
+                  onClick={(e) => { e.preventDefault(); handleItemClick("/grower-handler/change-password"); }}
+                  className={`block p-2 rounded-lg ${selectedItem === "/grower-handler/change-password" ? "bg-green-200 text-gray-800" : "text-gray-600 hover:text-green-600 hover:bg-gray-100"}`}
+                >
+                  Change Password
+                </a>
+              </li>
+            </ul>
+          )}
         </li>
       </ul>
     </nav>

@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Modal from "react-modal";
+import jsPDF from "jspdf"; // For PDF export
+import autoTable from "jspdf-autotable"; // Import autoTable directly
 
 // Bind modal to your appElement for accessibility
 Modal.setAppElement("#root");
@@ -13,6 +15,7 @@ const SalarySheet = () => {
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   // State for form data (for adding new entries)
   const [month, setMonth] = useState(() => {
@@ -150,10 +153,18 @@ const SalarySheet = () => {
     }
   };
 
-  // Handle update form submission
+  // Handle update form submission with custom confirmation modal
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    // Open the confirmation modal
+    setIsConfirmModalOpen(true);
+  };
+
+  // Handle confirmation from the custom modal
+  const confirmUpdate = async () => {
+    setIsConfirmModalOpen(false); // Close the confirmation modal
 
     console.log("Updating entry with data:", updateEntry);
 
@@ -205,6 +216,105 @@ const SalarySheet = () => {
     }
   };
 
+  // Export to CSV (Manual CSV Generation)
+  const exportToCSV = () => {
+    if (salarySheet.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    // Define the headers
+    const headers = [
+      "Sr. No",
+      "Name of Employee",
+      "Designation",
+      "Basic (Rs.)",
+      "Allowances / OverTime (Rs.)",
+      "Deductions (Rs.)",
+      "Net Salary (Rs.)",
+    ];
+
+    // Map the data to CSV rows
+    const rows = salarySheet.map((entry, index) => [
+      index + 1,
+      `"${entry.employeeName}"`, // Wrap in quotes to handle commas in names
+      `"${entry.designation}"`,
+      entry.basicSalary,
+      entry.allowances || "-",
+      entry.deductions || "-",
+      entry.netSalary,
+    ]);
+
+    // Combine headers and rows into a CSV string
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+    ].join("\n");
+
+    // Create a downloadable CSV file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `SalarySheet_${month}_${year}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
+  // Export to PDF
+  // Updated: Export to PDF
+  const exportToPDF = () => {
+    if (salarySheet.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+
+    const doc = new jsPDF();
+    const monthName = new Date(0, month - 1).toLocaleString("default", { month: "long" });
+
+    // Add title
+    doc.setFontSize(16);
+    doc.text(`CRIPS Salary Sheet for ${monthName} ${year}`, 14, 20);
+
+    // Define table columns
+    const columns = [
+      "Sr. No",
+      "Name of Employee",
+      "Designation",
+      "Basic (Rs.)",
+      "Allowances / OverTime (Rs.)",
+      "Deductions (Rs.)",
+      "Net Salary (Rs.)",
+    ];
+
+    // Map the salarySheet data to table rows
+    const rows = salarySheet.map((entry, index) => [
+      index + 1,
+      entry.employeeName,
+      entry.designation,
+      entry.basicSalary,
+      entry.allowances || "-",
+      entry.deductions || "-",
+      entry.netSalary,
+    ]);
+
+    // Use autoTable to generate the table
+    autoTable(doc, {
+      head: [columns],
+      body: rows,
+      startY: 30,
+      theme: "grid",
+      styles: { fontSize: 10, cellPadding: 2 },
+      headStyles: { fillColor: [200, 200, 200], textColor: [0, 0, 0] },
+      margin: { top: 30 },
+    });
+
+    // Save the PDF
+    doc.save(`SalarySheet_${month}_${year}.pdf`);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -252,6 +362,18 @@ const SalarySheet = () => {
                 return <option key={y} value={y}>{y}</option>;
               })}
             </select>
+            <button
+              onClick={exportToCSV}
+              className="bg-blue-500 text-white px-4 py-2 rounded-full mr-2"
+            >
+              Export to CSV
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="bg-purple-500 text-white px-4 py-2 rounded-full mr-2"
+            >
+              Export to PDF
+            </button>
             <button
               onClick={() => setIsAddModalOpen(true)}
               className="bg-green-500 px-4 py-2 rounded-full"
@@ -534,6 +656,31 @@ const SalarySheet = () => {
             </div>
           </form>
         )}
+      </Modal>
+
+      {/* Modal for Confirming Update */}
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onRequestClose={() => setIsConfirmModalOpen(false)}
+        className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto mt-40"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+      >
+        <h2 className="text-xl font-bold mb-4">Confirm Update</h2>
+        <p className="mb-4">Are you sure you want to update this salary sheet entry?</p>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={() => setIsConfirmModalOpen(false)}
+            className="bg-gray-500 text-white px-4 py-2 rounded"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmUpdate}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Confirm
+          </button>
+        </div>
       </Modal>
     </div>
   );

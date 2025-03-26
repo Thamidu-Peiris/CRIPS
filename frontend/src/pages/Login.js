@@ -63,8 +63,11 @@ const Login = () => {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
       }else if (role === "TransportManager") {
-        console.log("[DEBUG] Redirecting to /cutters-dashboard");
+        console.log("[DEBUG] Redirecting to /TM-dashboard");
         navigate("/transport-dashboard");
+      }else if (role === "supplier") {
+        console.log("[DEBUG] Redirecting to /supplier-dashboard");
+        navigate("/supplier-dashboard");
       }
        else if (role === "InventoryManager") {
         console.log("[DEBUG] Redirecting to /inventory-manager-dashboard");
@@ -72,7 +75,13 @@ const Login = () => {
       } else if (role === "Sales Manager") {
         console.log("[DEBUG] Redirecting to /sales-manager-dashboard");
         navigate("/sales-manager-dashboard");
-      } else {
+        
+      } else if (role === "Customers" || role === "Wholesale Dealers") {
+        console.log("[DEBUG] Redirecting to /customer-dashboard");
+        navigate("/shop");  // Adjust path as per your project route
+      }
+      
+      else {
         console.log("[DEBUG] Redirecting to /shop (default for Customer)");
         
       }

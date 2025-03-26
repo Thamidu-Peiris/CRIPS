@@ -1,4 +1,4 @@
-// CRIPS\backend\controllers\growerHandler\plantController.js
+// CRIPS\backend\controllers\GrowerHandler\plantController.js
 const { GrowerPlantModel, CategoryModel } = require("../../models/GrowerHandler/Plant");
 
 // Add a new category
