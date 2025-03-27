@@ -106,6 +106,7 @@ app.use('/api/visitor', visitorRoutes);
 app.use('/api/supplier-dashboard', supplierDashboardRoutes);
 app.use('/api/order-stock', orderStockRoutes);
 app.use('/api/inventory/plantstock', stockPlantRoute); //(T)
+app.use('/api/sales', salesReportRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

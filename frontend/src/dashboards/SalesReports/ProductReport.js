@@ -123,8 +123,8 @@ const ProductReport = () => {
                         {/* Export Report*/}
                           <div className="w-[385px] h-[200px] p-5 bg-white rounded-lg shadow-lg flex flex-col justify-center items-center">
                             <p className="font-bold mb-2">Export File</p>
-                            <h2 className="text-sm font-semibold">Download as Excel Spreadsheet</h2>
-                            <h2 className="text-sm font-semibold">Download as PDF</h2>
+                            <h2 className="text-sm font-semibold mb-2">Download as CSV SpreadSheet or a PDF</h2>
+                            <Link to="/ReportHub" className="bg-green-500 text-black px-4 py-2 rounded-full mr-2"> Go to Report Hub </Link>
                           </div>
                     </div>
                 </div>

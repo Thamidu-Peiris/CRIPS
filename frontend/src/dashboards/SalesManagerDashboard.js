@@ -22,8 +22,6 @@ const topSellingPlants = [
   { id: 1, name: "Plant 1", sold: 600, image: "plant1.jpg" },
   { id: 2, name: "Plant 2", sold: 543, image: "plant2.jpg" },
   { id: 3, name: "Plant 3", sold: 420, image: "plant3.jpg" },
-  { id: 4, name: "Plant 4", sold: 382, image: "plant4.jpg" },
-  { id: 5, name: "Plant 5", sold: 151, image: "hero-image2.jpg" },
 ];
 
 const recentOrders = [
