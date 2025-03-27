@@ -41,7 +41,9 @@ import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
 import CustomersList from "./dashboards/CSM/CustomersList";
 
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
- 
+import Wishlist from "./components/Wishlist";
+import Checkout from "./pages/Checkout";
+
 
 
 
@@ -95,7 +97,7 @@ function App() {
         <Route path="/customerregister" element={<CustomerRegister />} />
         <Route path="/shop" element={<Shop/>} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="dashboard/orders" element={<OrdersPage />} />
+        <Route path="/dashboard/orders" element={<OrdersPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
@@ -165,6 +167,11 @@ function App() {
         <Route path="/Order-stock" element={<OrderStock />} />
         <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
         <Route path="/cutter-dashboard" element={<CutterDashboard />} />//Cutter dash
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/checkout" element={<Checkout />} />
+        
+
+
 
       </Routes>
     </Router>
