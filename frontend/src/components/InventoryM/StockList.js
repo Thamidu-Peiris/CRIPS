@@ -44,7 +44,7 @@ export default function StockList() {
   };
 
   return (
-    <div className="bg-green-50 min-h-screen">
+    <div className="bg-green-50 min-h-screen pl-48">
       <Navbar />
       <div className="max-w-7xl mx-auto p-8 bg-white rounded-xl shadow-lg mt-8">
         <h2 className="text-4xl font-bold text-green-800 text-center mb-8">🌱 In Stock - Plant Inventory 🌱</h2>
@@ -64,7 +64,7 @@ export default function StockList() {
               <tr className="bg-green-700 text-white">
                 <th className="p-4">Stock ID</th>
                 <th>Plant Name</th>
-                <th>Category</th>
+                <th>Price ($)</th>
                 <th>Quantity</th>
                 <th>Expiration Date</th>
                 <th>Actions</th>
@@ -75,7 +75,7 @@ export default function StockList() {
                 <tr key={stock._id} className="text-center border-b">
                   <td>STOCK_{index + 1}</td>
                   <td>{stock.plantName}</td>
-                  <td>{stock.category}</td>
+                  <td>{stock.itemPrice ? `$${stock.itemPrice}` : 'N/A'}</td>
                   <td>
                     {editingStock?._id === stock._id ? (
                       <input
