@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\components\GHnavbar.js
+// frontend/src/components/GHNavbar.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdNotificationsNone } from "react-icons/md";
@@ -14,12 +14,13 @@ const GHNavbar = () => {
 
   // Fetch user info from localStorage and update state
   const updateUserState = () => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-    if (userInfo) {
-      setFirstName(userInfo.firstName || "Grower");
-      setLastName(userInfo.lastName || "");
-      const imagePath = userInfo.profileImage
-        ? `http://localhost:5000${userInfo.profileImage}`
+    const user = JSON.parse(localStorage.getItem("user"));
+    const role = localStorage.getItem("role");
+    if (user && role === "Grower Handler") {
+      setFirstName(user.firstName || "Grower");
+      setLastName(user.lastName || "");
+      const imagePath = user.profileImage
+        ? `http://localhost:5000${user.profileImage}`
         : "/default-profile.png";
       setProfileImage(imagePath);
     } else {
@@ -32,22 +33,21 @@ const GHNavbar = () => {
   useEffect(() => {
     updateUserState();
 
-    const handleStorageChange = () => {
+    const handleUserInfoChange = () => {
       updateUserState();
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("userInfoChanged", handleStorageChange);
+    // Listen for custom event triggered by profile updates
+    window.addEventListener("userInfoChanged", handleUserInfoChange);
 
     return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("userInfoChanged", handleStorageChange);
+      window.removeEventListener("userInfoChanged", handleUserInfoChange);
     };
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
-    localStorage.removeItem("userInfo");
+    localStorage.removeItem("user"); // Updated to match key
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     setShowMenu(false);
@@ -93,19 +93,28 @@ const GHNavbar = () => {
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
               <ul className="py-2">
                 <li
-                  onClick={() => navigate("/grower-handler/profile-settings")}
+                  onClick={() => {
+                    setShowMenu(false);
+                    navigate("/grower-handler/profile-settings");
+                  }}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiUser className="mr-2" /> Profile
                 </li>
                 <li
-                  onClick={() => navigate("/grower-handler/update-profile")}
+                  onClick={() => {
+                    setShowMenu(false);
+                    navigate("/grower-handler/update-profile");
+                  }}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiSettings className="mr-2" /> Update Profile
                 </li>
                 <li
-                  onClick={() => navigate("/grower-handler/change-password")}
+                  onClick={() => {
+                    setShowMenu(false);
+                    navigate("/grower-handler/change-password");
+                  }}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiLock className="mr-2" /> Change Password
