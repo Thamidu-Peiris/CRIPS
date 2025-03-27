@@ -8,11 +8,11 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { to: '/inventrymanagerdashboard', label: 'Stock Reports' },
-    { to: '/in-stock', label: 'In Stock' },
-    { to: '/add-stock', label: 'Add Stock' },
-    { to: '/suppliers', label: 'Supplier List' },
-    { to: '/OrderStock', label: 'Order Stock' },
+    { to: '/inventrymanagerdashboard', label: '📊Stock Reports' },
+    { to: '/in-stock', label: '🌿In Stock' },
+    { to: '/add-stock', label: '📋Add Stock' },
+    { to: '/suppliers', label: '👨‍🌾Supplier List' },
+    { to: '/Order-stock', label: '📦Order Stock' },
   ];
 
   return (

@@ -25,7 +25,7 @@ const AddStock = () => {
 
   const handleAddStock = async () => {
     if (!selectedPlant || !quantity || !itemPrice || !expirationDate) {
-      setMessage('❌ All fields are required');
+      setMessage('All fields are required');
       return;
     }
 
@@ -47,7 +47,7 @@ const AddStock = () => {
       setExpirationDate('');
     } catch (err) {
       console.error(err);
-      setMessage('❌ Failed to Add Stock');
+      setMessage('Failed to Add Stock');
     }
   };
 
