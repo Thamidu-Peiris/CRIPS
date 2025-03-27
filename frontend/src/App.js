@@ -84,6 +84,8 @@ import TransportManagerDashboard from "./dashboards/TransportManager/TransportMa
 import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
 import OrderStock from './components/InventoryM/OrderStock.js';
 import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
+import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
+import SysManageCus from './dashboards/SM/ManageCustomers.js';
 
 function App() {
   return (
@@ -166,6 +168,8 @@ function App() {
         <Route path="/Order-stock" element={<OrderStock />} />
         <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
         <Route path="/cutter-dashboard" element={<CutterDashboard />} />//Cutter dash
+        <Route path="/transport-manager-profile" element={<TMprofile />} />
+        <Route path="/sm-manage-cus" element={<SysManageCus />} />
 
       </Routes>
     </Router>
