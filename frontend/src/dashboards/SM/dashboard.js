@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\SM\dashboard.js
+// frontend/src/dashboards/SM/dashboard.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "./sideBar.js";
@@ -19,7 +19,13 @@ import {
 } from "react-icons/fa";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ sales: 0, stock: 0, visitors: 0 });
+
+  const [stats, setStats] = useState({
+    sales: 0,
+    stock: 0,
+    visitors: { daily: 0, monthly: 0, annual: 0 }, // Updated structure
+  });
+  
   const [orders, setOrders] = useState([]);
   const [managerName, setManagerName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -42,19 +48,31 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
   
-      // Try to fetch visitor stats first
-      const visitorsResponse = await axios.get("http://localhost:5000/api/visitor/stats");
+      const token = localStorage.getItem('token'); // Add token for authentication
+      if (!token) {
+        throw new Error('No token found');
+      }
+  
+      // Fetch visitor stats
+      const visitorsResponse = await axios.get("http://localhost:5000/api/visitor/stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Visitor stats response:', visitorsResponse.data); // Debug log
       setStats(prevStats => ({
         ...prevStats,
-        visitors: visitorsResponse.data.dayCount || 0,
+        visitors: {
+          daily: visitorsResponse.data.dayCount || 0,
+          monthly: visitorsResponse.data.monthCount || 0,
+          annual: visitorsResponse.data.yearCount || 0,
+        },
       }));
-  
-      // Optional: Try other endpoints but ignore their errors for now
+
+      // Optional: Fetch other stats (sales, stock, orders)
       try {
         const salesResponse = await axios.get("http://localhost:5000/api/stats/sales");
         const stockResponse = await axios.get("http://localhost:5000/api/stats/stock");
         const ordersResponse = await axios.get("http://localhost:5000/api/orders/recent");
-  
+
         setStats(prevStats => ({
           ...prevStats,
           sales: salesResponse.data.total || 0,
@@ -63,9 +81,7 @@ const Dashboard = () => {
         setOrders(ordersResponse.data || []);
       } catch (innerErr) {
         console.warn("Other APIs not ready:", innerErr);
-        // Don't set error, so visitors still show
       }
-  
     } catch (error) {
       console.error("Error fetching visitor stats:", error);
       setError("Failed to load visitor data.");
@@ -73,8 +89,6 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-  
-  
 
   const handleQuickAction = (path) => {
     navigate(path);
@@ -109,31 +123,56 @@ const Dashboard = () => {
         )}
 
         {/* Stats Cards */}
-        {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-gray-800/80 backdrop-blur-lg p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center">
-              <FaDollarSign className="text-4xl text-cyan-400 mr-4" />
-              <div>
-                <h2 className="text-xl font-semibold text-gray-300">Sales</h2>
-                <p className="text-3xl font-bold text-white">${stats.sales.toLocaleString()}</p>
-              </div>
-            </div>
-            <div className="bg-gray-800/80 backdrop-blur-lg p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center">
-              <FaBox className="text-4xl text-pink-400 mr-4" />
-              <div>
-                <h2 className="text-xl font-semibold text-gray-300">Stock</h2>
-                <p className="text-3xl font-bold text-white">{stats.stock.toLocaleString()}</p>
-              </div>
-            </div>
-            <div className="bg-gray-800/80 backdrop-blur-lg p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center">
-              <FaUsers className="text-4xl text-orange-400 mr-4" />
-              <div>
-                <h2 className="text-xl font-semibold text-gray-300">Visitors</h2>
-                <p className="text-3xl font-bold text-white">{stats.visitors.toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-        )}
+{!loading && !error && (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    {/* Sales Card */}
+    <div className="bg-gray-800/80 backdrop-blur-lg p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center">
+      <FaDollarSign className="text-4xl text-cyan-400 mr-4" />
+      <div>
+        <h2 className="text-xl font-semibold text-gray-300">Sales</h2>
+        <p className="text-3xl font-bold text-white">${stats.sales.toLocaleString()}</p>
+      </div>
+    </div>
+
+    {/* Stock Card */}
+    <div className="bg-gray-800/80 backdrop-blur-lg p-6 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center">
+      <FaBox className="text-4xl text-pink-400 mr-4" />
+      <div>
+        <h2 className="text-xl font-semibold text-gray-300">Stock</h2>
+        <p className="text-3xl font-bold text-white">{stats.stock.toLocaleString()}</p>
+      </div>
+    </div>
+
+    {/* Visitors Card (Updated to show Daily, Monthly, Annual) */}
+    <div className="bg-gray-800/80 backdrop-blur-lg p-10 rounded-xl shadow-lg hover:shadow-xl transition duration-300 flex items-center">
+  <FaUsers className="text-4xl text-orange-400 mr-4" />
+  <div className="flex-1">
+    <h2 className="text-xl font-semibold text-gray-300 mb-2">Visitors</h2>
+    <div className="flex justify-between items-center space-x-4">
+      {/* Daily Visitors */}
+      <div className="text-center">
+        <p className="text-sm text-gray-400">Daily</p>
+        <p className="text-lg font-bold text-white">{stats.visitors.daily.toLocaleString()}</p>
+      </div>
+      {/* Separator */}
+      <div className="h-8 w-px bg-gray-600"></div>
+      {/* Monthly Visitors */}
+      <div className="text-center">
+        <p className="text-sm text-gray-400">Monthly</p>
+        <p className="text-lg font-bold text-white">{stats.visitors.monthly.toLocaleString()}</p>
+      </div>
+      {/* Separator */}
+      <div className="h-8 w-px bg-gray-600"></div>
+      {/* Annual Visitors */}
+      <div className="text-center">
+        <p className="text-sm text-gray-400">Annual</p>
+        <p className="text-lg font-bold text-white">{stats.visitors.annual.toLocaleString()}</p>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+)}
 
         {/* Quick Actions Section */}
         {!loading && !error && (

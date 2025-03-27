@@ -103,14 +103,19 @@ const AdminApplications = () => {
     setFilteredApplications(filtered);
   }, [searchQuery, applications]);
 
-  const handleAction = async (id, status) => {
+
+  
+
+  const handleAction = async (app, status) => {
+    console.log(app.email);
+    const id = app._id; // ✅ FIX - define id from app
     const confirmMessage = status === "approved"
-      ? "Are you sure you want to approve this application?"
-      : "Are you sure you want to reject this application?";
+        ? "Are you sure you want to approve this application?"
+        : "Are you sure you want to reject this application?";
     if (!window.confirm(confirmMessage)) {
       return;
     }
-
+  
     try {
       setLoading(true);
       setSuccessMessage("");
@@ -124,14 +129,29 @@ const AdminApplications = () => {
         }
         payload.reason = rejectionReason;
       }
-      console.log("Sending status update request:", { id, payload });
+  
+      console.log("Sending status update request:", { id, payload });  // ✅ id is now defined
       const response = await axios.put(`http://localhost:5000/api/jobs/applications/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
+  
       if (response.data.success) {
         setSuccessMessage(`Application ${status} successfully!`);
-        const updatedApplications = applications.map(app => app._id === id ? { ...app, status: payload.status, rejectionReason: status === "rejected" ? rejectionReason : null } : app);
-        // Re-sort after updating status to maintain newest-first order
+  
+        // ✅ Send Email Notification
+        await axios.post("http://localhost:5000/api/email/send-status-notification", {
+          to: app.email,
+          name: app.firstName,
+          role: app.jobTitle,
+          status: status.toLowerCase(),
+          rejectionReason: status === "rejected" ? rejectionReason : null
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        const updatedApplications = applications.map(item =>
+          item._id === id ? { ...item, status: payload.status, rejectionReason: status === "rejected" ? rejectionReason : null } : item
+        );
         updatedApplications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setApplications(updatedApplications);
         setRejectionReason("");
@@ -258,7 +278,7 @@ const AdminApplications = () => {
                 {app.status.toLowerCase() === "pending" ? (
                   <div className="mt-4 flex space-x-4">
                     <button
-                      onClick={() => handleAction(app._id, "approved")}
+                      onClick={() => handleAction(app, "approved")}
                       className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-2 rounded-xl hover:from-green-600 hover:to-teal-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
@@ -289,7 +309,7 @@ const AdminApplications = () => {
                     />
                     <div className="mt-2 flex space-x-4">
                       <button
-                        onClick={() => handleAction(app._id, "rejected")}
+                        onClick={() => handleAction(app, "rejected")}
                         className="bg-gradient-to-r from-pink-500 to-red-500 text-white px-6 py-2 rounded-xl hover:from-pink-600 hover:to-red-600 transition-colors duration-300 font-medium"
                         disabled={loading}
                       >

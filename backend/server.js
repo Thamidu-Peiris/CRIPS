@@ -38,6 +38,7 @@ const reportRoutes = require('./routes/TransportManager/reportRoutes');
 const transportDashboardRoutes = require('./routes/TransportManager/transportDashboardRoutes');
 const supplierDashboardRoutes = require('./routes/SupplierM/supplierDashboardRoutes');
 const orderStockRoutes = require('./routes/SupplierM/orderStockRoutes');
+const emailRoutes = require('./routes/SM/emailRoutes');
 // Load environment variables
 dotenv.config();
 
@@ -107,6 +108,7 @@ app.use('/api/supplier-dashboard', supplierDashboardRoutes);
 app.use('/api/order-stock', orderStockRoutes);
 app.use('/api/inventory/plantstock', stockPlantRoute); //(T)
 
+app.use('/api/email', emailRoutes);
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware
