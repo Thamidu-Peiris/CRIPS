@@ -52,6 +52,7 @@ import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 
 
 //Grower  Handler
+import CutterDashboard from "./dashboards/Cutter/CutterDashboard";//Cutter dash
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
 import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
@@ -164,6 +165,7 @@ function App() {
         <Route path="/approve-suppliers" element={<ApproveSuppliers />} />  
         <Route path="/Order-stock" element={<OrderStock />} />
         <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
+        <Route path="/cutter-dashboard" element={<CutterDashboard />} />//Cutter dash
 
       </Routes>
     </Router>
