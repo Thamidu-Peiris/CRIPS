@@ -54,8 +54,8 @@ const Login = () => {
         console.log("[DEBUG] Redirecting to /sm-dashboard");
         navigate("/sm-dashboard");
       } else if (role === "Customer Service Manager") {
-        console.log("[DEBUG] Redirecting to /customer-service-dashboard");
-        navigate("/customer-service-dashboard");
+        console.log("[DEBUG] Redirecting to /csm/dashboard");
+        navigate("/csm/dashboard");
       } else if (role === "Grower Handler") {
         console.log("[DEBUG] Redirecting to /grower-handler-dashboard");
         navigate("/dashboards/GrowerHandler");

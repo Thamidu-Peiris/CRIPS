@@ -1,5 +1,5 @@
 // CRIPS\backend\controllers\GrowerHandler\plantController.js
-const { GrowerPlantModel, CategoryModel } = require("../../models/GrowerHandler/Plant");
+const { Plant: GrowerPlantModel, CategoryModel } = require("../../models/GrowerHandler/Plant");
 
 // Add a new category
 exports.addCategory = async (req, res) => {
@@ -30,14 +30,31 @@ exports.addCategory = async (req, res) => {
 exports.addPlant = async (req, res) => {
   try {
     console.log("Received plant data:", req.body);
-    const { name, price, image, category, description, stock } = req.body;
+    const { plantId, name, scientificName, speciesCategory, lightRequirement, waterTemperatureMin, waterTemperatureMax, pHMin, pHMax, description } = req.body;
 
-    const categoryExists = await CategoryModel.findOne({ name: category });
+    // Validate required fields
+    if (!plantId || !name || !scientificName || !speciesCategory || !lightRequirement || !waterTemperatureMin || !waterTemperatureMax || !pHMin || !pHMax) {
+      return res.status(400).json({ message: "All required fields are required" });
+    }
+
+    const categoryExists = await CategoryModel.findOne({ name: speciesCategory });
     if (!categoryExists) {
       return res.status(400).json({ message: "Invalid category" });
     }
 
-    const newPlant = new GrowerPlantModel({ name, price, image, category, description, stock });
+    const newPlant = new GrowerPlantModel({
+      plantId,
+      plantName: name,
+      scientificName,
+      speciesCategory,
+      lightRequirement,
+      waterTemperatureMin,
+      waterTemperatureMax,
+      pHMin,
+      pHMax,
+      description,
+      plantAvailability: "Available", // Default value
+    });
     const savedPlant = await newPlant.save();
     console.log("Saved plant:", savedPlant);
     res.status(201).json(savedPlant);
@@ -58,7 +75,7 @@ exports.getCategories = async (req, res) => {
   }
 };
 
-// Edit a category
+// Edit a category (unchanged)
 exports.editCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -86,7 +103,7 @@ exports.editCategory = async (req, res) => {
   }
 };
 
-// Delete a category
+// Delete a category (unchanged)
 exports.deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
