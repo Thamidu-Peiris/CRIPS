@@ -41,7 +41,7 @@ import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
 import CustomersList from "./dashboards/CSM/CustomersList";
 
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
-import InventoryManagerAddStock from './components/InventoryM/InventoryManagerAddStock.js'; //(T)
+ 
 
 
 
@@ -52,7 +52,7 @@ import InventoryManagerAddStock from './components/InventoryM/InventoryManagerAd
 
 
 //Grower  Handler
-import CutterDashboard from "./dashboards/Cutter/CutterDashboard";//Cutter dash
+import CutterDashboard from "./dashboards/Cutter/CutterDashboard.js";//Cutter dash
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
 import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
@@ -103,7 +103,7 @@ function App() {
         <Route path="/csm/customer-requests" element={<CustomerRequests />} />
         <Route path="/csm/customers-list" element={<CustomersList />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
-        <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
+        <Route path="/cutters-dashboard" element={<CutterDashboard/>} />
         
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
         <Route path="/profile-settings" element={<ProfileSettings />} />
@@ -123,7 +123,7 @@ function App() {
         <Route path="/dashboard/settings" element={<UserProfileSettings />} />
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
-        <Route path="/sm-dashboard" element={<SmDashboard />} /> //Add Route for SmDashb
+        <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashb
         <Route path="/SMregister" element={<RegisterSystemManager />} />
         <Route path="/financialreport" element={<FinancialReport />} />
         <Route path="/productreport" element={<ProductReport />} />
@@ -143,8 +143,7 @@ function App() {
         <Route path="/add-stock" element={<AddStock />} />
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/supplier-form" element={<SupplierForm />} />
-        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
-        <Route path="/inventory/add-stock" element={<InventoryManagerAddStock />} /> 
+        <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} /> 
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
         <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
