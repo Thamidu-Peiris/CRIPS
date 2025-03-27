@@ -16,8 +16,8 @@ const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
 const stockPlantRoute = require('./routes/InventoryM/StockPlantRoute'); //(T)
-
-
+const orderRoutes = require('./routes/customer/orderRoutes'); //Order
+const couponRoutes = require('./routes/csm/couponRoutes'); //(T)
 
 //const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes')
 //const growerTaskRoutes = require('./routes/GrowerHandler/tasks'); //GH tasks
@@ -76,7 +76,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
 app.use('/uploads', express.static('uploads'));
-
+app.use('/api/orders', orderRoutes);
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
@@ -114,10 +114,14 @@ app.use('/api/supplier-dashboard', supplierDashboardRoutes);
 app.use('/api/order-stock', orderStockRoutes);
 app.use('/api/inventory/plantstock', stockPlantRoute); //(T)
 
+app.use('/api/csm', couponRoutes); //(T)
+
+
 app.use('/api/transport-manager', tmProfileRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 

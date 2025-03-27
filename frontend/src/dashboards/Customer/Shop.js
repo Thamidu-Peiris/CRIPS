@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../../components/CustomerHeader";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaHeart, FaShoppingCart } from "react-icons/fa";
 
 const Shop = () => {
   const [plants, setPlants] = useState([]);
@@ -15,7 +15,6 @@ const Shop = () => {
       try {
         const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
         const data = await response.json();
-        console.log("Shop Plants:", data); // Log to debug the data structure
         setPlants(data);
       } catch (error) {
         console.error("Error fetching stocked plants:", error);
@@ -24,9 +23,26 @@ const Shop = () => {
     fetchStockedPlants();
   }, []);
 
+  const handleAddToWishlist = (plant) => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    if (!wishlist.some((item) => item._id === plant._id)) {
+      wishlist.push(plant);
+      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+    }
+    navigate("/wishlist");
+  };
+
+  const handleAddToCart = (plant) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (!cart.some((item) => item._id === plant._id)) {
+      cart.push({ ...plant, quantity: 1 });
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+  };
+
   const filteredPlants = plants.filter(
     (plant) =>
-      plant.quantity > 0 && // Only show plants with stock
+      plant.quantity > 0 &&
       (selectedCategory === "All" || plant.category === selectedCategory) &&
       (plant.plantName || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -79,23 +95,32 @@ const Shop = () => {
               filteredPlants.map((plant) => (
                 <div
                   key={plant._id}
-                  onClick={() => navigate(`/plant/${plant._id}`)}
-                  className="border rounded-lg p-3 shadow-lg text-center cursor-pointer hover:shadow-xl bg-white"
+                  className="relative border rounded-lg p-3 shadow-lg text-center bg-white group hover:shadow-xl"
                 >
-                  <img
-                    src={plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg'}
-                    alt={plant.plantName || "Unknown Plant"}
-                    className="w-full h-60 object-cover rounded-md"
-                  />
-                  <h3 className="text-md font-bold mt-3 text-green-700">{plant.plantName || "Unknown Plant"}</h3>
-                  <p className="text-gray-600"><strong>Available Quantity:</strong> {plant.quantity} units</p>
-                  <p className="text-green-600 font-semibold">
-                    <strong>Item Price:</strong> $
-                    {plant.itemPrice !== undefined && !isNaN(plant.itemPrice) ? plant.itemPrice.toFixed(2) : "N/A"}
-                  </p>
-                  <p className="text-gray-600">
-                    <strong>Expiration Date:</strong> {plant.expirationDate ? new Date(plant.expirationDate).toLocaleDateString() : "N/A"}
-                  </p>
+                  <Link to={`/plant/${plant._id}`}>
+                    <img
+                      src={plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg'}
+                      alt={plant.plantName}
+                      className="w-full h-60 object-cover rounded-md"
+                    />
+                  </Link>
+                  <h3 className="text-md font-bold mt-3 text-green-700">{plant.plantName}</h3>
+                  <div className="flex justify-center gap-1 mt-1">
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i} className="text-gray-300 text-xl">★</span>
+                    ))}
+                  </div>
+                  <p className="text-green-600 font-semibold mt-1">${plant.itemPrice.toFixed(2)}</p>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <FaShoppingCart
+                      className="text-green-600 text-2xl cursor-pointer mb-2"
+                      onClick={() => handleAddToCart(plant)}
+                    />
+                    <FaHeart
+                      className="text-red-500 text-2xl cursor-pointer"
+                      onClick={() => handleAddToWishlist(plant)}
+                    />
+                  </div>
                 </div>
               ))
             ) : (
