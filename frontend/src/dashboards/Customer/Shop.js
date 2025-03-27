@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../../components/CustomerHeader";
-import { FaSearch, FaStar, FaRegStar } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 
 const Shop = () => {
   const [plants, setPlants] = useState([]);
@@ -10,35 +10,25 @@ const Shop = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Fetch plants once
   useEffect(() => {
-    const fetchPlants = async () => {
+    const fetchStockedPlants = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/grower/plants"); // ✅ Correct API endpoint
+        const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
         const data = await response.json();
+        console.log("Shop Plants:", data); // Log to debug the data structure
         setPlants(data);
       } catch (error) {
-        console.error("Error fetching plants:", error);
+        console.error("Error fetching stocked plants:", error);
       }
     };
-    fetchPlants();
+    fetchStockedPlants();
   }, []);
-
-  const renderStars = (rating) => {
-    const filledStars = Math.round(rating || 3);
-    return (
-      <div className="flex justify-center mt-1">
-        {Array.from({ length: 5 }, (_, index) =>
-          index < filledStars ? <FaStar key={index} className="text-yellow-500" /> : <FaRegStar key={index} className="text-gray-400" />
-        )}
-      </div>
-    );
-  };
 
   const filteredPlants = plants.filter(
     (plant) =>
-      (selectedCategory === "All" || plant.speciesCategory === selectedCategory) &&
-      plant.plantName.toLowerCase().includes(searchTerm.toLowerCase())
+      plant.quantity > 0 && // Only show plants with stock
+      (selectedCategory === "All" || plant.category === selectedCategory) &&
+      (plant.plantName || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -82,17 +72,30 @@ const Shop = () => {
       </div>
 
       <section className="py-10">
-        <h2 className="text-center text-3xl font-bold text-green-700 mb-6">All Plants</h2>
+        <h2 className="text-center text-3xl font-bold text-green-700 mb-6">Available Plants</h2>
         <div className="flex justify-center p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl w-full">
             {filteredPlants.length > 0 ? (
               filteredPlants.map((plant) => (
-                <div key={plant._id} onClick={() => navigate(`/plant/${plant._id}`)} className="border rounded-lg p-3 shadow-lg text-center cursor-pointer hover:shadow-xl">
-                  <img src={plant.plantImage || "/plant1.jpg"} alt={plant.plantName} className="w-full h-60 object-cover rounded-md" />
-                  <h3 className="text-md font-bold mt-3 text-green-700">{plant.plantName}</h3>
-                  {renderStars(plant.rating)}
-                  <p className="text-gray-500">Category: {plant.speciesCategory}</p>
-                  <p className="text-gray-600 font-semibold">Availability: {plant.plantAvailability}</p>
+                <div
+                  key={plant._id}
+                  onClick={() => navigate(`/plant/${plant._id}`)}
+                  className="border rounded-lg p-3 shadow-lg text-center cursor-pointer hover:shadow-xl bg-white"
+                >
+                  <img
+                    src={plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg'}
+                    alt={plant.plantName || "Unknown Plant"}
+                    className="w-full h-60 object-cover rounded-md"
+                  />
+                  <h3 className="text-md font-bold mt-3 text-green-700">{plant.plantName || "Unknown Plant"}</h3>
+                  <p className="text-gray-600"><strong>Available Quantity:</strong> {plant.quantity} units</p>
+                  <p className="text-green-600 font-semibold">
+                    <strong>Item Price:</strong> $
+                    {plant.itemPrice !== undefined && !isNaN(plant.itemPrice) ? plant.itemPrice.toFixed(2) : "N/A"}
+                  </p>
+                  <p className="text-gray-600">
+                    <strong>Expiration Date:</strong> {plant.expirationDate ? new Date(plant.expirationDate).toLocaleDateString() : "N/A"}
+                  </p>
                 </div>
               ))
             ) : (

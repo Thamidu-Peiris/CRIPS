@@ -15,6 +15,7 @@ const systemManagerRoutes = require('./routes/SM/smRoute');
 const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
+const stockPlantRoute = require('./routes/InventoryM/StockPlantRoute'); //(T)
 
 
 
@@ -104,6 +105,8 @@ app.use('/api/csm/customers', csmCustomerRoutes);
 app.use('/api/visitor', visitorRoutes);
 app.use('/api/supplier-dashboard', supplierDashboardRoutes);
 app.use('/api/order-stock', orderStockRoutes);
+app.use('/api/inventory/plantstock', stockPlantRoute); //(T)
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware

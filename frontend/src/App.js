@@ -41,7 +41,7 @@ import CustomerRequests from './dashboards/CSM/CustomerRequests.js';
 import CustomersList from "./dashboards/CSM/CustomersList";
 
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
-
+import InventoryManagerAddStock from './components/InventoryM/InventoryManagerAddStock.js'; //(T)
 
 
 
@@ -144,7 +144,7 @@ function App() {
         <Route path="/suppliers" element={<SupplierList />} />
         <Route path="/supplier-form" element={<SupplierForm />} />
         <Route path="/inventory-manager-dashboard" element={<InventoryManagerDashboard />} />
-
+        <Route path="/inventory/add-stock" element={<InventoryManagerAddStock />} /> 
         <Route path="/dashboards/GrowerHandler" element={<GrowerHandlerDashboard />} />
         <Route path="/dashboards/GrowerHandler/plantFormPage" element={<PlantFormPage />} />
         <Route path="/dashboards/GrowerHandler/assign-tasks" element={<AssignTasks />} /> 
