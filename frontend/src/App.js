@@ -52,7 +52,7 @@ import InventoryManagerAddStock from './components/InventoryM/InventoryManagerAd
 
 
 //Grower  Handler
-import CutterDashboard from "./dashboards/Cutter/CutterDashboard";//Cutter dash
+import CutterDashboard from "./dashboards/Cutter/CutterDashboard.js";//Cutter dash
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
 import ManagePlants from "./dashboards/GrowerHandler/ManagePlants";
@@ -103,7 +103,7 @@ function App() {
         <Route path="/csm/customer-requests" element={<CustomerRequests />} />
         <Route path="/csm/customers-list" element={<CustomersList />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
-        <Route path="/cutters-dashboard" element={<CuttersDashboard />} />
+        <Route path="/cutters-dashboard" element={<CutterDashboard/>} />
         
         <Route path="/sales-manager-dashboard" element={<SalesManagerDashboard />} />
         <Route path="/profile-settings" element={<ProfileSettings />} />

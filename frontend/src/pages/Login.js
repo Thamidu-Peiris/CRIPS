@@ -59,7 +59,7 @@ const Login = () => {
       } else if (role === "Grower Handler") {
         console.log("[DEBUG] Redirecting to /grower-handler-dashboard");
         navigate("/dashboards/GrowerHandler");
-      } else if (role === "cutters") {
+      } else if (role === "Cutters") {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
       }else if (role === "TransportManager") {

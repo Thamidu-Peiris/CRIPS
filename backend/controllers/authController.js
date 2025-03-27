@@ -6,6 +6,7 @@ const CSM = require("../models/csm/csmModel");
 const salseManager = require("../models/salesManager/salesManagerModel")
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
 const TransportManager = require("../models/TransportManager/TransportManagerModel");
+const Cutter = require("../models/cutters/cuttersModel");
 const Supplier = require("../models/SupplierM/Supplier");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -97,6 +98,18 @@ exports.universalLogin = async (req, res) => {
       if (user) {
         console.log("salseManager found:", user);
         role = "Sales Manager"; // Match the database (uppercase)
+      }}
+
+      // cutter-check
+    if (!user) {
+      console.log("check cutter...", Cutter.collection.name);
+      user = await Cutter.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+      });
+  
+      if (user) {
+        console.log("Cutters found:", user);
+        role = "Cutters"; // Match the database (uppercase)
       }}
 
     // check Grower Handler
