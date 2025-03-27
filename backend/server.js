@@ -16,7 +16,7 @@ const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
 const stockPlantRoute = require('./routes/InventoryM/StockPlantRoute'); //(T)
-
+const growerHandlerRoutes = require('./routes/GrowerHandler/growerHandlerRoutes');//(T)
 
 
 //const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes')
@@ -69,7 +69,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
 app.use('/uploads', express.static('uploads'));
-
+app.use('/api/grower-handler', growerHandlerRoutes); //(T)
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
