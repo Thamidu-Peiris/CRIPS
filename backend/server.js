@@ -16,7 +16,7 @@ const growerHandlerPlantRoutes = require("./routes/GrowerHandler/plantRoutes");
 const supplierRoutes = require('./routes/SupplierM/SupplierRoute');
 const stockRoutes = require('./routes/InventoryM/StockRoute');
 const stockPlantRoute = require('./routes/InventoryM/StockPlantRoute'); //(T)
-const growerHandlerRoutes = require('./routes/GrowerHandler/growerHandlerRoutes');//(T)
+
 
 
 //const growerPlantRoutes = require('./routes/GrowerHandler/plantRoutes')
@@ -38,10 +38,12 @@ const reportRoutes = require('./routes/TransportManager/reportRoutes');
 const transportDashboardRoutes = require('./routes/TransportManager/transportDashboardRoutes');
 const supplierDashboardRoutes = require('./routes/SupplierM/supplierDashboardRoutes');
 const orderStockRoutes = require('./routes/SupplierM/orderStockRoutes');
+
 const emailRoutes = require('./routes/SM/emailRoutes');
 const tmProfileRoutes = require('./routes/TransportManager/tmProfileRoutes');
 const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
+
 
 // Load environment variables
 dotenv.config();
@@ -74,7 +76,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
 app.use('/uploads', express.static('uploads'));
-app.use('/api/grower-handler', growerHandlerRoutes); //(T)
+
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
@@ -111,10 +113,12 @@ app.use('/api/visitor', visitorRoutes);
 app.use('/api/supplier-dashboard', supplierDashboardRoutes);
 app.use('/api/order-stock', orderStockRoutes);
 app.use('/api/inventory/plantstock', stockPlantRoute); //(T)
+
 app.use('/api/transport-manager', tmProfileRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // Global error-handling middleware

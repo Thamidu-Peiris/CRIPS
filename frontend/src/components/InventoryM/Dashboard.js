@@ -36,15 +36,17 @@ export default function Dashboard() {
   }, [stocks, suppliers]);
 
   return (
-    <div className="bg-green-50 min-h-screen">
+    <div className="bg-green-50 min-h-screen pl-48">
       <Navbar />
       <div className="max-w-7xl mx-auto p-8 bg-white rounded-xl shadow-lg">
         <h1 className="text-4xl font-bold text-green-800 text-center mb-8">🌿 Plant Inventory Dashboard 🌱</h1>
+
+        {/* Chart Section */}
         <div className="bg-white rounded-lg shadow p-6 mb-10">
           <canvas ref={chartRef} className="w-full h-80"></canvas>
         </div>
 
-        {/* Stock Alerts */}
+        {/* Stock Alerts Section */}
         <h3 className="text-3xl font-bold text-green-700 mb-4">🌱 Stock Alert</h3>
         <table className="w-full table-auto border">
           <thead>
@@ -66,9 +68,14 @@ export default function Dashboard() {
                   {s.quantity < 40 ? '🌱 Low Stock' : '✅ Stock'}
                 </td>
                 <td>
-                  {s.quantity < 40 &&
-                    <button onClick={() => navigate('/order-low-stocks')}
-                      className="bg-green-500 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded">Order Low Stock</button>}
+                  {s.quantity < 40 && (
+                    <button
+                      onClick={() => navigate('/order-low-stocks')}
+                      className="bg-green-500 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded"
+                    >
+                      Order Low Stock
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -86,13 +93,17 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {stocks.filter(s => s.quantity > 30).sort((a, b) => b.quantity - a.quantity).slice(0, 5).map((s, index) => (
-              <tr key={s._id} className="text-center border-b">
-                <td>STOCK_{index + 1}</td>
-                <td>{s.quantity}</td>
-                <td>{s.plantName}</td>
-              </tr>
-            ))}
+            {stocks
+              .filter(s => s.quantity > 30)
+              .sort((a, b) => b.quantity - a.quantity)
+              .slice(0, 5)
+              .map((s, index) => (
+                <tr key={s._id} className="text-center border-b">
+                  <td>STOCK_{index + 1}</td>
+                  <td>{s.quantity}</td>
+                  <td>{s.plantName}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

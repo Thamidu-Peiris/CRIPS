@@ -28,8 +28,7 @@ const GHProfileSettings = () => {
         return;
       }
 
-      // Fix: Case-insensitive role check matching "Grower Handler"
-      if (!role || role.toLowerCase() !== "grower handler") {
+      if (role !== "grower handler") {
         setError("Access denied. This page is for Grower Handlers only.");
         console.log("[DEBUG] Role mismatch, redirecting to shop");
         navigate("/shop");
@@ -37,14 +36,13 @@ const GHProfileSettings = () => {
       }
 
       try {
-        // Fix: Use the correct endpoint for Grower Handler
-        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/grower-handler/profile/${userId}`);
+        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/jobs/profile/${userId}`);
         console.log("[DEBUG] Request headers:", {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         });
 
-        const response = await axios.get(`http://localhost:5000/api/grower-handler/profile/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import Navbar from '../../components/InventoryM/Navbar'; 
+import Navbar from '../../components/InventoryM/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { FaTruck } from 'react-icons/fa';
 
@@ -61,7 +61,7 @@ const OrderStock = () => {
   };
 
   return (
-    <div className="bg-green-50 min-h-screen">
+    <div className="bg-green-50 min-h-screen pl-48">
       <Navbar />
       <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-8">
         <h2 className="text-3xl font-bold text-green-800 text-center mb-6">🌿 Order Low Stock 🌿</h2>
