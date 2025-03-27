@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Navbar from '../../components/InventoryM/Navbar'; 
+import Navbar from '../../components/InventoryM/Navbar';
 import { useNavigate } from 'react-router-dom';
 
 export default function SupplierList() {
@@ -19,12 +19,11 @@ export default function SupplierList() {
   );
 
   return (
-    <div className="bg-green-50 min-h-screen">
+    <div className="bg-green-50 min-h-screen pl-48">
       <Navbar />
       <div className="max-w-7xl mx-auto p-8 bg-white rounded-lg shadow-lg mt-8">
         <h2 className="text-3xl font-bold text-green-800 text-center mb-6">🌿 Suppliers List 🌿</h2>
 
-        /* Search Bar */
         <div className="flex justify-between items-center mb-6">
           <input
             type="text"
@@ -33,7 +32,7 @@ export default function SupplierList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <button 
+          <button
             onClick={() => navigate('/add-supplier')}
             className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700"
           >
@@ -41,7 +40,6 @@ export default function SupplierList() {
           </button>
         </div>
 
-        {/* Supplier Table */}
         <table className="w-full border border-green-300 table-auto">
           <thead className="bg-green-700 text-white">
             <tr>
@@ -67,6 +65,6 @@ export default function SupplierList() {
           </tbody>
         </table>
       </div>
-    </div> 
+    </div>
   );
 }
