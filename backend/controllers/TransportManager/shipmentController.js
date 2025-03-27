@@ -79,3 +79,16 @@ exports.moveToShipmentStatus = async (req, res) => {
     res.status(500).json({ error: 'Failed to move shipment to status' });
   }
 };
+
+
+
+// Fetch shipments with status "Delivered"
+exports.getDeliveredShipments = async (req, res) => {
+  try {
+    const shipments = await Shipment.find({ status: "Delivered" });
+    res.status(200).json(shipments);
+  } catch (error) {
+    console.error('Error fetching delivered shipments:', error);
+    res.status(500).json({ error: 'Failed to fetch delivered shipments' });
+  }
+};
