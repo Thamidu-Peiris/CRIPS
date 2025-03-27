@@ -13,7 +13,7 @@ export default function Navbar() {
       <Link to="/in-stock" className="text-white font-semibold text-lg px-4 py-2 rounded hover:bg-green-700">IN STOCK</Link>
       <Link to="/add-stock" className="text-white font-semibold text-lg px-4 py-2 rounded hover:bg-green-700">ADD STOCK</Link>
       <Link to="/suppliers" className="text-white font-semibold text-lg px-4 py-2 rounded hover:bg-green-700">SUPPLIER LIST</Link>
-      <Link to="/order-low-stocks" className="text-white font-semibold text-lg px-4 py-2 rounded hover:bg-green-700">ORDER LOW STOCKS</Link>
+      <Link to="/Order-stock" className="text-white font-semibold text-lg px-4 py-2 rounded hover:bg-green-700">ORDER LOW STOCKS</Link>
       <Link to="/inventory" className="text-white font-semibold text-lg px-4 py-2 rounded hover:bg-green-700">INVENTORY</Link>
 
       {/* ✅ Log Out Button */}
