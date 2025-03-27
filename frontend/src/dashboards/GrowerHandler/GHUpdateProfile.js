@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\GH\GHUpdateProfile.js
+// frontend/src/dashboards/GrowerHandler/GHUpdateProfile.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -19,11 +19,27 @@ const GHUpdateProfile = () => {
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
     const fetchProfile = async () => {
+      console.log("[DEBUG] Starting GH profile fetch for update...");
+      console.log("[DEBUG] LocalStorage values:", { userId, token, role });
+
+      if (!userId || !token) {
+        setError("Please log in to update your profile");
+        navigate("/login");
+        return;
+      }
+
+      if (role !== "Grower Handler") {
+        setError("Access denied. This page is for Grower Handlers only.");
+        navigate("/shop");
+        return;
+      }
+
       try {
-        const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/api/grower-handler/profile/${userId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -40,11 +56,11 @@ const GHUpdateProfile = () => {
         }
       } catch (error) {
         setError("Failed to fetch profile data.");
-        console.error(error);
+        console.error("[DEBUG] Fetch error:", error.response?.data || error.message);
       }
     };
     fetchProfile();
-  }, [userId, token]);
+  }, [userId, token, role, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,7 +90,7 @@ const GHUpdateProfile = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/jobs/profile/update/${userId}`,
+        `http://localhost:5000/api/grower-handler/profile/update/${userId}`,
         formDataToSend,
         {
           headers: {
@@ -87,22 +103,25 @@ const GHUpdateProfile = () => {
       setError("");
 
       // Update localStorage with new user info
+      const currentUser = JSON.parse(localStorage.getItem("user")) || {};
       const updatedUser = {
-        ...JSON.parse(localStorage.getItem("userInfo")),
+        ...currentUser,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        profileImage: response.data.updatedUser.profileImage || "",
+        address: formData.address,
+        phoneNumber: formData.phoneNumber,
+        profileImage: response.data.updatedUser.profileImage || currentUser.profileImage,
       };
-      localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       window.dispatchEvent(new Event("userInfoChanged")); // Trigger navbar update
 
       setTimeout(() => {
         navigate("/grower-handler/profile-settings");
       }, 2000);
     } catch (error) {
-      setError("Failed to update profile. Please try again.");
+      setError(error.response?.data?.message || "Failed to update profile. Please try again.");
       setSuccess("");
-      console.error(error);
+      console.error("[DEBUG] Update error:", error.response?.data || error.message);
     }
   };
 

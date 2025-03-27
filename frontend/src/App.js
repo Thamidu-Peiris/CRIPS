@@ -123,7 +123,7 @@ function App() {
         <Route path="/dashboard/settings" element={<UserProfileSettings />} />
         <Route path="/customer/change-password" element={<CustomerChangePassword />} />
         <Route path="/profile" element={<UserProfile />} />
-        <Route path="/sm-dashboard" element={<SmDashboard />} /> // ✅ Add Route for SmDashb
+        <Route path="/sm-dashboard" element={<SmDashboard />} /> //Add Route for SmDashb
         <Route path="/SMregister" element={<RegisterSystemManager />} />
         <Route path="/financialreport" element={<FinancialReport />} />
         <Route path="/productreport" element={<ProductReport />} />

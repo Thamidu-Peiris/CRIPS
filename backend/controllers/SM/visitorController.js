@@ -14,9 +14,9 @@ exports.recordVisit = async (req, res) => {
 // Get visitor statistics
 exports.getVisitorStats = async (req, res) => {
   const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const startOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const startOfYear = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
 
   try {
     const dayCount = await Visitor.countDocuments({ visitTime: { $gte: startOfDay } });

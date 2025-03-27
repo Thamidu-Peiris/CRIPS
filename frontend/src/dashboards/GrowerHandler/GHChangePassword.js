@@ -1,17 +1,39 @@
-// CRIPS\frontend\src\dashboards\GrowerHandler\GHChangePassword.js
-import React, { useState } from "react";
+// frontend/src/dashboards/GrowerHandler/GHChangePassword.js
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import GHNavbar from "../../components/GHNavbar";
 import GHSidebar from "../../components/GHSidebar";
 
 const GHChangePassword = () => {
-  const [passwordData, setPasswordData] = useState({ currentPassword: "", newPassword: "" });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
+
+  useEffect(() => {
+    console.log("[DEBUG] Checking access for GHChangePassword...");
+    console.log("[DEBUG] LocalStorage values:", { userId, token, role });
+
+    if (!userId || !token) {
+      setError("Please log in to change your password");
+      navigate("/login");
+      return;
+    }
+
+    if (role !== "Grower Handler") {
+      setError("Access denied. This page is for Grower Handlers only.");
+      navigate("/shop");
+      return;
+    }
+  }, [userId, token, role, navigate]);
 
   const handleChange = (e) => {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
@@ -19,10 +41,20 @@ const GHChangePassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setError("New password and confirmation do not match");
+      setSuccess("");
+      return;
+    }
+
     try {
       await axios.post(
-        `http://localhost:5000/api/jobs/profile/change-password/${userId}`,
-        passwordData,
+        `http://localhost:5000/api/grower-handler/change-password/${userId}`,
+        {
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -32,15 +64,15 @@ const GHChangePassword = () => {
       );
       setSuccess("Password changed successfully!");
       setError("");
-      setPasswordData({ currentPassword: "", newPassword: "" });
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
       setTimeout(() => {
-        navigate("/grower-handler/change-password");
+        navigate("/grower-handler/profile-settings");
       }, 2000);
     } catch (error) {
-      setError("Failed to change password. Please try again.");
+      setError(error.response?.data?.message || "Failed to change password. Please try again.");
       setSuccess("");
-      console.error(error);
+      console.error("[DEBUG] Change password error:", error.response?.data || error.message);
     }
   };
 
@@ -79,16 +111,30 @@ const GHChangePassword = () => {
                   required
                 />
               </label>
+              <label className="block">
+                <span className="font-semibold">Confirm New Password:</span>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  onChange={handleChange}
+                  value={passwordData.confirmPassword}
+                  className="w-full border p-2 rounded-lg"
+                  required
+                />
+              </label>
 
               <div className="flex justify-between mt-6">
                 <button
                   type="button"
-                  onClick={() => navigate("/grower-handler-dashboard")}
-                  className="bg-gray-500 text-white px-4 py-2 rounded"
+                  onClick={() => navigate("/grower-handler/profile-settings")}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+                <button
+                  type="submit"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                >
                   Change Password
                 </button>
               </div>
