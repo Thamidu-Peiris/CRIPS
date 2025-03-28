@@ -1,8 +1,10 @@
 // CRISPS\frontend\src\dashboards\SalesReports\ReportHub.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import jsPDF from "jspdf"; // For PDF export
-import autoTable from "jspdf-autotable"; // Import autoTable directly
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 const ReportHub = () => {
   const [reportType, setReportType] = useState("financial");
@@ -27,32 +29,31 @@ const ReportHub = () => {
         switch (reportType) {
           case "financial":
             endpoint = "financial-report";
-            url = `http://localhost:5000/api/sales/${endpoint}`;
+            url = `${API_URL}/api/sales/${endpoint}`;
             break;
           case "customer":
             endpoint = "customer-report";
-            url = `http://localhost:5000/api/sales/${endpoint}`;
+            url = `${API_URL}/api/sales/${endpoint}`;
             break;
           case "payroll":
             endpoint = "payroll-report";
-            url = `http://localhost:5000/api/sales/${endpoint}?month=${month}&year=${year}`;
+            url = `${API_URL}/api/sales/${endpoint}?month=${month}&year=${year}`;
             break;
           case "product":
             endpoint = "product-performance-report";
-            url = `http://localhost:5000/api/sales/${endpoint}`;
+            url = `${API_URL}/api/sales/${endpoint}`;
             break;
           default:
             endpoint = "financial-report";
-            url = `http://localhost:5000/api/sales/${endpoint}`;
+            url = `${API_URL}/api/sales/${endpoint}`;
         }
 
         const response = await fetch(url);
         const data = await response.json();
 
         if (response.ok) {
-
           console.log(`Response data for ${reportType}:`, data);
-         // let dataArray;
+          let dataArray;
           if (reportType === "payroll") {
             // Extract the payroll array from the response
             dataArray = Array.isArray(data.payroll) ? data.payroll : [];
@@ -69,9 +70,6 @@ const ReportHub = () => {
             dataArray = Array.isArray(data) ? data : [];
           }
 
-          // Ensure data is an array; if not, convert it to an array or set to empty array
-          console.log(`Response data for ${reportType}:`, data); // Debug log
-          const dataArray = Array.isArray(data) ? data : [];
           setReportData(dataArray);
         } else {
           console.error(`Error fetching ${reportType} report:`, data.error);
@@ -86,7 +84,7 @@ const ReportHub = () => {
     };
 
     fetchReportData();
-  }, [reportType, month, year]); // Add month and year as dependencies
+  }, [reportType, month, year]);
 
   // Export to CSV (Manual CSV Generation)
   const exportToCSV = () => {
@@ -103,7 +101,7 @@ const ReportHub = () => {
           entry.date || "-",
           entry.type || "-",
           entry.amount || "-",
-          `"${entry.description || "-"}"`, // Wrap in quotes to handle commas
+          `"${entry.description || "-"}"`,
         ]);
         break;
       case "customer":
@@ -147,18 +145,16 @@ const ReportHub = () => {
         rows = [];
     }
 
-    // Combine headers and rows into a CSV string
     const csvContent = [
       headers.join(","),
       ...rows.map((row) => row.join(",")),
     ].join("\n");
 
-    // Create a downloadable CSV file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `${reportType}_report_${month}_${year}.csv`); // Include month and year in filename for payroll
+    link.setAttribute("download", `${reportType}_report_${month}_${year}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -231,11 +227,9 @@ const ReportHub = () => {
         rows = [];
     }
 
-    // Add title
     doc.setFontSize(16);
     doc.text(title, 14, 20);
 
-    // Use autoTable to generate the table
     autoTable(doc, {
       head: [columns],
       body: rows,
@@ -246,13 +240,12 @@ const ReportHub = () => {
       margin: { top: 30 },
     });
 
-    // Save the PDF
-    doc.save(`${reportType}_report_${month}_${year}.pdf`); // Include month and year in filename for payroll
+    doc.save(`${reportType}_report_${month}_${year}.pdf`);
   };
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
+      {/*Side bar*/} 
       <div className="w-[275px] bg-gray-300 p-5">
         <h2 className="text-xl font-bold mb-5">Side Bar</h2>
         <ul className="space-y-5">
