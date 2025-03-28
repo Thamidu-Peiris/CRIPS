@@ -63,31 +63,31 @@ const Careers = () => {
       title: "Grower Handler",
       description: "Oversee the growth and care of aqua plants for export.",
       icon: <FaLeaf className="text-green-600 text-3xl mb-2" />,
-      backgroundImage: "https://images.unsplash.com/photo-1501004312431-bca706f67856?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Plant growth background
+      backgroundImage: "https://i.pinimg.com/736x/c4/bc/32/c4bc324d97e3ff9a451fe8daab0aa4e8.jpg", // Plant growth background
     },
     {
       title: "Cutters",
       description: "Assist in the preparation and packaging of aqua plants.",
       icon: <FaCut className="text-green-600 text-3xl mb-2" />,
-      backgroundImage: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Cutting tools background
+      backgroundImage: "https://i.pinimg.com/736x/e3/9f/33/e39f33421c80a4535bd068be081d3417.jpg", // Cutting tools background
     },
     {
       title: "Inventory Manager",
       description: "Manage stock levels and ensure timely delivery of aqua plants.",
       icon: <FaBox className="text-green-600 text-3xl mb-2" />,
-      backgroundImage: "https://images.unsplash.com/photo-1586528116141-2e5272eada62?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Inventory background
+      backgroundImage: "https://i.pinimg.com/736x/e7/e5/ee/e7e5eeab4a5dade8ed036bef6a631398.jpg", // Inventory background
     },
     {
       title: "Sales Manager",
       description: "Drive sales and build relationships with clients in the aqua plant industry.",
       icon: <FaDollarSign className="text-green-600 text-3xl mb-2" />,
-      backgroundImage: "https://images.unsplash.com/photo-1556740714-3c4f8a6a6a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Sales background
+      backgroundImage: "https://i.pinimg.com/736x/a9/6a/49/a96a49314288260dd3e7017876ae3c63.jpg", // Sales background
     },
     {
       title: "TransportManager",
       description: "Oversee transportation operations, track shipments, optimize fuel consumption, ensure quality during transit, and manage logistics in the aqua plant industry.",
       icon: <FaTruck className="text-green-600 text-3xl mb-2" />,
-      backgroundImage: "https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80", // Transport background
+      backgroundImage: "https://i.pinimg.com/736x/68/7a/3a/687a3a7a2ac8031e5cd476a73a598d70.jpg", // Transport background
     },
   ];
 
