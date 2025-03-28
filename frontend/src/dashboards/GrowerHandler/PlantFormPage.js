@@ -45,6 +45,22 @@ const PlantFormPage = () => {
         pHMax: parseFloat(formData.pHMax),
       };
 
+      //  validation for max > min ---
+      // Check if waterTemperatureMax is greater than waterTemperatureMin
+      if (convertedFormData.waterTemperatureMax <= convertedFormData.waterTemperatureMin) {
+        setErrorMessage("Water Temperature Max must be greater than Water Temperature Min");
+        setIsSuccess(false);
+        return; // Stop submission if validation fails
+      }
+
+      // Check if pHMax is greater than pHMin
+      if (convertedFormData.pHMax <= convertedFormData.pHMin) {
+        setErrorMessage("pH Max must be greater than pH Min");
+        setIsSuccess(false);
+        return; // Stop submission if validation fails
+      }
+      //  End of validation for max > min ---
+
       const response = await fetch("http://localhost:5000/api/grower/plants", {
         method: "POST",
         headers: {
