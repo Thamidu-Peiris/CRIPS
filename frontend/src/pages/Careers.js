@@ -338,7 +338,7 @@ const Careers = () => {
           <Link to="/careers" className="text-green-600 font-bold">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
-          <Link to="/check-status" className="text-gray-600">Check Status</Link>
+          
         </div>
         <CustomerHeader />
       </nav>
