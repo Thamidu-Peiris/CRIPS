@@ -41,84 +41,126 @@ const Cart = () => {
   };
 
   return (
-    <div className="font-sans min-h-screen bg-gray-100">
+    <div className="font-sans min-h-screen bg-gray-50">
+      {/* Navigation Bar */}
       <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+        <div className="flex items-center">
+          <img src="/logo.png" alt="Logo" className="h-10 mr-3" />
         </div>
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+        <div className="flex items-center space-x-6">
+          <Link to="/" className="text-green-600 font-medium hover:text-green-700 transition-colors">
+            Home
+          </Link>
+          <Link to="/shop" className="text-gray-600 hover:text-gray-800 transition-colors">
+            Shop
+          </Link>
+          <Link to="/careers" className="text-gray-600 hover:text-gray-800 transition-colors">
+            Careers
+          </Link>
+          <Link to="/about" className="text-gray-600 hover:text-gray-800 transition-colors">
+            About
+          </Link>
+          <Link to="/contact" className="text-gray-600 hover:text-gray-800 transition-colors">
+            Contact Us
+          </Link>
         </div>
         <CustomerHeader />
       </nav>
 
-      <div className="p-6">
-        <h2 className="text-3xl font-bold">Your Cart</h2>
+      {/* Cart Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Your Cart</h2>
         {cart.length === 0 ? (
-          <p className="mt-4">Your cart is empty</p>
+          <p className="text-gray-500 text-lg text-center mt-10">Your cart is empty</p>
         ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-              {cart.map((item, index) => (
-                <div
-                  key={index}
-                  className="border p-4 rounded-lg shadow-lg text-center w-60 h-80 flex flex-col items-center justify-between bg-white"
-                >
-                  <img
-                    src={item.plantImage}
-                    alt={item.plantName}
-                    className="w-full h-40 object-cover rounded-md"
-                    onError={(e) => (e.target.src = "/default-plant.jpg")}
-                  />
-                  <h3 className="text-md font-bold mt-2">{item.plantName}</h3>
-                  <p className="text-gray-600">${item.itemPrice} x {item.quantity}</p>
-                  <button
-                    className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm"
-                    onClick={() => {
-                      const updatedCart = cart.filter((_, i) => i !== index);
-                      setCart(updatedCart);
-                      localStorage.setItem("cart", JSON.stringify(updatedCart));
-                    }}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2">
+              <div className="space-y-4">
+                {cart.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow"
                   >
-                    Remove
-                  </button>
-                </div>
-              ))}
+                    <img
+                      src={item.plantImage}
+                      alt={item.plantName}
+                      className="w-24 h-24 object-cover rounded-md mr-4"
+                      onError={(e) => (e.target.src = "/default-plant.jpg")}
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-800">{item.plantName}</h3>
+                      <p className="text-gray-600">
+                        ${item.itemPrice.toFixed(2)} x {item.quantity}
+                      </p>
+                      <p className="text-green-600 font-medium">
+                        ${(item.itemPrice * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
+                    <button
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors text-sm"
+                      onClick={() => {
+                        const updatedCart = cart.filter((_, i) => i !== index);
+                        setCart(updatedCart);
+                        localStorage.setItem("cart", JSON.stringify(updatedCart));
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="mt-6 bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-xl font-bold">Order Summary</h3>
-              <p>Total Cost: ${totalCost.toFixed(2)}</p>
-              {discount > 0 && <p>Discount: -${discount.toFixed(2)}</p>}
-              <p>Final Total: ${finalTotal.toFixed(2)}</p>
-              <div className="mt-4 flex gap-4">
+
+            {/* Order Summary */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h3>
+              <div className="space-y-2">
+                <p className="flex justify-between text-gray-600">
+                  <span>Total Cost:</span>
+                  <span>${totalCost.toFixed(2)}</span>
+                </p>
+                {discount > 0 && (
+                  <p className="flex justify-between text-red-500">
+                    <span>Discount:</span>
+                    <span>-${discount.toFixed(2)}</span>
+                  </p>
+                )}
+                <p className="flex justify-between text-gray-800 font-semibold border-t pt-2">
+                  <span>Final Total:</span>
+                  <span>${finalTotal.toFixed(2)}</span>
+                </p>
+              </div>
+              <div className="mt-4 flex items-center gap-2">
                 <input
                   type="text"
                   placeholder="Coupon Code"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  className="border p-2 rounded"
+                  className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
                 <button
                   onClick={handleApplyCoupon}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                 >
                   Apply
                 </button>
               </div>
               <button
                 onClick={handleCheckout}
-                className="mt-4 bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700"
+                className="w-full mt-6 bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition-colors font-medium"
               >
                 Continue to Checkout
               </button>
             </div>
-          </>
+          </div>
         )}
-        <Link to="/shop" className="mt-4 inline-block text-green-600">Continue Shopping</Link>
+        <Link
+          to="/shop"
+          className="mt-6 inline-block text-green-600 hover:text-green-700 font-medium transition-colors"
+        >
+          Continue Shopping
+        </Link>
       </div>
     </div>
   );

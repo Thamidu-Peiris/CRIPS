@@ -39,7 +39,7 @@ const transportDashboardRoutes = require('./routes/TransportManager/transportDas
 const supplierDashboardRoutes = require('./routes/SupplierM/supplierDashboardRoutes');
 const orderStockRoutes = require('./routes/SupplierM/orderStockRoutes');
 
-//const emailRoutes = require('./routes/SM/emailRoutes');
+const emailRoutes = require('./routes/SM/emailRoutes');
 const tmProfileRoutes = require('./routes/TransportManager/tmProfileRoutes');
 const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
@@ -119,7 +119,7 @@ app.use('/api/csm', couponRoutes); //(T)
 
 
 app.use('/api/transport-manager', tmProfileRoutes);
-//app.use('/api/email', emailRoutes);
+app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
 
