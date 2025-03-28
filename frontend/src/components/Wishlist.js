@@ -21,63 +21,98 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="font-sans min-h-screen bg-gray-100">
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+    <div className="font-sans min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="flex flex-col md:flex-row justify-between items-center p-6 bg-white shadow-lg">
+        <div className="text-xl font-bold flex items-center mb-4 md:mb-0">
+          <img src="/logo.png" alt="Logo" className="h-12 mr-3" />
         </div>
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+        <div className="flex flex-wrap justify-center space-x-8 mb-4 md:mb-0">
+          <Link to="/" className="text-green-600 font-semibold hover:text-green-700 transition duration-300">
+            Home
+          </Link>
+          <Link to="/shop" className="text-gray-600 font-medium hover:text-green-600 transition duration-300">
+            Shop
+          </Link>
+          <Link to="/careers" className="text-gray-600 font-medium hover:text-green-600 transition duration-300">
+            Careers
+          </Link>
+          <Link to="/about" className="text-gray-600 font-medium hover:text-green-600 transition duration-300">
+            About
+          </Link>
+          <Link to="/contact" className="text-gray-600 font-medium hover:text-green-600 transition duration-300">
+            Contact Us
+          </Link>
         </div>
         <CustomerHeader />
       </nav>
 
-      <div className="p-6">
-        <h2 className="text-3xl font-bold">Your Wishlist</h2>
+      {/* Wishlist Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Your Wishlist</h2>
+        
         {wishlist.length === 0 ? (
-          <p className="mt-4">Your wishlist is empty</p>
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600 mb-4">Your wishlist is empty</p>
+            <Link 
+              to="/shop" 
+              className="inline-block px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition duration-300"
+            >
+              Start Shopping
+            </Link>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {wishlist.map((item, index) => (
               <div
                 key={index}
-                className="border p-4 rounded-lg shadow-lg text-center w-60 h-80 flex flex-col items-center justify-between bg-white"
+                className="bg-white rounded-xl shadow-md overflow-hidden transform transition duration-300 hover:shadow-xl hover:-translate-y-1"
               >
                 <Link to={`/plant/${item._id}`}>
                   <img
                     src={item.plantImage}
                     alt={item.plantName}
-                    className="w-full h-40 object-cover rounded-md"
+                    className="w-full h-48 object-cover"
                     onError={(e) => (e.target.src = "/default-plant.jpg")}
                   />
                 </Link>
-                <h3 className="text-md font-bold mt-2">{item.plantName}</h3>
-                <p className="text-gray-600">${item.itemPrice}</p>
-                <button
-                  onClick={() => handleAddToCart(item)}
-                  className="mt-2 px-3 py-1 bg-green-600 text-white rounded text-sm"
-                >
-                  Add to Cart
-                </button>
-                <button
-                  className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-sm"
-                  onClick={() => {
-                    const updatedWishlist = wishlist.filter((_, i) => i !== index);
-                    setWishlist(updatedWishlist);
-                    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
-                  }}
-                >
-                  Remove
-                </button>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-800 truncate">{item.plantName}</h3>
+                  <p className="text-green-600 font-medium mt-1">${item.itemPrice}</p>
+                  <div className="mt-4 flex space-x-2">
+                    <button
+                      onClick={() => handleAddToCart(item)}
+                      className="flex-1 px-3 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition duration-300"
+                    >
+                      Add to Cart
+                    </button>
+                    <button
+                      onClick={() => {
+                        const updatedWishlist = wishlist.filter((_, i) => i !== index);
+                        setWishlist(updatedWishlist);
+                        localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+                      }}
+                      className="flex-1 px-3 py-2 bg-red-500 text-white rounded-md text-sm font-medium hover:bg-red-600 transition duration-300"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         )}
-        <Link to="/shop" className="mt-4 inline-block text-green-600">Continue Shopping</Link>
+        
+        {wishlist.length > 0 && (
+          <div className="mt-8 text-center">
+            <Link 
+              to="/shop" 
+              className="text-green-600 font-medium hover:text-green-700 transition duration-300 underline"
+            >
+              Continue Shopping
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
