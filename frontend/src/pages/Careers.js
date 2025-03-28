@@ -330,7 +330,7 @@ const Careers = () => {
       <nav className="flex justify-between items-center p-5 bg-white shadow-md">
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-          CRIPS
+          
         </div>
         <div className="space-x-6">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
