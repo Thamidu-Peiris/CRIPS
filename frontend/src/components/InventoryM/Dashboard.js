@@ -1,3 +1,4 @@
+// frontend\src\components\InventoryM\Dashboard.js
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js/auto';

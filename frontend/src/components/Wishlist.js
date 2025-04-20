@@ -1,3 +1,4 @@
+// frontend\src\components\Wishlist.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "./CustomerHeader";

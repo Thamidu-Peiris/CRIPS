@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\SM\dashboard.js
+// frontend\src\dashboards\SM\dashboard.js  (System Manager -SM)
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "./sideBar.js";

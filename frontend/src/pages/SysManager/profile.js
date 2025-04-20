@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\pages\SysManager\profile.js
+// frontend\src\pages\SysManager\profile.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../../dashboards/SM/sideBar";

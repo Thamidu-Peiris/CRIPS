@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\pages\Home.js
+// frontend\src\pages\Home.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
