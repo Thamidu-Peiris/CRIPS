@@ -1,3 +1,4 @@
+// frontend\src\dashboards\TransportManager\Sidebar.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaTruck, FaClipboardCheck, FaGasPump, FaMapMarkedAlt, FaChartBar, FaBook, FaUser, FaSignOutAlt, FaBox } from 'react-icons/fa';

@@ -1,4 +1,4 @@
-//CRIPS\frontend\src\dashboards\CSM\CustomerServiceDashboard.js
+// frontend\src\dashboards\CSM\CustomerServiceDashboard.js
 import React, { useState, useEffect } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from "chart.js";

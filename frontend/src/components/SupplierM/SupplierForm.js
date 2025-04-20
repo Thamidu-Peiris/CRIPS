@@ -1,3 +1,4 @@
+// frontend\src\components\SupplierM\SupplierForm.js
 import { useState } from 'react';
 import axios from 'axios';
 import Navbar from '../InventoryM/Navbar';

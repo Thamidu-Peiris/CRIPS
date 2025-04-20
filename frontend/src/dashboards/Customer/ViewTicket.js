@@ -1,5 +1,5 @@
 
-// CRIPS\frontend\src\dashboards\Customer\ViewTicket.js
+// frontend\src\dashboards\Customer\ViewTicket.js
 
 
 import React, { useState, useEffect } from "react";

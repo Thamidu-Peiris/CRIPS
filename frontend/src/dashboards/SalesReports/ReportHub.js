@@ -1,4 +1,4 @@
-// CRISPS\frontend\src\dashboards\SalesReports\ReportHub.js
+// frontend\src\dashboards\SalesReports\ReportHub.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";

@@ -1,3 +1,4 @@
+// frontend\src\components\SupplierM\SupplierList.js
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../../components/InventoryM/Navbar';

@@ -1,4 +1,4 @@
-// CRISPS\frontend\src\dashboards\SalesReports\CustomerReport.js
+// frontend\src\dashboards\SalesReports\CustomerReport.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PieChart, Pie, Cell } from "recharts";

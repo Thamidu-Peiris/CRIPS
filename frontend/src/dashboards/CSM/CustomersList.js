@@ -1,4 +1,4 @@
-// CRIPS/frontend/src/dashboards/CSM/CustomersList.js
+// frontend\src\dashboards\CSM\CustomersList.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

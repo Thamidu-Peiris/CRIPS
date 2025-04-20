@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\SalesReports\SalarySheet.js
+// frontend\src\dashboards\SalesReports\SalarySheet.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Modal from "react-modal";

@@ -1,5 +1,5 @@
 
-//CRIPS\frontend\src\dashboards\Customer\CreateTicket.js
+// frontend\src\dashboards\Customer\CreateTicket.js
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";

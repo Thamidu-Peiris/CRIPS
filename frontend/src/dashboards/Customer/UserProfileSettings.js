@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\Customer\UserProfileSettings.js
+// frontend\src\dashboards\Customer\UserProfileSettings.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";

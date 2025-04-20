@@ -1,4 +1,4 @@
-// CRIPS/frontend/src/components/CSMSidebar.js
+// frontend\src\components\CSMSidebar.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Add these imports
 import { MdDashboard } from "react-icons/md";
