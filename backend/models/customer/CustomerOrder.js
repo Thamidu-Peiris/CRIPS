@@ -29,6 +29,13 @@ const customerOrderSchema = new mongoose.Schema({
     enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'], 
     default: 'Pending' 
   },
+  trackingNumber: { type: String }, // New field for tracking number
+  trackingLocation: { type: String }, // New field for current location
+  statusHistory: [{
+    status: { type: String, enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'] },
+    updatedAt: { type: Date, default: Date.now },
+    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // CSM or Transport Manager
+  }], // New field for status change history
   reviews: [{
     rating: { type: Number, min: 1, max: 5 },
     review: { type: String },

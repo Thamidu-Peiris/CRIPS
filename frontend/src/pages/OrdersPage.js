@@ -1,4 +1,3 @@
-// frontend\src\pages\OrdersPage.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -71,6 +70,8 @@ const OrdersPage = () => {
                 <th className="p-3">Total</th>
                 <th className="p-3">Payment</th>
                 <th className="p-3">Status</th>
+                <th className="p-3">Tracking Number</th>
+                <th className="p-3">Current Location</th>
                 <th className="p-3">Date</th>
                 <th className="p-3">Options</th>
               </tr>
@@ -81,26 +82,29 @@ const OrdersPage = () => {
                   <tr key={order._id} className="border-b text-sm">
                     <td className="p-3">{order._id}</td>
                     <td className="p-3">${order.total.toFixed(2)}</td>
-                    <td className="p-3">{order.paymentMethod}</td>
+                    <td className="p-3">{order.paymentMethod || "N/A"}</td>
                     <td className={`p-3 font-semibold ${order.status === "Completed" ? "text-green-600" : "text-red-600"}`}>
                       {order.status}
                     </td>
+                    <td className="p-3">{order.trackingNumber || "N/A"}</td>
+                    <td className="p-3">{order.trackingLocation || "N/A"}</td>
+                    <td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="p-3">
-  <Link to={`/orders/${order._id}`} className="text-blue-600 hover:underline">View</Link>
-  {order.status === "Completed" && (
-    <button
-      onClick={() => setShowReviewForm(order._id)}
-      className="ml-2 text-green-600 hover:underline"
-    >
-      Add Review
-    </button>
-  )}
-</td>
+                      <Link to={`/orders/${order._id}`} className="text-blue-600 hover:underline">View</Link>
+                      {order.status === "Completed" && (
+                        <button
+                          onClick={() => setShowReviewForm(order._id)}
+                          className="ml-2 text-green-600 hover:underline"
+                        >
+                          Add Review
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center p-6 text-gray-500">No records found!</td>
+                  <td colSpan="8" className="text-center p-6 text-gray-500">No records found!</td>
                 </tr>
               )}
             </tbody>
