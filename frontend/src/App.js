@@ -46,7 +46,7 @@ import Checkout from "./pages/Checkout";
 import OrderDetails from "./pages/OrderDetails";
 import TrackingPage from "./dashboards/Customer/TrackingPage";
 import CustomerOrders from "./dashboards/TransportManager/CustomerOrders.js";
-
+import ManageOrders from "./dashboards/CSM/ManageOrders";
 
 
 
@@ -102,6 +102,7 @@ function App() {
         <Route path="/dashboard/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/dashboard/tracking" element={<TrackingPage />} />
+        <Route path="/csm/manage-orders" element={<ManageOrders />} />
         <Route path="/dashboard/customer-orders" element={<CustomerOrders />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
