@@ -85,18 +85,17 @@ const OrdersPage = () => {
                     <td className={`p-3 font-semibold ${order.status === "Completed" ? "text-green-600" : "text-red-600"}`}>
                       {order.status}
                     </td>
-                    <td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="p-3">
-                      <Link to={`/orders/${order._id}`} className="text-blue-600 hover:underline">View</Link>
-                      {order.status === "Completed" && (
-                        <button
-                          onClick={() => setShowReviewForm(order._id)}
-                          className="ml-2 text-green-600 hover:underline"
-                        >
-                          Add Review
-                        </button>
-                      )}
-                    </td>
+  <Link to={`/orders/${order._id}`} className="text-blue-600 hover:underline">View</Link>
+  {order.status === "Completed" && (
+    <button
+      onClick={() => setShowReviewForm(order._id)}
+      className="ml-2 text-green-600 hover:underline"
+    >
+      Add Review
+    </button>
+  )}
+</td>
                   </tr>
                 ))
               ) : (

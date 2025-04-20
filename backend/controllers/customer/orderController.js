@@ -1,31 +1,58 @@
-// backend\routes\customer\orderRoutes.js
-const express = require('express');
-const router = express.Router();
-const { getOrderById, getOrdersByUserId, createOrder, addReview } = require('../../controllers/customer/orderController');
-const CustomerOrder = require('../../models/customer/CustomerOrder');
-const Coupon = require('../../models/customer/Coupon');
-const mongoose = require('mongoose');
+const CustomerOrder = require("../../models/customer/CustomerOrder");
+const Coupon = require("../../models/customer/Coupon");
+const mongoose = require("mongoose");
 
-
-
-router.post('/', async (req, res) => {
+// Get order by ID
+const getOrderById = async (req, res) => {
   try {
-    console.log("Received order request:", req.body);
+    const { userId } = req.query; // Get userId from query parameter
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Valid userId is required" });
+    }
+
+    const order = await CustomerOrder.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    // Verify user ownership
+    if (order.userId.toString() !== userId) {
+      return res.status(403).json({ message: "Unauthorized access" });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Error fetching order:", error);
+    res.status(500).json({ message: "Failed to fetch order", error: error.message });
+  }
+};
+
+// Get orders by user ID
+const getOrdersByUserId = async (req, res) => {
+  try {
+    const orders = await CustomerOrder.find({ userId: req.params.userId });
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Failed to fetch orders", error: error.message });
+  }
+};
+
+// Create order
+const createOrder = async (req, res) => {
+  try {
     const { userId, items, shippingInfo, paymentMethod, couponCode } = req.body;
 
-    // Validate required fields
     if (!userId || !items || !Array.isArray(items) || items.length === 0 || !shippingInfo || !paymentMethod) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // Validate userId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Invalid userId" });
     }
 
-    // Filter items to only include required fields
     const filteredItems = items.map(item => ({
-      plantId: item.plantId || item._id, // Handle both cases
+      plantId: item.plantId || item._id,
       plantName: item.plantName,
       quantity: item.quantity,
       itemPrice: item.itemPrice,
@@ -57,40 +84,32 @@ router.post('/', async (req, res) => {
       couponDiscount,
     });
 
-    console.log("Order to save:", order);
     await order.save();
     res.status(201).json(order);
   } catch (error) {
     console.error("Error saving order:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
-});
+};
 
-router.get('/user/:userId', async (req, res) => {
-  try {
-    const orders = await CustomerOrder.find({ userId: req.params.userId });
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-router.post('/:id/review', async (req, res) => {
+// Add review to order
+const addReview = async (req, res) => {
   const { rating, review } = req.body;
   try {
     const order = await CustomerOrder.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
     order.reviews.push({ rating, review });
     await order.save();
-    res.json(order);
+    res.status(200).json(order);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Error adding review:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
-});
+};
 
-router.post('/', createOrder);
-router.get('/user/:userId', getOrdersByUserId);
-router.get('/:id', getOrderById); 
-router.post('/:id/review', addReview);
-
-module.exports = router;
+module.exports = {
+  getOrderById,
+  getOrdersByUserId,
+  createOrder,
+  addReview,
+};
