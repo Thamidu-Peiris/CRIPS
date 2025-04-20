@@ -43,7 +43,7 @@ import CustomersList from "./dashboards/CSM/CustomersList";
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 import Wishlist from "./components/Wishlist";
 import Checkout from "./pages/Checkout";
-
+import OrderDetails from "./pages/OrderDetails";
 
 
 
@@ -100,6 +100,7 @@ function App() {
         <Route path="/shop" element={<Shop/>} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/dashboard/orders" element={<OrdersPage />} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
