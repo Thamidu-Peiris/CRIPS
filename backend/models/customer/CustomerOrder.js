@@ -1,3 +1,4 @@
+// CRIPS\backend\models\customer\CustomerOrder.js
 const mongoose = require('mongoose');
 
 const customerOrderSchema = new mongoose.Schema({

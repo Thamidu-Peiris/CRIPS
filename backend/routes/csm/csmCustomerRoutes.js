@@ -1,4 +1,4 @@
-// CRIPS\backend\routes\csm\csmCustomerRoutes.js
+// backend\routes\csm\csmCustomerRoutes.js
 const express = require('express');
 const router = express.Router();
 const User = require('../../models/customer/User');

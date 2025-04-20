@@ -1,4 +1,4 @@
-//CRIPS\backend\routes\customer\userRoutes.js
+// backend\routes\customer\userRoutes.js
 const express = require('express');
 const router = express.Router();
 const { createUser, loginUser, updateUserProfile, changePassword, deleteUser, upload } = require('../../controllers/customer/userController');

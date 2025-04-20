@@ -1,3 +1,4 @@
+// backend\controllers\Supplier\orderStockController.js
 const Supplier = require('../../models/SupplierM/Supplier');
 const Order = require('../../models/InventoryM/OrderStock');
 

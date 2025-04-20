@@ -1,4 +1,4 @@
-// CRIPS\backend\routes\jobRoutes.js
+// backend\routes\jobRoutes.js
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");

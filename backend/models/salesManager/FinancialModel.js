@@ -1,4 +1,4 @@
-// backend/models/salesManager/FinancialModel.js
+// backend\models\salesManager\FinancialModel.js
 const mongoose = require("mongoose");
 
 const transactionSchema = new mongoose.Schema({

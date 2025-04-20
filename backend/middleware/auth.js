@@ -1,4 +1,4 @@
-// CRIPS\backend\middleware\auth.js
+// backend\middleware\auth.js
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = async (req, res, next) => {

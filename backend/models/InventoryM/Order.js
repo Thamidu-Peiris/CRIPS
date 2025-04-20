@@ -1,4 +1,4 @@
-// CRIPS\backend\models\InventoryM\Order.js
+// backend\models\InventoryM\Order.js
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({

@@ -1,3 +1,4 @@
+// backend\controllers\Supplier\supplierDashboardController.js
 const Order = require('../../models/InventoryM/OrderStock'); // Use the correct Order model
 
 // ✅ Get all orders for the supplier

@@ -1,4 +1,4 @@
-// CRIPS\backend\middleware\isSystemManager.js
+// backend\middleware\isSystemManager.js
 const isSystemManager = (req, res, next) => {
     console.log("isSystemManager Middleware - User:", req.user);
     if (!req.user || req.user.role?.toLowerCase() !== "systemmanager") {

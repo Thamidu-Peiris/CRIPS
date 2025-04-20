@@ -1,4 +1,4 @@
-// backend/models/SM/SysManagerModel.js
+// backend\models\SM\SysManagerModel.js (System Manager/Admin)
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 

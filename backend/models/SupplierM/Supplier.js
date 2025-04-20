@@ -1,3 +1,4 @@
+// backend\models\SupplierM\Supplier.js
 const mongoose = require('mongoose');
 
 const supplierSchema = new mongoose.Schema({

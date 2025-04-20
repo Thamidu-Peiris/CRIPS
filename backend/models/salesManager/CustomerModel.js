@@ -1,4 +1,4 @@
-// backend/models/salesManager/CustomerModel.js
+// backend\models\salesManager\CustomerModel.js
 const mongoose = require("mongoose");
 
 const customerSchema = new mongoose.Schema({
