@@ -1,4 +1,4 @@
-// CRIPS\backend\controllers\SM\smController.js
+// backend\controllers\SM\smController.js
 const SystemManager = require("../../models/SM/SysManagerModel");
 const GrowerHandler = require("../../models/GrowerHandler/growerHandlerModel");
 const Cutter = require("../../models/cutters/cuttersModel");

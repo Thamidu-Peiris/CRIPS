@@ -1,3 +1,4 @@
+// backend\controllers\InventoryManager\stockController.js
 const Stock = require('../models/Stock');
 
 // ✅ Get All Stocks

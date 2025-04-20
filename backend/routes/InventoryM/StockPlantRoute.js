@@ -1,3 +1,4 @@
+// CRIPS\backend\routes\InventoryM\StockPlantRoute.js
 const express = require('express');
 const router = express.Router();
 const stockPlantController = require('../../controllers/InventoryManager/stockPlantController');

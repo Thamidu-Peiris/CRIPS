@@ -1,3 +1,4 @@
+// backend\routes\SM\visitorRoutes.js
 const express = require('express');
 const router = express.Router();
 const visitorController = require('../../controllers/SM/visitorController');

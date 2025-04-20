@@ -1,3 +1,4 @@
+// backend\controllers\TransportManager\qualityCheckController.js
 const QualityCheck = require('../../models/TransportManager/QualityCheck');
 
 // Log a new quality check

@@ -1,4 +1,4 @@
-// backend/models/salesManager/PayrollModel.js
+// backend\models\salesManager\PayrollModel.js
 const mongoose = require("mongoose");
 
 const payrollSchema = new mongoose.Schema({

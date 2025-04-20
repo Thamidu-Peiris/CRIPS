@@ -1,4 +1,4 @@
-//CRIPS\backend\models\customer\SupportTicket.js
+// backend\models\customer\SupportTicket.js
 const mongoose = require("mongoose");
 
 const SupportTicketSchema = new mongoose.Schema({

@@ -1,4 +1,4 @@
-//CRIPS\backend\routes\customer\supportRoutes.js
+// backend\routes\customer\supportRoutes.js
 const express = require("express");
 const router = express.Router();
 const supportController = require("../../controllers/customer/supportController"); // Import support controller

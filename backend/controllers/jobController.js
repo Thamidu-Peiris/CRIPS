@@ -1,4 +1,4 @@
-// CRIPS\backend\controllers\jobController.js
+// backend\controllers\jobController.js
 const JobApplication = require("../models/JobApplication");
 const CustomerServiceManager = require("../models/csm/csmModel");
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");

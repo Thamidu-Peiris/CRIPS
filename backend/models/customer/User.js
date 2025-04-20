@@ -1,4 +1,4 @@
-//CRIPS\backend\models\customer\User.js
+// backend\models\customer\User.js (Customers)
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({

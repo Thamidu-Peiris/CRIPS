@@ -1,4 +1,4 @@
-//CRIPS\backend\models\csm\FaqModel.js
+// backend\models\csm\FaqModel.js
 const mongoose = require("mongoose");
 
 const FaqSchema = new mongoose.Schema({

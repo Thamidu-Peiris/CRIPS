@@ -1,4 +1,4 @@
-// backend/routes/SalesM/salesReportRoutes.js
+// backend\routes\SalesM\salesReportRoutes.js
 const express = require("express");
 const router = express.Router();
 const salesReportController = require("../../controllers/SalesManager/reportController");

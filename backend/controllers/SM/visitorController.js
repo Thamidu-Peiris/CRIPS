@@ -1,3 +1,4 @@
+// backend\controllers\SM\visitorController.js
 const Visitor = require('../../models/SM/Visitor');
 
 // Record a visitor

@@ -1,3 +1,4 @@
+// backend\models\TransportManager\QualityCheck.js
 const mongoose = require('mongoose');
 
 const qualitySchema = new mongoose.Schema({
