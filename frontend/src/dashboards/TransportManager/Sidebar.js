@@ -14,7 +14,7 @@ export default function Sidebar() {
     { name: "Shipment Scheduler", icon: <FaClipboardCheck />, path: "/shipment-scheduler" },
     { name: "Route Optimizer", icon: <FaMapMarkedAlt />, path: "/route-optimizer" },
     { name: "Transport Reports", icon: <FaChartBar />, path: "/transport-reports" },
-    { name: "Customer Orders", icon: <FaBox />, path: "/customer-orders" },
+    { name: "Customer Orders", icon: <FaBox />, path: "/dashboard/customer-orders" },
     { name: "Profile", icon: <FaUser />, path: "/transport-manager-profile" },
   ];
 

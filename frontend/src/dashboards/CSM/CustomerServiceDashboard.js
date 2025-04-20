@@ -1,56 +1,92 @@
-// frontend\src\dashboards\CSM\CustomerServiceDashboard.js
 import React, { useState, useEffect } from "react";
 import { Bar, Pie } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend } from "chart.js";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Added import for navigation
+import { useNavigate } from "react-router-dom";
 import CSMNavbar from "../../components/CSMNavbar";
 import CSMSidebar from "../../components/CSMSidebar";
 
-// Register Chart.js components
 Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
 
 const CustomerServiceDashboard = () => {
   const [orders, setOrders] = useState([]);
-  const [tickets, setTickets] = useState([]); // Added state for tickets
+  const [tickets, setTickets] = useState([]);
   const [stats, setStats] = useState({
-    totalOrders: 250,
-    newOrders: 65,
-    pendingPayments: 10,
-    completedOrders: 126,
-    pendingOrders: 40,
-    activeOrders: 85,
-    pendingTickets: 0, // Added pendingTickets to stats
+    totalOrders: 0,
+    newOrders: 0,
+    pendingPayments: 0,
+    completedOrders: 0,
+    pendingOrders: 0,
+    activeOrders: 0,
+    pendingTickets: 0,
   });
-  const navigate = useNavigate(); // Added navigate hook
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [newStatus, setNewStatus] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    if (!userInfo || userInfo.role !== "Customer Service Manager") {
+      navigate("/login");
+      return;
+    }
+
+    const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/orders/all");
-        setOrders(response.data);
+        // Fetch orders
+        const orderResponse = await axios.get("http://localhost:5000/api/orders");
+        const ordersData = orderResponse.data;
+        setOrders(ordersData);
+
+        // Calculate stats
+        const totalOrders = ordersData.length;
+        const newOrders = ordersData.filter(o => o.status === "Pending").length;
+        const pendingPayments = ordersData.filter(o => o.paymentMethod === "Pending").length;
+        const completedOrders = ordersData.filter(o => o.status === "Completed").length;
+        const pendingOrders = ordersData.filter(o => o.status === "Pending").length;
+        const activeOrders = ordersData.filter(o => ["Confirmed", "Shipped"].includes(o.status)).length;
+
+        // Fetch tickets
+        const ticketResponse = await axios.get("http://localhost:5000/api/support");
+        const ticketsData = ticketResponse.data;
+        setTickets(ticketsData);
+        const pendingTickets = ticketsData.filter(t => t.status === "Pending").length;
+
+        setStats({
+          totalOrders,
+          newOrders,
+          pendingPayments,
+          completedOrders,
+          pendingOrders,
+          activeOrders,
+          pendingTickets,
+        });
       } catch (error) {
-        console.error("Error fetching orders:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    const fetchTickets = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/support");
-        const pendingTicketsCount = response.data.filter(ticket => ticket.status === "Pending").length;
-        setTickets(response.data);
-        setStats(prevStats => ({
-          ...prevStats,
-          pendingTickets: pendingTicketsCount
-        }));
-      } catch (error) {
-        console.error("Error fetching tickets:", error);
-      }
-    };
+    fetchData();
+  }, [navigate]);
 
-    fetchOrders();
-    fetchTickets();
-  }, []);
+  const handleStatusUpdate = async (orderId) => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, {
+        status: newStatus,
+        updatedBy: userInfo.id,
+      });
+      setOrders(orders.map(order =>
+        order._id === orderId ? { ...order, status: newStatus } : order
+      ));
+      setSelectedOrderId(null);
+      setNewStatus("");
+      alert("Order status updated successfully!");
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update order status.");
+    }
+  };
 
   // Bar Chart Data (Orders Over Time)
   const barChartData = {
@@ -116,23 +152,16 @@ const CustomerServiceDashboard = () => {
     },
   };
 
-  // Handle navigation to support tickets
   const handlePendingTicketsClick = () => {
     navigate("/csm/support-tickets");
   };
 
   return (
     <div className="flex h-screen bg-gray-200">
-      {/* Sidebar */}
       <CSMSidebar />
-
-      {/* Main Content */}
       <main className="flex-1 p-6">
-        {/* Navbar */}
         <CSMNavbar />
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-6"> {/* Changed to 5 columns */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-6">
           {[
             { title: "Total Orders", value: stats.totalOrders },
             { title: "New Orders", value: stats.newOrders },
@@ -155,49 +184,78 @@ const CustomerServiceDashboard = () => {
             </div>
           ))}
         </div>
-
-        {/* Charts Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          {/* Bar Chart */}
           <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "400px" }}>
             <Bar data={barChartData} options={barChartOptions} />
           </div>
-
-          {/* Pie Chart */}
           <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "400px" }}>
             <Pie data={pieChartData} options={pieChartOptions} />
           </div>
         </div>
-
-        {/* Latest Orders Table */}
         <div className="bg-white p-6 rounded-2xl shadow-md mt-6">
           <h3 className="text-lg font-semibold mb-4">Latest Orders</h3>
           <div className="overflow-x-auto rounded-3xl">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="py-3 px-4 border border-gray-300">Order</th>
+                  <th className="py-3 px-4 border border-gray-300">Order ID</th>
+                  <th className="py-3 px-4 border border-gray-300">Customer</th>
                   <th className="py-3 px-4 border border-gray-300">Status</th>
                   <th className="py-3 px-4 border border-gray-300">Payment</th>
                   <th className="py-3 px-4 border border-gray-300">Date</th>
-                  <th className="py-3 px-4 border border-gray-300">Options</th>
+                  <th className="py-3 px-4 border border-gray-300">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {orders.slice(0, 5).map((order) => (
-                  <tr key={order.orderId} className="text-center border-b border-gray-300">
-                    <td className="py-3 px-4">{order.orderId}</td>
+                {orders.map((order) => (
+                  <tr key={order._id} className="text-center border-b border-gray-300">
+                    <td className="py-3 px-4">{order._id}</td>
+                    <td className="py-3 px-4">{order.userId?.firstName} {order.userId?.lastName}</td>
                     <td className="py-3 px-4">{order.status}</td>
-                    <td className="py-3 px-4">{order.paymentStatus}</td>
-                    <td className="py-3 px-4">{new Date(order.date).toLocaleString()}</td>
+                    <td className="py-3 px-4">{order.paymentMethod || "N/A"}</td>
+                    <td className="py-3 px-4">{new Date(order.createdAt).toLocaleString()}</td>
                     <td className="py-3 px-4">
-                      <button className="bg-blue-500 text-white px-3 py-1 rounded">View</button>
+                      <button
+                        onClick={() => {
+                          setSelectedOrderId(order._id);
+                          setNewStatus(order.status);
+                        }}
+                        className="bg-blue-500 text-white px-3 py-1 rounded"
+                      >
+                        Update Status
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+          {selectedOrderId && (
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Update Order Status</h3>
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="p-2 border rounded mr-2"
+              >
+                {['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'].map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </select>
+              <button
+                onClick={() => handleStatusUpdate(selectedOrderId)}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setSelectedOrderId(null)}
+                className="ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

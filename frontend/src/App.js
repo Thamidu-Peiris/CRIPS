@@ -44,8 +44,8 @@ import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 import Wishlist from "./components/Wishlist";
 import Checkout from "./pages/Checkout";
 import OrderDetails from "./pages/OrderDetails";
-
-
+import TrackingPage from "./dashboards/Customer/TrackingPage";
+import CustomerOrders from "./dashboards/TransportManager/CustomerOrders.js";
 
 
 
@@ -101,6 +101,8 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/dashboard/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/dashboard/tracking" element={<TrackingPage />} />
+        <Route path="/dashboard/customer-orders" element={<CustomerOrders />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />

@@ -1,11 +1,12 @@
 const CustomerOrder = require("../../models/customer/CustomerOrder");
 const Coupon = require("../../models/customer/Coupon");
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require('uuid');
 
 // Get order by ID
 const getOrderById = async (req, res) => {
   try {
-    const { userId } = req.query; // Get userId from query parameter
+    const { userId } = req.query;
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({ message: "Valid userId is required" });
     }
@@ -15,7 +16,6 @@ const getOrderById = async (req, res) => {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    // Verify user ownership
     if (order.userId.toString() !== userId) {
       return res.status(403).json({ message: "Unauthorized access" });
     }
@@ -34,6 +34,17 @@ const getOrdersByUserId = async (req, res) => {
     res.status(200).json(orders);
   } catch (error) {
     console.error("Error fetching orders:", error);
+    res.status(500).json({ message: "Failed to fetch orders", error: error.message });
+  }
+};
+
+// Get all orders (for CSM dashboard)
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await CustomerOrder.find().populate('userId', 'firstName lastName email');
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching all orders:", error);
     res.status(500).json({ message: "Failed to fetch orders", error: error.message });
   }
 };
@@ -82,6 +93,8 @@ const createOrder = async (req, res) => {
       paymentMethod,
       couponCode,
       couponDiscount,
+      status: "Pending",
+      statusHistory: [{ status: "Pending", updatedAt: new Date(), updatedBy: userId }],
     });
 
     await order.save();
@@ -89,6 +102,72 @@ const createOrder = async (req, res) => {
   } catch (error) {
     console.error("Error saving order:", error);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Update order status (for CSM)
+const updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status, updatedBy } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId) || !mongoose.Types.ObjectId.isValid(updatedBy)) {
+      return res.status(400).json({ message: "Valid orderId and updatedBy are required" });
+    }
+
+    if (!['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const order = await CustomerOrder.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (status === "Shipped" && !order.trackingNumber) {
+      order.trackingNumber = `TRK-${uuidv4().slice(0, 8).toUpperCase()}`;
+    }
+
+    order.status = status;
+    order.statusHistory.push({ status, updatedAt: new Date(), updatedBy });
+
+    await order.save();
+    res.status(200).json({ message: "Order status updated", order });
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    res.status(500).json({ message: "Failed to update order status", error: error.message });
+  }
+};
+
+// Update tracking location (for Transport Manager)
+const updateTrackingLocation = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { trackingLocation, updatedBy } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId) || !mongoose.Types.ObjectId.isValid(updatedBy)) {
+      return res.status(400).json({ message: "Valid orderId and updatedBy are required" });
+    }
+
+    if (!trackingLocation) {
+      return res.status(400).json({ message: "Tracking location is required" });
+    }
+
+    const order = await CustomerOrder.findById(orderId);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    if (!['Shipped', 'Delivered'].includes(order.status)) {
+      return res.status(400).json({ message: "Order must be Shipped or Delivered to update location" });
+    }
+
+    order.trackingLocation = trackingLocation;
+    await order.save();
+    res.status(200).json({ message: "Tracking location updated", order });
+  } catch (error) {
+    console.error("Error updating tracking location:", error);
+    res.status(500).json({ message: "Failed to update tracking location", error: error.message });
   }
 };
 
@@ -110,6 +189,9 @@ const addReview = async (req, res) => {
 module.exports = {
   getOrderById,
   getOrdersByUserId,
+  getAllOrders,
   createOrder,
+  updateOrderStatus,
+  updateTrackingLocation,
   addReview,
 };
