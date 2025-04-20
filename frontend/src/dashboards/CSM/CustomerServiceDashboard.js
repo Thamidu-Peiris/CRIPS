@@ -118,7 +118,7 @@ const CustomerServiceDashboard = () => {
 
   // Handle navigation to support tickets
   const handlePendingTicketsClick = () => {
-    navigate("/dashboard/support-tickets");
+    navigate("/csm/support-tickets");
   };
 
   return (

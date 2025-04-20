@@ -1,91 +1,117 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
+import axios from 'axios';
 
-export default function QualityCheckLog({ shipmentId }) {
-  const [logs, setLogs] = useState([]);
-  const [condition, setCondition] = useState('Intact');
-  const [remarks, setRemarks] = useState('');
+export default function RouteOptimizer() {
+  const [locations, setLocations] = useState([
+    { address: '', id: Date.now() },
+  ]);
+  const [optimizedRoute, setOptimizedRoute] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const fetchLogs = async () => {
-    const res = await axios.get(`http://localhost:5000/api/quality/${shipmentId}`);
-    setLogs(res.data);
+  const handleLocationChange = (index, value) => {
+    const newLocations = [...locations];
+    newLocations[index].address = value;
+    setLocations(newLocations);
   };
 
-  useEffect(() => {
-    fetchLogs();
-  }, [shipmentId, fetchLogs]); // Added fetchLogs to the dependency array
+  const handleAddLocation = () => {
+    setLocations([...locations, { address: '', id: Date.now() }]);
+  };
 
-  const handleLogQuality = async () => {
-    await axios.post('http://localhost:5000/api/quality', {
-      shipmentId,
-      condition,
-      remarks,
-    });
-    setCondition('Intact');
-    setRemarks('');
-    fetchLogs();
+  const handleRemoveLocation = (index) => {
+    const updated = [...locations];
+    updated.splice(index, 1);
+    setLocations(updated);
+  };
+
+  const handleOptimizeRoute = async () => {
+    const addresses = locations.map(loc => loc.address.trim()).filter(Boolean);
+    if (addresses.length < 2) {
+      setError('Please provide at least 2 delivery locations.');
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const res = await axios.post('http://localhost:5000/api/transport/optimize-route', {
+        locations: addresses,
+      });
+
+      setOptimizedRoute(res.data.optimized || []);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to optimize route. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-blue-900 text-white font-sans flex">
       <Sidebar />
+
       <div className="flex-1 ml-72 p-8">
         <div className="bg-gray-800/50 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-700/50">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-6">
-            Quality Check Logs
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-green-300 to-lime-400 bg-clip-text text-transparent mb-4">
+            Route Optimizer
           </h2>
-          <div className="mb-8 flex space-x-4">
-            <select
-              className="bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              value={condition}
-              onChange={(e) => setCondition(e.target.value)}
-            >
-              <option value="Intact">Intact</option>
-              <option value="Damaged">Damaged</option>
-            </select>
-            <input
-              className="flex-1 bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              placeholder="Remarks (optional)"
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-            />
+
+          {error && <div className="text-red-400 mb-4">{error}</div>}
+
+          {/* Delivery Points Form */}
+          <div className="space-y-4 mb-6">
+            {locations.map((loc, index) => (
+              <div key={loc.id} className="flex space-x-4">
+                <input
+                  type="text"
+                  value={loc.address}
+                  onChange={(e) => handleLocationChange(index, e.target.value)}
+                  className="flex-1 bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
+                  placeholder={`Delivery Point ${index + 1}`}
+                />
+                {locations.length > 1 && (
+                  <button
+                    onClick={() => handleRemoveLocation(index)}
+                    className="text-red-400 hover:text-red-500 transition"
+                    title="Remove"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            ))}
+
             <button
-              onClick={handleLogQuality}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300"
+              onClick={handleAddLocation}
+              className="text-sm text-cyan-300 hover:text-cyan-400 transition underline"
             >
-              Log Check
+              + Add Another Location
             </button>
           </div>
-          <div className="bg-gray-900/50 p-4 rounded-xl shadow-inner">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-700/50">
-                  <th className="py-2 px-4">Date</th>
-                  <th className="py-2 px-4">Condition</th>
-                  <th className="py-2 px-4">Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr
-                    key={log._id}
-                    className="border-t border-gray-700/50 hover:bg-gray-800/30 transition-all duration-200"
-                  >
-                    <td className="py-2 px-4">{new Date(log.checkDate).toLocaleDateString()}</td>
-                    <td
-                      className={
-                        log.condition === 'Damaged' ? 'text-red-400' : 'text-green-400'
-                      }
-                    >
-                      {log.condition}
-                    </td>
-                    <td className="py-2 px-4">{log.remarks}</td>
-                  </tr>
+
+          <button
+            onClick={handleOptimizeRoute}
+            disabled={isLoading}
+            className="bg-gradient-to-r from-lime-500 to-green-600 text-white px-6 py-2 rounded-lg hover:from-lime-600 hover:to-green-700 transition-all disabled:opacity-50"
+          >
+            {isLoading ? 'Optimizing...' : 'Optimize Route'}
+          </button>
+
+          {/* Optimized Route Output */}
+          {optimizedRoute.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold text-lime-300 mb-2">Optimized Delivery Order:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-gray-200">
+                {optimizedRoute.map((point, index) => (
+                  <li key={index}>{point}</li>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </ol>
+            </div>
+          )}
         </div>
       </div>
     </div>
