@@ -11,18 +11,57 @@ Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Toolti
 const CustomerServiceDashboard = () => {
   const [orders, setOrders] = useState([]);
   const [tickets, setTickets] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [pendingCustomers, setPendingCustomers] = useState([]);
   const [stats, setStats] = useState({
     totalOrders: 0,
-    newOrders: 0,
-    pendingPayments: 0,
-    completedOrders: 0,
     pendingOrders: 0,
-    activeOrders: 0,
+    pendingCustomers: 0,
+    completedOrders: 0,
     pendingTickets: 0,
   });
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
-  const [newStatus, setNewStatus] = useState("");
   const navigate = useNavigate();
+
+  const fetchData = async () => {
+    try {
+      // Fetch orders
+      const orderResponse = await axios.get("http://localhost:5000/api/orders");
+      const ordersData = orderResponse.data;
+      setOrders(ordersData);
+
+      // Fetch tickets
+      const ticketResponse = await axios.get("http://localhost:5000/api/support");
+      const ticketsData = ticketResponse.data;
+      setTickets(ticketsData);
+
+      // Fetch approved customers (for new customers chart)
+      const customerResponse = await axios.get("http://localhost:5000/api/csm/customers/approved");
+      const customersData = customerResponse.data;
+      setCustomers(customersData);
+
+      // Fetch pending customers (for metric)
+      const pendingCustomerResponse = await axios.get("http://localhost:5000/api/csm/customers/pending");
+      const pendingCustomersData = pendingCustomerResponse.data;
+      setPendingCustomers(pendingCustomersData);
+
+      // Calculate stats
+      const totalOrders = ordersData.length;
+      const pendingOrders = ordersData.filter(o => o.status === "Pending").length;
+      const pendingCustomers = pendingCustomersData.length;
+      const completedOrders = ordersData.filter(o => o.status === "Completed").length;
+      const pendingTickets = ticketsData.filter(t => t.status === "Pending").length;
+
+      setStats({
+        totalOrders,
+        pendingOrders,
+        pendingCustomers,
+        completedOrders,
+        pendingTickets,
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -31,70 +70,44 @@ const CustomerServiceDashboard = () => {
       return;
     }
 
-    const fetchData = async () => {
-      try {
-        // Fetch orders
-        const orderResponse = await axios.get("http://localhost:5000/api/orders");
-        const ordersData = orderResponse.data;
-        setOrders(ordersData);
-
-        // Calculate stats
-        const totalOrders = ordersData.length;
-        const newOrders = ordersData.filter(o => o.status === "Pending").length;
-        const pendingPayments = ordersData.filter(o => o.paymentMethod === "Pending").length;
-        const completedOrders = ordersData.filter(o => o.status === "Completed").length;
-        const pendingOrders = ordersData.filter(o => o.status === "Pending").length;
-        const activeOrders = ordersData.filter(o => ["Confirmed", "Shipped"].includes(o.status)).length;
-
-        // Fetch tickets
-        const ticketResponse = await axios.get("http://localhost:5000/api/support");
-        const ticketsData = ticketResponse.data;
-        setTickets(ticketsData);
-        const pendingTickets = ticketsData.filter(t => t.status === "Pending").length;
-
-        setStats({
-          totalOrders,
-          newOrders,
-          pendingPayments,
-          completedOrders,
-          pendingOrders,
-          activeOrders,
-          pendingTickets,
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
+    // Initial fetch
     fetchData();
+
+    // Set up polling interval (every 30 seconds)
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000);
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
   }, [navigate]);
 
-  const handleStatusUpdate = async (orderId) => {
-    try {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      await axios.put(`http://localhost:5000/api/orders/${orderId}/status`, {
-        status: newStatus,
-        updatedBy: userInfo.id,
-      });
-      setOrders(orders.map(order =>
-        order._id === orderId ? { ...order, status: newStatus } : order
-      ));
-      setSelectedOrderId(null);
-      setNewStatus("");
-      alert("Order status updated successfully!");
-    } catch (error) {
-      console.error("Error updating status:", error);
-      alert("Failed to update order status.");
+  // Orders Over Time (Bar Chart)
+  const getLast7Days = () => {
+    const today = new Date();
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      days.push(date.toISOString().split('T')[0]);
     }
+    return days;
   };
 
-  // Bar Chart Data (Orders Over Time)
   const barChartData = {
-    labels: ["Feb-01", "Feb-02", "Feb-03", "Feb-04", "Feb-05", "Feb-06"],
+    labels: getLast7Days().map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
     datasets: [
       {
         label: "Orders",
-        data: [5, 10, 3, 12, 8, 18],
+        data: getLast7Days().map(date => {
+          const startOfDay = new Date(date);
+          const endOfDay = new Date(date);
+          endOfDay.setHours(23, 59, 59, 999);
+          return orders.filter(o => {
+            const orderDate = new Date(o.createdAt);
+            return orderDate >= startOfDay && orderDate <= endOfDay;
+          }).length;
+        }),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
         borderWidth: 1,
@@ -102,7 +115,6 @@ const CustomerServiceDashboard = () => {
     ],
   };
 
-  // Bar Chart Options
   const barChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -125,19 +137,21 @@ const CustomerServiceDashboard = () => {
     },
   };
 
-  // Pie Chart Data (Pending vs. Active Orders)
+  // Order Status Distribution (Pie Chart)
   const pieChartData = {
     labels: ["Pending Orders", "Active Orders"],
     datasets: [
       {
-        data: [stats.pendingOrders, stats.activeOrders],
+        data: [
+          stats.pendingOrders,
+          orders.filter(o => ["Confirmed", "Shipped"].includes(o.status)).length,
+        ],
         backgroundColor: ["#FF6384", "#36A2EB"],
         hoverBackgroundColor: ["#FF4D6D", "#2F86D6"],
       },
     ],
   };
 
-  // Pie Chart Options
   const pieChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -152,9 +166,66 @@ const CustomerServiceDashboard = () => {
     },
   };
 
+  // New Customers (Last 7 Days) (Bar Chart)
+  const newCustomersData = {
+    labels: getLast7Days().map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+    datasets: [
+      {
+        label: "New Customers",
+        data: getLast7Days().map(date => {
+          const startOfDay = new Date(date);
+          const endOfDay = new Date(date);
+          endOfDay.setHours(23, 59, 59, 999);
+          return customers.filter(c => {
+            const customerDate = new Date(c.createdAt);
+            return customerDate >= startOfDay && customerDate <= endOfDay;
+          }).length;
+        }),
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const newCustomersChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: "top" },
+      title: {
+        display: true,
+        text: "New Customers (Last 7 Days)",
+        font: { size: 16 },
+        padding: { top: 10, bottom: 20 },
+      },
+    },
+    scales: {
+      x: {
+        type: "category",
+        ticks: { padding: 10 },
+        grid: { display: false },
+      },
+      y: { beginAtZero: true },
+    },
+  };
+
+  const handleOrdersClick = () => {
+    navigate("/csm/manage-orders");
+  };
+
   const handlePendingTicketsClick = () => {
     navigate("/csm/support-tickets");
   };
+
+  const handlePendingCustomersClick = () => {
+    navigate("/csm/customer-requests");
+  };
+
+  // Get 3 latest orders
+  const latestOrders = orders
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
 
   return (
     <div className="flex h-screen bg-gray-200">
@@ -163,9 +234,9 @@ const CustomerServiceDashboard = () => {
         <CSMNavbar />
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-6">
           {[
-            { title: "Total Orders", value: stats.totalOrders },
-            { title: "New Orders", value: stats.newOrders },
-            { title: "Pending Payments", value: stats.pendingPayments },
+            { title: "Total Orders", value: stats.totalOrders, onClick: handleOrdersClick, clickable: true },
+            { title: "Pending Orders", value: stats.pendingOrders, onClick: handleOrdersClick, clickable: true },
+            { title: "Pending Customers", value: stats.pendingCustomers, onClick: handlePendingCustomersClick, clickable: true },
             { title: "Completed Orders", value: stats.completedOrders },
             { 
               title: "Pending Tickets", 
@@ -184,12 +255,15 @@ const CustomerServiceDashboard = () => {
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "400px" }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
             <Bar data={barChartData} options={barChartOptions} />
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "400px" }}>
+          <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
             <Pie data={pieChartData} options={pieChartOptions} />
+          </div>
+          <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
+            <Bar data={newCustomersData} options={newCustomersChartOptions} />
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-md mt-6">
@@ -207,7 +281,7 @@ const CustomerServiceDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {orders.map((order) => (
+                {latestOrders.map((order) => (
                   <tr key={order._id} className="text-center border-b border-gray-300">
                     <td className="py-3 px-4">{order._id}</td>
                     <td className="py-3 px-4">{order.userId?.firstName} {order.userId?.lastName}</td>
@@ -216,13 +290,10 @@ const CustomerServiceDashboard = () => {
                     <td className="py-3 px-4">{new Date(order.createdAt).toLocaleString()}</td>
                     <td className="py-3 px-4">
                       <button
-                        onClick={() => {
-                          setSelectedOrderId(order._id);
-                          setNewStatus(order.status);
-                        }}
+                        onClick={() => navigate("/csm/manage-orders")}
                         className="bg-blue-500 text-white px-3 py-1 rounded"
                       >
-                        Update Status
+                        Details
                       </button>
                     </td>
                   </tr>
@@ -230,32 +301,6 @@ const CustomerServiceDashboard = () => {
               </tbody>
             </table>
           </div>
-          {selectedOrderId && (
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold">Update Order Status</h3>
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-                className="p-2 border rounded mr-2"
-              >
-                {['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'].map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
-              </select>
-              <button
-                onClick={() => handleStatusUpdate(selectedOrderId)}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => setSelectedOrderId(null)}
-                className="ml-2 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
         </div>
       </main>
     </div>

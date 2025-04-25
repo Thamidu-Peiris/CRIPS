@@ -46,7 +46,8 @@ import Checkout from "./pages/Checkout";
 import OrderDetails from "./pages/OrderDetails";
 import TrackingPage from "./dashboards/Customer/TrackingPage";
 import CustomerOrders from "./dashboards/TransportManager/CustomerOrders.js";
-
+import ManageOrders from "./dashboards/CSM/ManageOrders";
+import OrderStatusHistory from "./dashboards/Customer/OrderStatusHistory";
 
 
 
@@ -88,6 +89,7 @@ import OrderStock from './components/InventoryM/OrderStock.js';
 import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
 import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
 import SysManageCus from './dashboards/SM/ManageCustomers.js';
+import CustomerDetails from "./dashboards/CSM/CustomerDetails";
 
 function App() {
   return (
@@ -102,7 +104,10 @@ function App() {
         <Route path="/dashboard/orders" element={<OrdersPage />} />
         <Route path="/orders/:orderId" element={<OrderDetails />} />
         <Route path="/dashboard/tracking" element={<TrackingPage />} />
+        <Route path="/csm/manage-orders" element={<ManageOrders />} />
         <Route path="/dashboard/customer-orders" element={<CustomerOrders />} />
+        <Route path="/customer/:customerId" element={<CustomerDetails />} />
+        <Route path="/orders/:orderId/status-history" element={<OrderStatusHistory />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
