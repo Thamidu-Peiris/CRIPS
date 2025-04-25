@@ -4,10 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
 import axios from 'axios';
 
-
 const Home = () => {
   const images = ["/hero-image1.jpg", "/hero-image2.jpg", "/hero-image3.jpg"];
   const [currentImage, setCurrentImage] = useState(0);
+  const [featuredPlants, setFeaturedPlants] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +20,32 @@ const Home = () => {
   useEffect(() => {
     axios.post('http://localhost:5000/api/visitor/record')
       .catch(err => console.error('Failed to record visit:', err));
+  }, []);
+
+  useEffect(() => {
+    const fetchFeaturedPlants = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
+        const data = await response.json();
+        // Select the first 4 plants as featured (or apply a specific filter if needed)
+        const selectedPlants = data.filter(plant => plant.quantity > 0).slice(0, 4).map(plant => ({
+          name: plant.plantName,
+          price: `$${plant.itemPrice.toFixed(2)}`,
+          img: plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg',
+        }));
+        setFeaturedPlants(selectedPlants);
+      } catch (error) {
+        console.error("Error fetching featured plants:", error);
+        // Fallback to default plants if the fetch fails
+        setFeaturedPlants([
+          { name: "Anubias Nana", price: "$14.99", img: "/plant1.jpg" },
+          { name: "Java Fern", price: "$12.99", img: "/plant2.jpg" },
+          { name: "Water Sprite", price: "$9.99", img: "/plant3.jpg" },
+          { name: "Amazon Sword", price: "$15.99", img: "/plant4.jpg" },
+        ]);
+      }
+    };
+    fetchFeaturedPlants();
   }, []);
 
   const handlePlantClick = () => {
@@ -37,7 +63,7 @@ const Home = () => {
       <nav className="flex justify-between items-center p-5 bg-white shadow-md">
         {/* Logo Section */}
         <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+          <img src="/logo.png" alt="Aqua Plants Logo" className="h-10 mr-2" />
         </div>
 
         {/* Navigation Links */}
@@ -51,10 +77,9 @@ const Home = () => {
 
         {/* Cart, Wishlist, Profile (via CustomerHeader) */}
         <CustomerHeader />
-        
       </nav>
 
-      {/* Rest of the Home page content */}
+      {/* Hero Section */}
       <header
         className="relative text-center text-white py-32 bg-cover bg-center transition-all duration-1000"
         style={{ backgroundImage: `url(${images[currentImage]})` }}
@@ -85,30 +110,28 @@ const Home = () => {
       </section>
 
       {/* Featured Plants */}
-      <section className="py-10">
-        <h2 className="text-center text-3xl font-bold text-green-700">Featured Plants</h2>
-        <div className="flex justify-center p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl w-full">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="border rounded-lg p-3 shadow-lg text-center w-60 h-80 flex flex-col items-center justify-between bg-white cursor-pointer hover:shadow-xl transition"
-                onClick={handlePlantClick}
-              >
-                <img
-                  src={`/plant${item}.jpg`}
-                  alt={`Plant ${item}`}
-                  className="w-full h-40 object-cover rounded-md"
-                  onError={(e) => (e.target.src = "/default-plant.jpg")}
-                />
-                <h3 className="text-md font-bold mt-3">Plant {item}</h3>
-                <p className="text-gray-600">$20.00</p>
-                <button className="mt-2 px-3 py-1 bg-green-500 text-white rounded text-sm">
-                  View Details
-                </button>
-              </div>
-            ))}
-          </div>
+      <section className="py-16 bg-white">
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8">Featured Plants</h2>
+        <div className="flex flex-wrap justify-center gap-8 px-4">
+          {featuredPlants.map((plant, idx) => (
+            <div
+              key={plant.name}
+              onClick={handlePlantClick}
+              className="w-72 bg-white rounded-2xl shadow-xl hover:shadow-2xl cursor-pointer transition transform hover:-translate-y-1 flex flex-col items-center p-5 border border-green-50 animate-fade-in"
+            >
+              <img
+                src={plant.img}
+                alt={plant.name}
+                className="w-full h-44 object-cover rounded-xl mb-4"
+                onError={(e) => (e.target.src = "/default-plant.jpg")}
+              />
+              <h3 className="text-lg font-semibold text-green-800 mb-2">{plant.name}</h3>
+              <p className="text-green-600 font-bold text-xl mb-2">{plant.price}</p>
+              <button className="px-5 py-2 text-sm rounded-full bg-green-500 hover:bg-green-700 text-white mt-auto transition">
+                View Details
+              </button>
+            </div>
+          ))}
         </div>
       </section>
 
