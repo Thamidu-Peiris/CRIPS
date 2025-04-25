@@ -32,7 +32,7 @@ const AboutPage = () => {
           <Link to="/" className="text-green-600 font-medium">Home</Link>
           <Link to="/shop" className="text-gray-600">Shop</Link>
           <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600 font-bold">About</Link>
+          <Link to="/about" className="text-green-600 font-bold">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>
         </div>
 
