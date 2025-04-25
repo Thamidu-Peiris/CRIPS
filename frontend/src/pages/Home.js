@@ -2,17 +2,28 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
 import axios from 'axios';
+import { FaArrowLeft, FaArrowRight, FaChevronUp } from "react-icons/fa";
 
 const Home = () => {
   const images = ["/hero-image1.jpg", "/hero-image2.jpg", "/hero-image3.jpg"];
   const [currentImage, setCurrentImage] = useState(0);
   const [featuredPlants, setFeaturedPlants] = useState([]);
+  const [currentReview, setCurrentReview] = useState(0);
   const navigate = useNavigate();
 
+  // Auto-rotation for Hero Slider
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prevImage) => (prevImage + 1) % images.length);
     }, 5000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  // Auto-rotation for Reviews Carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentReview((prevReview) => (prevReview + 1) % reviews.length);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -26,7 +37,6 @@ const Home = () => {
       try {
         const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
         const data = await response.json();
-        // Select the first 4 plants as featured (or apply a specific filter if needed)
         const selectedPlants = data.filter(plant => plant.quantity > 0).slice(0, 4).map(plant => ({
           name: plant.plantName,
           price: `$${plant.itemPrice.toFixed(2)}`,
@@ -35,7 +45,6 @@ const Home = () => {
         setFeaturedPlants(selectedPlants);
       } catch (error) {
         console.error("Error fetching featured plants:", error);
-        // Fallback to default plants if the fetch fails
         setFeaturedPlants([
           { name: "Anubias Nana", price: "$14.99", img: "/plant1.jpg" },
           { name: "Java Fern", price: "$12.99", img: "/plant2.jpg" },
@@ -56,59 +65,98 @@ const Home = () => {
     }
   };
 
-  // Customer Reviews Data
+  const handleNextImage = () => {
+    setCurrentImage((prevImage) => (prevImage + 1) % images.length);
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImage((prevImage) => (prevImage - 1 + images.length) % images.length);
+  };
+
+  const handleReviewDotClick = (index) => {
+    setCurrentReview(index);
+  };
+
   const reviews = [
     { name: "Emily Thompson", review: "I love the quality of plants I received! Will order again.", img: "/user1.jpg" },
     { name: "James Anderson", review: "Fast delivery and excellent service. Highly recommend!", img: "/user2.jpg" },
     { name: "Sophia Martinez", review: "Vibrant plants, exceeded expectations.", img: "/user3.jpg" },
   ];
 
+  const handleBackToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <>
       {/* Navigation Bar */}
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        {/* Logo Section */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-5 bg-white shadow-lg">
         <div className="text-lg font-bold flex items-center">
           <img src="/logo.png" alt="Aqua Plants Logo" className="h-10 mr-2" />
         </div>
-
-        {/* Navigation Links */}
         <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+          <Link to="/" className="text-green-600 font-medium hover:text-green-800 transition">Home</Link>
+          <Link to="/shop" className="text-gray-600 hover:text-green-800 transition">Shop</Link>
+          <Link to="/careers" className="text-gray-600 hover:text-green-800 transition">Careers</Link>
+          <Link to="/about" className="text-gray-600 hover:text-green-800 transition">About</Link>
+          <Link to="/contact" className="text-gray-600 hover:text-green-800 transition">Contact Us</Link>
         </div>
-
-        {/* Cart, Wishlist, Profile (via CustomerHeader) */}
         <CustomerHeader />
       </nav>
 
       {/* Hero Section */}
-      <header
-        className="relative text-center text-white py-32 bg-cover bg-center transition-all duration-1000"
-        style={{ backgroundImage: `url(${images[currentImage]})` }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-10"></div>
-        <div className="relative z-10">
-          <h1 className="text-4xl font-bold">Welcome to Aqua Plants Export</h1>
-          <h3 className="text-lg mt-2">Order Fresh Aquatic Plants Online</h3>
-          <button
-            className="mt-4 px-6 py-2 bg-red-500 rounded text-white"
-            onClick={handlePlantClick}
-          >
-            Explore Now
-          </button>
+      <header className="relative text-white h-[600px] pt-16">
+        <div
+          className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+          style={{ 
+            backgroundImage: `url(${images[currentImage]})`,
+            backgroundAttachment: 'fixed', // Parallax effect
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-black bg-opacity-10"></div>
         </div>
+        <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-4">
+          <div className="max-w-lg animate-fade-in">
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight relative inline-block">
+              Discover Aqua Plants Export
+              <span className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 transition-all duration-500 group-hover:w-full"></span>
+            </h1>
+            <p className="text-lg mt-4 text-gray-200 animate-slide-in-left delay-100">
+              Order the freshest aquatic plants online with ease and elegance
+            </p>
+            <button
+              className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition transform hover:scale-105 shadow-lg hover:shadow-green-500/50"
+              onClick={handlePlantClick}
+            >
+              Explore Now
+            </button>
+          </div>
+        </div>
+        {/* Navigation Arrows */}
+        <button
+          onClick={handlePrevImage}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 p-3 rounded-full text-white hover:bg-white/40 transition"
+        >
+          <FaArrowLeft />
+        </button>
+        <button
+          onClick={handleNextImage}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 p-3 rounded-full text-white hover:bg-white/40 transition"
+        >
+          <FaArrowRight />
+        </button>
       </header>
 
       {/* Video Section */}
-      <section className="text-center py-10">
-        <h2 className="text-2xl font-bold">Discover Our Aquatic Beauty</h2>
-        <p className="text-gray-600 mt-2">Watch our showcase of beautiful aquatic plants.</p>
-        <div className="mt-6 flex justify-center">
-          <video controls className="w-[600px] h-[350px] rounded-xl shadow-lg object-cover">
+      <section className="relative text-center py-16 bg-gradient-to-b from-gray-50 to-white">
+        <h2 className="text-3xl font-bold text-gray-800 animate-fade-in">Discover Our Aquatic Beauty</h2>
+        <p className="text-gray-600 mt-2 animate-fade-in delay-100">
+          Watch our showcase of beautiful aquatic plants.
+        </p>
+        <div className="mt-8 flex justify-center">
+          <video controls className="w-[800px] h-[450px] rounded-2xl shadow-2xl object-cover">
             <source src="/promo-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -116,14 +164,16 @@ const Home = () => {
       </section>
 
       {/* Featured Plants */}
-      <section className="py-16 bg-white">
-        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8">Featured Plants</h2>
-        <div className="flex flex-wrap justify-center gap-8 px-4">
+      <section className="py-16 bg-gray-50">
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8 animate-fade-in">
+          Featured Plants
+        </h2>
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-8 px-4">
           {featuredPlants.map((plant, idx) => (
             <div
               key={plant.name}
               onClick={handlePlantClick}
-              className="w-72 bg-white rounded-2xl shadow-xl hover:shadow-2xl cursor-pointer transition transform hover:-translate-y-1 flex flex-col items-center p-5 border border-green-50 animate-fade-in"
+              className="w-72 bg-white rounded-2xl shadow-xl hover:shadow-2xl cursor-pointer transition transform hover:-translate-y-1 flex flex-col items-center p-5 border border-green-100 animate-fade-in delay-200"
             >
               <img
                 src={plant.img}
@@ -139,72 +189,122 @@ const Home = () => {
             </div>
           ))}
         </div>
+        <div className="text-center mt-8 animate-fade-in delay-300">
+          <Link
+            to="/shop"
+            className="inline-block px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition transform hover:scale-105"
+          >
+            See More Plants
+          </Link>
+        </div>
       </section>
 
       {/* Customer Reviews */}
-      <section className="py-16 bg-gray-100">
-        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8">Hear from Our Awesome Users!</h2>
-        <div className="flex flex-wrap justify-center gap-8 px-4">
-          {reviews.map((review, idx) => (
-            <div
-              key={review.name}
-              className="w-72 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col items-center p-5 border border-green-50 animate-fade-in"
-            >
-              <img
-                src={review.img}
-                alt={review.name}
-                className="w-16 h-16 rounded-full mb-4"
-                onError={(e) => (e.target.src = "/default-user.jpg")}
+      <section className="py-16 bg-gray-100 relative">
+        <div className="absolute inset-0 bg-opacity-10 bg-green-50"></div>
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8 animate-fade-in">
+          Hear from Our Awesome Users!
+        </h2>
+        <div className="max-w-3xl mx-auto px-4">
+          <div className="relative">
+            {reviews.map((review, idx) => (
+              <div
+                key={review.name}
+                className={`w-full bg-white rounded-2xl shadow-xl transition-opacity duration-500 flex flex-col items-center p-5 border border-green-50 ${
+                  currentReview === idx ? 'opacity-100' : 'opacity-0 absolute'
+                }`}
+              >
+                <img
+                  src={review.img}
+                  alt={review.name}
+                  className="w-16 h-16 rounded-full mb-4"
+                  onError={(e) => (e.target.src = "/default-user.jpg")}
+                />
+                <h3 className="text-lg font-semibold text-green-800 mb-2">{review.name}</h3>
+                <p className="text-yellow-500 mb-2">★★★★★</p>
+                <p className="text-gray-600 text-center">{review.review}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-center gap-3 mt-6">
+            {reviews.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handleReviewDotClick(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  currentReview === index ? 'bg-green-600 scale-125' : 'bg-gray-400'
+                }`}
               />
-              <h3 className="text-lg font-semibold text-green-800 mb-2">{review.name}</h3>
-              <p className="text-yellow-500 mb-2">★★★★★</p>
-              <p className="text-gray-600 text-center">{review.review}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Discount Banner */}
-      <section className="bg-green-500 text-white text-center p-6 text-lg font-bold">
-        Sign up today and get 10% off your first order!
+      <section className="bg-gradient-to-r from-green-500 to-green-700 text-white text-center p-8">
+        <h3 className="text-2xl font-bold">Sign Up Today and Get 10% Off Your First Order!</h3>
+        <div className="max-w-md mx-auto mt-4 flex gap-3">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="p-3 rounded-l-full bg-white text-gray-800 w-full focus:outline-none"
+          />
+          <button className="px-6 py-3 bg-black text-white rounded-r-full hover:bg-gray-800 transition">
+            Subscribe
+          </button>
+        </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white p-10 text-center">
-        <div className="grid grid-cols-4 gap-6 px-10 text-left">
+      <footer className="bg-gray-900 text-white p-10 text-center border-t-4 border-green-600">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
           <div>
-            <h3 className="text-lg font-bold">Quick Links</h3>
-            <p>Privacy Policy</p>
-            <p>Terms of Use</p>
-            <p>FAQs</p>
-            <p>Shipping Policy</p>
+            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
+            <p className="hover:text-green-400 transition">Privacy Policy</p>
+            <p className="hover:text-green-400 transition">Terms of Use</p>
+            <p className="hover:text-green-400 transition">FAQs</p>
+            <p className="hover:text-green-400 transition">Shipping Policy</p>
           </div>
           <div>
-            <h3 className="text-lg font-bold">Contact Us</h3>
-            <p>📧 support@aquaplants.com</p>
+            <h3 className="text-lg font-bold mb-4">Contact Us</h3>
+            <p>📧 <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">support@aquaplants.com</a></p>
             <p>📞 (555) 123-4567</p>
           </div>
           <div>
-            <h3 className="text-lg font-bold">Follow Us</h3>
-            <div className="flex space-x-4 mt-2">
-              <a href="#"><img src="/facebook-icon.png" alt="Facebook" className="h-6" /></a>
-              <a href="#"><img src="/instagram-icon.png" alt="Instagram" className="h-6" /></a>
-              <a href="#"><img src="/twitter-icon.png" alt="Twitter" className="h-6" /></a>
+            <h3 className="text-lg font-bold mb-4">Follow Us</h3>
+            <div className="flex space-x-4">
+              <a href="#" className="hover:scale-110 transition transform">
+                <img src="/facebook-icon.png" alt="Facebook" className="h-6" />
+              </a>
+              <a href="#" className="hover:scale-110 transition transform">
+                <img src="/instagram-icon.png" alt="Instagram" className="h-6" />
+              </a>
+              <a href="#" className="hover:scale-110 transition transform">
+                <img src="/twitter-icon.png" alt="Twitter" className="h-6" />
+              </a>
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-bold">Newsletter</h3>
-            <div className="flex mt-2">
+            <h3 className="text-lg font-bold mb-4">Newsletter</h3>
+            <div className="flex">
               <input
                 type="email"
                 placeholder="Your email"
-                className="p-2 rounded-l bg-gray-800 text-white w-full"
+                className="p-2 rounded-l bg-gray-800 text-white w-full focus:outline-none"
               />
-              <button className="bg-green-500 px-4 py-2 rounded-r text-white">Subscribe</button>
+              <button className="bg-green-600 px-4 py-2 rounded-r text-white hover:bg-green-700 transition">
+                Subscribe
+              </button>
             </div>
           </div>
         </div>
-        <p className="mt-6">© 2025 AquaPlants. All rights reserved.</p>
+        <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
+        <button
+          onClick={handleBackToTop}
+          className="mt-4 p-3 bg-green-600 rounded-full text-white hover:bg-green-700 transition transform hover:scale-105"
+        >
+          <FaChevronUp />
+        </button>
       </footer>
     </>
   );
