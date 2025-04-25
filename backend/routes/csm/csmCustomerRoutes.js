@@ -26,7 +26,14 @@ router.get('/approved', async (req, res) => {
 // Approve Customer
 router.put('/:id/approve', async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { 
+        status: 'approved',
+        approvedAt: new Date() // Set approvedAt to the current date
+      },
+      { new: true }
+    );
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json({ message: 'Customer Approved', user });
   } catch (error) {
