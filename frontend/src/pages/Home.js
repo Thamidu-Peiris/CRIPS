@@ -1,4 +1,3 @@
-// frontend\src\pages\Home.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
@@ -56,6 +55,13 @@ const Home = () => {
       navigate("/login");
     }
   };
+
+  // Customer Reviews Data
+  const reviews = [
+    { name: "Emily Thompson", review: "I love the quality of plants I received! Will order again.", img: "/user1.jpg" },
+    { name: "James Anderson", review: "Fast delivery and excellent service. Highly recommend!", img: "/user2.jpg" },
+    { name: "Sophia Martinez", review: "Vibrant plants, exceeded expectations.", img: "/user3.jpg" },
+  ];
 
   return (
     <>
@@ -136,30 +142,25 @@ const Home = () => {
       </section>
 
       {/* Customer Reviews */}
-      <section className="py-10 bg-gray-100">
-        <h2 className="text-center text-3xl font-bold text-gray-800">Hear from our awesome users!</h2>
-        <div className="flex justify-center p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
-            {["Emily Thompson", "James Anderson", "Sophia Martinez"].map((name, index) => (
-              <div key={index} className="border rounded-lg p-5 shadow-lg text-center bg-white">
-                <img
-                  src={`/user${index + 1}.jpg`}
-                  alt={name}
-                  className="w-16 h-16 rounded-full mx-auto"
-                  onError={(e) => (e.target.src = "/default-user.jpg")}
-                />
-                <h3 className="text-md font-bold mt-2">{name}</h3>
-                <p className="text-yellow-500">★★★★★</p>
-                <p className="text-gray-600 mt-2">
-                  {index === 0
-                    ? "I love the quality of plants I received! Will order again."
-                    : index === 1
-                    ? "Fast delivery and excellent service. Highly recommend!"
-                    : "Vibrant plants, exceeded expectations."}
-                </p>
-              </div>
-            ))}
-          </div>
+      <section className="py-16 bg-gray-100">
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8">Hear from Our Awesome Users!</h2>
+        <div className="flex flex-wrap justify-center gap-8 px-4">
+          {reviews.map((review, idx) => (
+            <div
+              key={review.name}
+              className="w-72 bg-white rounded-2xl shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col items-center p-5 border border-green-50 animate-fade-in"
+            >
+              <img
+                src={review.img}
+                alt={review.name}
+                className="w-16 h-16 rounded-full mb-4"
+                onError={(e) => (e.target.src = "/default-user.jpg")}
+              />
+              <h3 className="text-lg font-semibold text-green-800 mb-2">{review.name}</h3>
+              <p className="text-yellow-500 mb-2">★★★★★</p>
+              <p className="text-gray-600 text-center">{review.review}</p>
+            </div>
+          ))}
         </div>
       </section>
 
