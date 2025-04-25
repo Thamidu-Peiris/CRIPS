@@ -1,4 +1,3 @@
-// frontend\src\dashboards\Customer\Shop.js
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../../components/CustomerHeader";
@@ -88,46 +87,59 @@ const Shop = () => {
         </div>
       </div>
 
-      <section className="py-10">
-        <h2 className="text-center text-3xl font-bold text-green-700 mb-6">Available Plants</h2>
-        <div className="flex justify-center p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-6xl w-full">
-            {filteredPlants.length > 0 ? (
-              filteredPlants.map((plant) => (
-                <div
-                  key={plant._id}
-                  className="relative border rounded-lg p-3 shadow-lg text-center bg-white group hover:shadow-xl"
-                >
+      <section className="py-16 bg-white">
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8">Available Plants</h2>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
+          {filteredPlants.length > 0 ? (
+            filteredPlants.map((plant) => (
+              <div
+                key={plant._id}
+                className="w-full bg-white rounded-xl shadow-md hover:shadow-lg cursor-pointer transition transform hover:-translate-y-1 animate-fade-in group"
+              >
+                <div className="relative">
                   <Link to={`/plant/${plant._id}`}>
                     <img
                       src={plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg'}
                       alt={plant.plantName}
-                      className="w-full h-60 object-cover rounded-md"
+                      className="w-full h-60 object-cover rounded-xl"
+                      onError={(e) => (e.target.src = 'http://localhost:5000/uploads/default-plant.jpg')}
                     />
                   </Link>
-                  <h3 className="text-md font-bold mt-3 text-green-700">{plant.plantName}</h3>
-                  <div className="flex justify-center gap-1 mt-1">
-                    {[...Array(5)].map((_, i) => (
-                      <span key={i} className="text-gray-300 text-xl">★</span>
-                    ))}
-                  </div>
-                  <p className="text-green-600 font-semibold mt-1">${plant.itemPrice.toFixed(2)}</p>
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <FaShoppingCart
-                      className="text-green-600 text-2xl cursor-pointer mb-2"
+                  <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
                       onClick={() => handleAddToCart(plant)}
-                    />
-                    <FaHeart
-                      className="text-red-500 text-2xl cursor-pointer"
+                      className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+                    >
+                      <FaShoppingCart className="text-gray-600 text-lg" />
+                    </button>
+                    <button
                       onClick={() => handleAddToWishlist(plant)}
-                    />
+                      className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+                    >
+                      <FaHeart className="text-gray-600 text-lg" />
+                    </button>
                   </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500 col-span-full">No plants match your criteria.</p>
-            )}
-          </div>
+                <div className="p-3">
+                  <h3 className="text-lg font-medium text-gray-800">{plant.plantName}</h3>
+                  <div className="flex justify-between items-center mt-1">
+                    <div className="flex gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} className="text-yellow-400 text-sm">★</span>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <FaHeart className="text-gray-400 text-sm" />
+                      <span className="text-gray-600 text-sm">5</span>
+                    </div>
+                  </div>
+                  <p className="text-green-600 font-semibold mt-1">${plant.itemPrice.toFixed(2)}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500 col-span-full">No plants match your criteria.</p>
+          )}
         </div>
       </section>
     </div>
