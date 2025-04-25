@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../../components/CustomerHeader";
-import { FaSearch, FaHeart, FaShoppingCart } from "react-icons/fa";
+import { FaSearch, FaHeart } from "react-icons/fa";
 
 const Shop = () => {
   const [plants, setPlants] = useState([]);
@@ -21,6 +21,16 @@ const Shop = () => {
       }
     };
     fetchStockedPlants();
+
+    // Load LineIcons CSS
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://cdn.lineicons.com/4.0/lineicons.css";
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
   }, []);
 
   const handleAddToWishlist = (plant) => {
@@ -108,15 +118,15 @@ const Shop = () => {
                   <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => handleAddToCart(plant)}
-                      className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+                      className="bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 flex items-center justify-center w-10 h-10"
                     >
-                      <FaShoppingCart className="text-gray-600 text-lg" />
+                      <i className="lni lni-cart text-gray-600 text-lg"></i>
                     </button>
                     <button
                       onClick={() => handleAddToWishlist(plant)}
-                      className="bg-white p-2 rounded-full shadow-md hover:bg-gray-100"
+                      className="bg-white p-3 rounded-full shadow-lg hover:bg-gray-100 flex items-center justify-center w-10 h-10"
                     >
-                      <FaHeart className="text-gray-600 text-lg" />
+                      <i className="lni lni-heart text-gray-600 text-lg"></i>
                     </button>
                   </div>
                 </div>
