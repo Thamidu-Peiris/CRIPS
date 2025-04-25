@@ -120,6 +120,9 @@ const SalarySheet = () => {
     if (entries.length > 1) {
       const updatedEntries = entries.filter((_, i) => i !== index);
       setEntries(updatedEntries);
+      if (!window.confirm("Are you sure you want to remove this salary sheet entry?")) {
+        return;
+      }
     }
   };
 
