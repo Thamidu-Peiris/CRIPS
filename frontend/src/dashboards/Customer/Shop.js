@@ -54,7 +54,7 @@ const Shop = () => {
         <img src="/logo.png" alt="Logo" className="h-10" />
         <div className="flex items-center space-x-4">
           <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
+          <Link to="/shop" className="text-green-600 font-bold">Shop</Link>
           <Link to="/careers" className="text-gray-600">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
           <Link to="/contact" className="text-gray-600">Contact Us</Link>

@@ -58,7 +58,7 @@ const ContactPage = () => {
           <Link to="/shop" className="text-gray-600">Shop</Link>
           <Link to="/careers" className="text-gray-600">Careers</Link>
           <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600 font-bold">Contact Us</Link>
+          <Link to="/contact" className="text-green-600 font-bold">Contact Us</Link>
         </div>
 
         {/* 🔹 Customer Header */}
