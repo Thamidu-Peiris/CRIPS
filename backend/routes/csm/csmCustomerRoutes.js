@@ -23,8 +23,6 @@ router.get('/approved', async (req, res) => {
   }
 });
 
-
-
 // Approve Customer
 router.put('/:id/approve', async (req, res) => {
   try {
@@ -44,6 +42,51 @@ router.put('/:id/decline', async (req, res) => {
     res.json({ message: 'Customer Declined', user });
   } catch (error) {
     res.status(500).json({ message: 'Decline failed', error });
+  }
+});
+
+// Update Customer Details
+router.put('/:id', async (req, res) => {
+  try {
+    const customerId = req.params.id;
+    const updates = req.body;
+
+    // Fields that can be updated
+    const allowedUpdates = [
+      'firstName',
+      'lastName',
+      'email',
+      'companyName',
+      'address',
+      'phoneNumber',
+      'businessAddress',
+      'taxId',
+    ];
+
+    // Validate that only allowed fields are updated
+    const updateKeys = Object.keys(updates);
+    const isValidUpdate = updateKeys.every(key => allowedUpdates.includes(key));
+    if (!isValidUpdate) {
+      return res.status(400).json({ message: 'Invalid updates: only certain fields can be updated' });
+    }
+
+    // Check if email is being updated and ensure it's unique
+    if (updates.email) {
+      const existingUser = await User.findOne({ email: updates.email, _id: { $ne: customerId } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email already in use by another user' });
+      }
+    }
+
+    const customer = await User.findByIdAndUpdate(customerId, updates, { new: true, runValidators: true });
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+
+    res.status(200).json({ message: 'Customer details updated successfully', customer });
+  } catch (error) {
+    console.error("Error updating customer:", error);
+    res.status(500).json({ message: 'Failed to update customer details', error: error.message });
   }
 });
 
