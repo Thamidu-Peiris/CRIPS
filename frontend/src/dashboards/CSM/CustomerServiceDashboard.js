@@ -171,14 +171,14 @@ const CustomerServiceDashboard = () => {
     labels: getLast7Days().map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
     datasets: [
       {
-        label: "New Customers",
+        label: "New Approved Customers",
         data: getLast7Days().map(date => {
           const startOfDay = new Date(date);
           const endOfDay = new Date(date);
           endOfDay.setHours(23, 59, 59, 999);
           return customers.filter(c => {
-            const customerDate = new Date(c.createdAt);
-            return customerDate >= startOfDay && customerDate <= endOfDay;
+            const approvalDate = new Date(c.approvedAt); // Use approvedAt instead of createdAt
+            return approvalDate >= startOfDay && approvalDate <= endOfDay;
           }).length;
         }),
         backgroundColor: "rgba(54, 162, 235, 0.6)",
@@ -195,7 +195,7 @@ const CustomerServiceDashboard = () => {
       legend: { display: true, position: "top" },
       title: {
         display: true,
-        text: "New Customers (Last 7 Days)",
+        text: "New Approved Customers (Last 7 Days)", // Updated title for clarity
         font: { size: 16 },
         padding: { top: 10, bottom: 20 },
       },
