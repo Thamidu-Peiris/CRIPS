@@ -8,8 +8,10 @@ const Home = () => {
   const images = ["/hero-image1.jpg", "/hero-image2.jpg", "/hero-image3.jpg"];
   const [currentImage, setCurrentImage] = useState(0);
   const [featuredPlants, setFeaturedPlants] = useState([]);
+
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false); // Track animation state
+
   const navigate = useNavigate();
 
   // Auto-rotation for Hero Slider
@@ -23,9 +25,11 @@ const Home = () => {
   // Auto-rotation for Reviews Carousel
   useEffect(() => {
     const interval = setInterval(() => {
+
       setIsTransitioning(true);
       setCurrentReviewIndex((prevIndex) => (prevIndex + 1) % reviews.length);
-    }, 5000); // Change every 5 seconds
+    }, 4000); // Change every 5 seconds
+
     return () => clearInterval(interval);
   }, []);
 
@@ -85,6 +89,8 @@ const Home = () => {
     setCurrentImage((prevImage) => (prevImage - 1 + images.length) % images.length);
   };
 
+
+
   const reviews = [
     { name: "Emily Thompson", review: "I love the quality of plants I received! Will order again.", img: "/user1.jpg" },
     { name: "James Anderson", review: "Fast delivery and excellent service. Highly recommend!", img: "/user2.jpg" },
@@ -96,6 +102,7 @@ const Home = () => {
   const handleBackToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
 
   // Get three visible reviews
   const getVisibleReviews = () => {
@@ -115,6 +122,7 @@ const Home = () => {
 
   // Calculate number of dots (sets of 3 reviews)
   const dotCount = Math.ceil(reviews.length / 3); // 5 reviews / 3 = 2 sets
+
 
   return (
     <>
@@ -139,12 +147,16 @@ const Home = () => {
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
           style={{ 
             backgroundImage: `url(${images[currentImage]})`,
+
             backgroundAttachment: 'fixed',
+
+
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+
         </div>
         <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-4">
           <div className="max-w-lg animate-fade-in">
@@ -163,6 +175,7 @@ const Home = () => {
             </button>
           </div>
         </div>
+
         {/* Navigation Arrows */}
         <button
           onClick={handlePrevImage}
@@ -229,6 +242,7 @@ const Home = () => {
       </section>
 
       {/* Customer Reviews */}
+
       <section className="py-16 bg-gray-100 relative overflow-hidden">
         <div className="absolute inset-0 bg-opacity-10 bg-green-50"></div>
         <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-12 animate-fade-in">
@@ -247,26 +261,33 @@ const Home = () => {
               <div
                 key={review.name}
                 className="bg-white rounded-2xl shadow-lg p-6 border border-green-100 flex flex-col items-center transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1"
+
               >
                 <img
                   src={review.img}
                   alt={review.name}
+
                   className="w-16 h-16 rounded-full mb-4 object-cover border-2 border-green-200"
+
                   onError={(e) => (e.target.src = "/default-user.jpg")}
                 />
                 <h3 className="text-lg font-semibold text-green-800 mb-2">{review.name}</h3>
                 <p className="text-yellow-500 mb-2">★★★★★</p>
+
                 <p className="text-gray-600 text-center text-sm">{review.review}</p>
+
               </div>
             ))}
           </div>
           <div className="flex justify-center gap-3 mt-6">
+
             {Array.from({ length: dotCount }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   Math.floor(currentReviewIndex / 3) === index ? 'bg-green-600 scale-125' : 'bg-gray-400'
+
                 }`}
               />
             ))}
