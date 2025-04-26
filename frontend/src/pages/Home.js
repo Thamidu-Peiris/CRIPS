@@ -5,31 +5,43 @@ import axios from 'axios';
 import { FaArrowLeft, FaArrowRight, FaChevronUp } from "react-icons/fa";
 
 const Home = () => {
-  const images = ["/hero-image1.jpg", "/hero-image2.jpg", "/hero-image3.jpg"];
+  const slides = [
+    {
+      image: "/hero-image1.jpg",
+      title: "Explore Vibrant Aquatic Plants",
+      description: "Discover a stunning variety of healthy aquatic plants to enhance your aquarium.",
+    },
+    {
+      image: "/hero-image2.jpg",
+      title: "Transform Your Aquarium",
+      description: "Shop our premium selection of plants for a thriving underwater ecosystem.",
+    },
+    {
+      image: "/hero-image3.jpg",
+      title: "Fresh Plants, Fast Delivery",
+      description: "Order today and get your aquatic plants delivered right to your door.",
+    },
+  ];
   const [currentImage, setCurrentImage] = useState(0);
   const [featuredPlants, setFeaturedPlants] = useState([]);
-
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false); // Track animation state
-
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const navigate = useNavigate();
 
   // Auto-rotation for Hero Slider
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImage((prevImage) => (prevImage + 1) % images.length);
+      setCurrentImage((prevImage) => (prevImage + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [slides.length]);
 
   // Auto-rotation for Reviews Carousel
   useEffect(() => {
     const interval = setInterval(() => {
-
       setIsTransitioning(true);
       setCurrentReviewIndex((prevIndex) => (prevIndex + 1) % reviews.length);
-    }, 4000); // Change every 5 seconds
-
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
@@ -38,7 +50,7 @@ const Home = () => {
     if (isTransitioning) {
       const timeout = setTimeout(() => {
         setIsTransitioning(false);
-      }, 700); // Match animation duration
+      }, 700);
       return () => clearTimeout(timeout);
     }
   }, [currentReviewIndex, isTransitioning]);
@@ -82,14 +94,12 @@ const Home = () => {
   };
 
   const handleNextImage = () => {
-    setCurrentImage((prevImage) => (prevImage + 1) % images.length);
+    setCurrentImage((prevImage) => (prevImage + 1) % slides.length);
   };
 
   const handlePrevImage = () => {
-    setCurrentImage((prevImage) => (prevImage - 1 + images.length) % images.length);
+    setCurrentImage((prevImage) => (prevImage - 1 + slides.length) % slides.length);
   };
-
-
 
   const reviews = [
     { name: "Emily Thompson", review: "I love the quality of plants I received! Will order again.", img: "/user1.jpg" },
@@ -103,8 +113,6 @@ const Home = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-
-  // Get three visible reviews
   const getVisibleReviews = () => {
     const visible = [];
     for (let i = 0; i < 3; i++) {
@@ -114,15 +122,12 @@ const Home = () => {
     return visible;
   };
 
-  // Handle dot click
   const handleDotClick = (index) => {
     setIsTransitioning(true);
     setCurrentReviewIndex(index * 3);
   };
 
-  // Calculate number of dots (sets of 3 reviews)
-  const dotCount = Math.ceil(reviews.length / 3); // 5 reviews / 3 = 2 sets
-
+  const dotCount = Math.ceil(reviews.length / 3);
 
   return (
     <>
@@ -146,49 +151,56 @@ const Home = () => {
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
           style={{ 
-            backgroundImage: `url(${images[currentImage]})`,
-
+            backgroundImage: `url(${slides[currentImage].image})`,
             backgroundAttachment: 'fixed',
-
-
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-10"></div>
-
         </div>
         <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-4">
-          <div className="max-w-lg animate-fade-in">
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight relative inline-block">
-              Discover Aqua Plants Export
+          <div className="max-w-lg">
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight relative inline-block animate-slide-in-top">
+              {slides[currentImage].title}
               <span className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 transition-all duration-500 group-hover:w-full"></span>
             </h1>
             <p className="text-lg mt-4 text-gray-200 animate-slide-in-left delay-100">
-              Order the freshest aquatic plants online with ease and elegance
+              {slides[currentImage].description}
             </p>
             <button
-              className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition transform hover:scale-105 shadow-lg hover:shadow-green-500/50"
+              className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition transform hover:scale-105 shadow-lg hover:shadow-green-500/50 animate-bounce-in delay-200"
               onClick={handlePlantClick}
             >
-              Explore Now
+              Shop Now
             </button>
           </div>
         </div>
-
         {/* Navigation Arrows */}
         <button
           onClick={handlePrevImage}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 p-3 rounded-full text-white hover:bg-white/40 transition"
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 p-3 rounded-full text-white hover:bg-white/40 transition animate-pulse"
         >
           <FaArrowLeft />
         </button>
         <button
           onClick={handleNextImage}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 p-3 rounded-full text-white hover:bg-white/40 transition"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 p-3 rounded-full text-white hover:bg-white/40 transition animate-pulse"
         >
           <FaArrowRight />
         </button>
+        {/* Slider Dots */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentImage(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                currentImage === index ? 'bg-green-600 scale-125' : 'bg-gray-400'
+              }`}
+            />
+          ))}
+        </div>
       </header>
 
       {/* Video Section */}
@@ -242,7 +254,6 @@ const Home = () => {
       </section>
 
       {/* Customer Reviews */}
-
       <section className="py-16 bg-gray-100 relative overflow-hidden">
         <div className="absolute inset-0 bg-opacity-10 bg-green-50"></div>
         <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-12 animate-fade-in">
@@ -261,33 +272,26 @@ const Home = () => {
               <div
                 key={review.name}
                 className="bg-white rounded-2xl shadow-lg p-6 border border-green-100 flex flex-col items-center transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1"
-
               >
                 <img
                   src={review.img}
                   alt={review.name}
-
                   className="w-16 h-16 rounded-full mb-4 object-cover border-2 border-green-200"
-
                   onError={(e) => (e.target.src = "/default-user.jpg")}
                 />
                 <h3 className="text-lg font-semibold text-green-800 mb-2">{review.name}</h3>
                 <p className="text-yellow-500 mb-2">★★★★★</p>
-
                 <p className="text-gray-600 text-center text-sm">{review.review}</p>
-
               </div>
             ))}
           </div>
           <div className="flex justify-center gap-3 mt-6">
-
             {Array.from({ length: dotCount }).map((_, index) => (
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   Math.floor(currentReviewIndex / 3) === index ? 'bg-green-600 scale-125' : 'bg-gray-400'
-
                 }`}
               />
             ))}
