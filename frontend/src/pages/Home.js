@@ -285,11 +285,11 @@ const Home = () => {
         </p>
         <div className="flex justify-center space-x-4 mt-8 animate-fade-in delay-200">
         <Link to="/customerregister" >
-          <button className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-800 transition-all duration-300">
+          <button className="px-6 py-3 border-2 border-green-600 bg-green-600 text-white font-semibold rounded-md hover:bg-green-800 transition-all duration-300">
             Join us now
           </button></Link>
           <Link to= "/login">
-          <button className="px-6 py-2 border-2 border-green-600 text-green-600 font-semibold rounded-md hover:bg-green-600 hover:text-white transition-all duration-300">
+          <button className="px-8 py-3 border-2 border-green-600 text-green-600 font-semibold rounded-md hover:bg-green-600 hover:text-white transition-all duration-300">
             Sign in
           </button></Link>
         </div>
