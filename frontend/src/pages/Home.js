@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../components/CustomerHeader";
 import axios from 'axios';
 import { FaArrowLeft, FaArrowRight, FaChevronUp } from "react-icons/fa";
+import { FaWater, FaLeaf, FaTree, FaPagelines, FaSeedling } from "react-icons/fa";
+import { FaShoppingBasket, FaBoxOpen, FaTruck } from "react-icons/fa";
 
 const Home = () => {
   const slides = [
@@ -22,11 +24,25 @@ const Home = () => {
       description: "Order today and get your aquatic plants delivered right to your door.",
     },
   ];
+
+  const categories = [
+    { name: "Floating", icon: <FaWater /> },
+    { name: "Submerged", icon: <FaLeaf /> },
+    { name: "Emergent", icon: <FaTree /> },
+    { name: "Marginal", icon: <FaPagelines /> },
+    { name: "Mosses", icon: <FaSeedling /> },
+  ];
+
   const [currentImage, setCurrentImage] = useState(0);
   const [featuredPlants, setFeaturedPlants] = useState([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const navigate = useNavigate();
+
+  // State for auto-scrolling category slider
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const categorySliderRef = useRef(null);
 
   // Auto-rotation for Hero Slider
   useEffect(() => {
@@ -54,6 +70,30 @@ const Home = () => {
       return () => clearTimeout(timeout);
     }
   }, [currentReviewIndex, isTransitioning]);
+
+  // Auto-scrolling for Category Slider
+  useEffect(() => {
+    if (isPaused) return;
+
+    const categoryWidth = 160; // Width of one category item
+    const totalCategories = categories.length;
+    const maxScroll = categoryWidth * totalCategories; // Width of one full set of categories
+
+    const interval = setInterval(() => {
+      setScrollPosition((prevPosition) => {
+        const newPosition = prevPosition + 1; // Adjust speed here
+        if (newPosition >= maxScroll) {
+          // Reset to start for infinite loop
+          categorySliderRef.current.scrollTo({ left: 0, behavior: 'instant' });
+          return 0;
+        }
+        categorySliderRef.current.scrollTo({ left: newPosition, behavior: 'smooth' });
+        return newPosition;
+      });
+    }, 30); // Adjust interval for smoother scrolling
+
+    return () => clearInterval(interval);
+  }, [categories.length, isPaused]);
 
   useEffect(() => {
     axios.post('http://localhost:5000/api/visitor/record')
@@ -203,17 +243,101 @@ const Home = () => {
         </div>
       </header>
 
+      {/* Category Slider Section */}
+      <section className="bg-white py-6 shadow-lg">
+        <div className="max-w-[868px] mx-auto px-4"> {/* Adjusted for 5 * 160px + 5 * 12px + 8px */}
+          <div
+            className="relative overflow-hidden"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <div
+              ref={categorySliderRef}
+              className="flex"
+              style={{
+                width: `${160 * categories.length * 2}px`, // Total width for duplicated categories
+              }}
+            >
+              {/* Duplicate categories for infinite loop */}
+              {[...categories, ...categories].map((category, index) => (
+                <Link
+                  key={index}
+                  to={`/shop?category=${category.name.toLowerCase()}`}
+                  className="group flex flex-col items-center text-gray-500 hover:text-green-600 transition-all duration-300 mx-6 flex-shrink-0"
+                  style={{ width: '120px' }} // Fixed width for each category item
+                >
+                  <div className="text-4xl mb-3 text-gray-400 group-hover:text-green-600 transition-all duration-300">
+                    {category.icon}
+                  </div>
+                  <span className="text-lg font-semibold">{category.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Video Section */}
-      <section className="relative text-center py-16 bg-gradient-to-b from-gray-50 to-white">
-        <h2 className="text-3xl font-bold text-gray-800 animate-fade-in">Discover Our Aquatic Beauty</h2>
+      <section className="relative text-center py-16 bg-white">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 animate-fade-in">Discover Aquatic Beauty</h2>
         <p className="text-gray-600 mt-2 animate-fade-in delay-100">
-          Watch our showcase of beautiful aquatic plants.
+          Explore the serene allure of aquatic plants for your home or office
         </p>
+        <div className="flex justify-center space-x-4 mt-4 animate-fade-in delay-200">
+        <Link to="/customerregister" >
+          <button className="px-6 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition-all duration-300">
+            Join us now
+          </button></Link>
+          <Link to= "/login">
+          <button className="px-6 py-2 border-2 border-green-500 text-green-500 font-semibold rounded-md hover:bg-green-500 hover:text-white transition-all duration-300">
+            Sign in
+          </button></Link>
+        </div>
         <div className="mt-8 flex justify-center">
           <video controls className="w-[800px] h-[450px] rounded-2xl shadow-2xl object-cover">
             <source src="/promo-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-12 bg-gradient-to-b from-green-500 to-green-600 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in">How It Works</h2>
+        <p className="text-lg text-gray-200 mb-10 animate-fade-in delay-100">
+          AquaPlants makes it easy to enhance your aquarium
+        </p>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+          <div className="relative flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
+            <div className="absolute -top-4 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+              1
+            </div>
+            <div className="text-5xl mb-3 text-green-600">
+              <FaShoppingBasket />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Choose Your Plants</h3>
+            <p className="text-sm text-gray-600">Browse our vibrant aquatic plants for your aquarium.</p>
+          </div>
+          <div className="relative flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
+            <div className="absolute -top-4 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+              2
+            </div>
+            <div className="text-5xl mb-3 text-green-600">
+              <FaBoxOpen />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Place Your Order</h3>
+            <p className="text-sm text-gray-600">Add plants to your cart and checkout securely.</p>
+          </div>
+          <div className="relative flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
+            <div className="absolute -top-4 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+              3
+            </div>
+            <div className="text-5xl mb-3 text-green-600">
+              <FaTruck />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Get Fast Delivery</h3>
+            <p className="text-sm text-gray-600">Receive fresh plants delivered to your door.</p>
+          </div>
         </div>
       </section>
 
@@ -237,7 +361,7 @@ const Home = () => {
               />
               <h3 className="text-lg font-semibold text-green-800 mb-2">{plant.name}</h3>
               <p className="text-green-600 font-bold text-xl mb-2">{plant.price}</p>
-              <button className="px-5 py-2 text-sm rounded-full bg-green-500 hover:bg-green-700 text-white mt-auto transition">
+              <button className="px-5 py-2 text-sm rounded-full bg-green-100 text-green-800 border border-green-600 hover:bg-green-200 hover:scale-105 transition-all duration-300 mt-auto">
                 View Details
               </button>
             </div>
@@ -351,7 +475,7 @@ const Home = () => {
                 placeholder="Your email"
                 className="p-2 rounded-l bg-gray-800 text-white w-full focus:outline-none"
               />
-              <button className="bg-green-600 px-4 py-2 rounded-r text-white hover:bg-green-700 transition">
+              <button className="bg-red-600 px-4 py-2 rounded-r text-white hover:bg-red-700 transition">
                 Subscribe
               </button>
             </div>
