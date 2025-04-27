@@ -279,17 +279,17 @@ const Home = () => {
 
       {/* Video Section */}
       <section className="relative text-center py-16 bg-white">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-800 animate-fade-in">Discover Aquatic Beauty</h2>
+        <h2 className="text-3xl md:text-5xl font-bold text-green-700 animate-fade-in">Discover Aquatic Beauty</h2>
         <p className="text-gray-600 mt-2 animate-fade-in delay-100">
           Explore the serene allure of aquatic plants for your home or office
         </p>
-        <div className="flex justify-center space-x-4 mt-4 animate-fade-in delay-200">
+        <div className="flex justify-center space-x-4 mt-8 animate-fade-in delay-200">
         <Link to="/customerregister" >
-          <button className="px-6 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 transition-all duration-300">
+          <button className="px-6 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-800 transition-all duration-300">
             Join us now
           </button></Link>
           <Link to= "/login">
-          <button className="px-6 py-2 border-2 border-green-500 text-green-500 font-semibold rounded-md hover:bg-green-500 hover:text-white transition-all duration-300">
+          <button className="px-6 py-2 border-2 border-green-600 text-green-600 font-semibold rounded-md hover:bg-green-600 hover:text-white transition-all duration-300">
             Sign in
           </button></Link>
         </div>
