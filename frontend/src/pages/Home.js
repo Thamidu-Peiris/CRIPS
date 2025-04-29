@@ -262,25 +262,41 @@ const Home = () => {
         <div className="relative z-50 h-24 flex items-center justify-center pt-4">
           <nav className="flex justify-between items-center px-6 py-3 w-[90%] max-w-5xl bg-white shadow-lg rounded-full">
             <img src="/logo.png" alt="Logo" className="h-12" />
-            <div className="flex space-x-6">
+            <div className="flex items-center space-x-6">
               <Link
                 to="/"
-                className="text-green-700 font-bold relative hover:text-green-800 transition"
+                className="text-green-700 font-bold text-lg hover:text-green-600 transition relative group"
               >
                 Home
-                <span className="absolute bottom-[-2px] left-0 w-full h-[4px] bg-green-500"></span>
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-100 transition-transform duration-300"></span>
               </Link>
-              <Link to="/shop" className="text-gray-600 hover:text-green-800 transition">
+              <Link
+                to="/shop"
+                className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+              >
                 Shop
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
-              <Link to="/careers" className="text-gray-600 hover:text-green-800 transition">
+              <Link
+                to="/careers"
+                className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+              >
                 Careers
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
-              <Link to="/about" className="text-gray-600 hover:text-green-800 transition">
+              <Link
+                to="/about"
+                className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+              >
                 About
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
-              <Link to="/contact" className="text-gray-600 hover:text-green-800 transition">
+              <Link
+                to="/contact"
+                className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+              >
                 Contact Us
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
             </div>
             {isLoggedIn ? (
@@ -417,18 +433,20 @@ const Home = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex space-x-3">
+              <div className="flex space-x-6">
                 <Link
                   to="/login"
-                  className="bg-white text-black px-4 py-1 rounded-full border border-green-500 hover:bg-green-500 hover:text-white transition duration-300"
+                  className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
                 >
                   Sign in
+                  <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
                 </Link>
                 <Link
                   to="/customerregister"
-                  className="bg-white text-black px-4 py-1 rounded-full border border-green-500 hover:bg-green-500 hover:text-white transition duration-300"
+                  className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
                 >
                   Sign Up
+                  <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
                 </Link>
               </div>
             )}
@@ -444,11 +462,14 @@ const Home = () => {
               {slides[currentImage].description}
             </p>
             <button
-              className="mt-6 px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition transform hover:scale-105 shadow-lg hover:shadow-green-500/50 animate-bounce-in delay-200"
-              onClick={handlePlantClick}
-            >
-              Shop Now
-            </button>
+  className="mt-6 px-8 py-3 bg-transparent text-white font-semibold rounded-full border-2 border-white hover:bg-green-600 hover:border-transparent transition transform hover:scale-105 shadow-lg hover:shadow-green-100/00 animate-bounce-in delay-200"
+  onClick={handlePlantClick}
+>
+  Shop Now
+</button>
+
+
+
           </div>
         </div>
         {/* Navigation Arrows */}
@@ -480,51 +501,49 @@ const Home = () => {
 
       {/* Category Slider Section */}
       <section className="bg-white py-6 shadow-lg">
-  <div className="max-w-[868px] mx-auto px-4">
-    <div
-      className="relative overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <div
-        ref={categorySliderRef}
-        className="flex"
-        style={{
-          width: `${160 * categories.length * 2}px`,
-        }}
-      >
-        {[...categories, ...categories].map((category, index) => (
-          <Link
-            key={index}
-            to={`/shop?category=${category.name.toLowerCase()}`}
-            className="group flex flex-col items-center mx-6 flex-shrink-0 w-[120px] p-4 rounded-lg transition-all duration-300 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-600"
-            aria-label={`Select ${category.name} category`}
+        <div className="max-w-[868px] mx-auto px-4">
+          <div
+            className="relative overflow-hidden"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
           >
             <div
-              className="relative text-4xl mb-3 text-gray-500 group-hover:text-green-600 transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
-              tabIndex={0}
-              role="button"
-              aria-label={`Select ${category.name} category`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  navigate(`/shop?category=${category.name.toLowerCase()}`);
-                }
+              ref={categorySliderRef}
+              className="flex"
+              style={{
+                width: `${160 * categories.length * 2}px`,
               }}
             >
-              {category.icon}
+              {[...categories, ...categories].map((category, index) => (
+                <Link
+                  key={index}
+                  to={`/shop?category=${category.name.toLowerCase()}`}
+                  className="group flex flex-col items-center mx-6 flex-shrink-0 w-[120px] p-4 rounded-lg transition-all duration-300 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-600"
+                  aria-label={`Select ${category.name} category`}
+                >
+                  <div
+                    className="relative text-4xl mb-3 text-gray-500 group-hover:text-green-600 transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Select ${category.name} category`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate(`/shop?category=${category.name.toLowerCase()}`);
+                      }
+                    }}
+                  >
+                    {category.icon}
+                  </div>
+                  <span className="text-lg font-semibold text-gray-500 group-hover:text-green-600 transition-all duration-300">
+                    {category.name}
+                  </span>
+                </Link>
+              ))}
             </div>
-            <span className="text-lg font-semibold text-gray-500 group-hover:text-green-600 transition-all duration-300">
-              {category.name}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </div>
-  </div>
-</section>
-
-
+          </div>
+        </div>
+      </section>
 
       {/* Video Section */}
       <section className="relative text-center py-16 bg-white">
@@ -547,7 +566,7 @@ const Home = () => {
           </Link>
         </div>
         <div className="mt-8 flex justify-center">
-          <video controls className="w-[800px1818px] h-[450px] rounded-2xl shadow-2xl object-cover">
+          <video controls className="w-[800px] h-[450px] rounded-2xl shadow-2xl object-cover">
             <source src="/promo-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -679,8 +698,6 @@ const Home = () => {
       {/* Discount Banner */}
       <section className="bg-gradient-to-r from-green-500 to-green-700 text-white text-center p-8">
         <h3 className="text-2xl font-bold">Sign Up Today and Get 10% Off Your First Order!</h3>
-        
-          
       </section>
 
       {/* Footer */}

@@ -1,10 +1,8 @@
-
-// frontend\src\dashboards\Customer\CreateTicket.js
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
+import CustomerHeader from "../../components/CustomerHeader";
+import { motion } from "framer-motion";
 
 const CreateTicket = () => {
   const navigate = useNavigate();
@@ -27,7 +25,7 @@ const CreateTicket = () => {
     try {
       await axios.post("http://localhost:5000/api/support", formData);
       alert("Support ticket submitted successfully!");
-      navigate("/dashboard/support"); // ✅ Redirect to CustomerSupport after submission
+      navigate("/dashboard/support");
     } catch (error) {
       console.error("Error submitting ticket:", error);
       alert("Failed to submit support ticket. Please try again.");
@@ -41,26 +39,56 @@ const CreateTicket = () => {
         Submit a Support Ticket
       </header>
 
-      {/* Navbar */}
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+      {/* Navigation */}
+      <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+        <motion.img
+          src="/logo.png"
+          alt="Logo"
+          className="h-12 transition-transform hover:scale-110"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div className="flex items-center space-x-8">
+          <Link
+            to="/"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Home
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/shop"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Shop
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/dashboard/orders"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Orders
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/about"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            About
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/contact"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Contact Us
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
         </div>
-
-        {/* Navigation Links */}
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
-        </div>
-
-        {/* 🔹 Customer Header */}
         <CustomerHeader />
       </nav>
 
-      {/* 🔹 Breadcrumb Navigation (Optional) */}
+      {/* Breadcrumb Navigation */}
       <div className="text-gray-500 mb-4 p-6">
         <Link to="/" className="hover:underline">Home</Link> /{" "}
         <Link to="/dashboard/support" className="hover:underline">Support</Link> / Create Ticket
@@ -70,7 +98,7 @@ const CreateTicket = () => {
       <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
         <h2 className="text-2xl font-bold text-green-700 text-center">Submit a Support Ticket</h2>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {/* ✅ Name Field (Read-Only) */}
+          {/* Name Field (Read-Only) */}
           <div>
             <label className="block text-gray-600 font-medium">Your Name</label>
             <input
@@ -82,7 +110,7 @@ const CreateTicket = () => {
             />
           </div>
 
-          {/* ✅ Email Field (Read-Only) */}
+          {/* Email Field (Read-Only) */}
           <div>
             <label className="block text-gray-600 font-medium">Your Email</label>
             <input
@@ -94,7 +122,7 @@ const CreateTicket = () => {
             />
           </div>
 
-          {/* ✅ Subject Field */}
+          {/* Subject Field */}
           <div>
             <label className="block text-gray-600 font-medium">Subject</label>
             <input
@@ -107,7 +135,7 @@ const CreateTicket = () => {
             />
           </div>
 
-          {/* ✅ Message Field */}
+          {/* Message Field */}
           <div>
             <label className="block text-gray-600 font-medium">Message</label>
             <textarea
@@ -122,7 +150,7 @@ const CreateTicket = () => {
           <div className="flex justify-between">
             <button
               type="button"
-              onClick={() => navigate("/dashboard/support")} // ✅ Cancel button goes back
+              onClick={() => navigate("/dashboard/support")}
               className="px-4 py-2 bg-gray-300 rounded-lg text-gray-700"
             >
               Cancel

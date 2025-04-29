@@ -1,10 +1,8 @@
-
-// frontend\src\dashboards\Customer\CustomerSupport.js
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
+import CustomerHeader from "../../components/CustomerHeader";
+import { motion } from "framer-motion";
 
 const CustomerSupport = () => {
   const navigate = useNavigate();
@@ -47,22 +45,52 @@ const CustomerSupport = () => {
         Customer Support
       </header>
 
-      {/* Navbar */}
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+      {/* Navigation */}
+      <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+        <motion.img
+          src="/logo.png"
+          alt="Logo"
+          className="h-12 transition-transform hover:scale-110"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div className="flex items-center space-x-8">
+          <Link
+            to="/"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Home
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/shop"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Shop
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/dashboard/orders"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Orders
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/about"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            About
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/contact"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Contact Us
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
         </div>
-
-        {/* Navigation Links */}
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
-        </div>
-
-        {/* 🔹 Customer Header */}
         <CustomerHeader />
       </nav>
 
@@ -113,7 +141,7 @@ const CustomerSupport = () => {
         </div>
       </div>
 
-      {/* ✅ Show Support Tickets Table */}
+      {/* Support Tickets Table */}
       <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
         <h3 className="text-2xl font-bold text-green-700 text-center">Your Support Tickets</h3>
         <table className="w-full border-collapse border border-gray-300 mt-4">

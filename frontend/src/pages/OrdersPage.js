@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CustomerHeader from "../components/CustomerHeader";
+import { motion } from "framer-motion";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -41,97 +42,161 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="font-sans min-h-screen bg-gray-100">
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-        </div>
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+    <div className="min-h-screen bg-green-50 pt-0">
+      {/* Navigation */}
+      <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+        <motion.img
+          src="/logo.png"
+          alt="Logo"
+          className="h-12 transition-transform hover:scale-110"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div className="flex items-center space-x-8">
+          <Link
+            to="/"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Home
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/shop"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Shop
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/careers"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Careers
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/about"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            About
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/contact"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Contact Us
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
         </div>
         <CustomerHeader />
       </nav>
 
-      <div className="text-gray-500 mb-4 p-6">
-        <Link to="/" className="hover:underline">Home</Link> / Orders
-      </div>
+      {/* Content */}
+      <div className="px-4 pb-12">
+        <div className="bg-white shadow-sm p-4 mx-4 mt-4 rounded-lg">
+          <div className="text-gray-500 text-sm">
+            <Link to="/" className="text-green-600 hover:text-green-700 transition">Home</Link> / Orders
+          </div>
+        </div>
 
-      <div className="p-6">
-        <h2 className="text-3xl font-bold mb-6">Orders</h2>
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-4xl font-extrabold text-green-800 mt-8 mb-6 text-center">Your Orders</h2>
+
+        <div className="bg-white rounded-xl shadow-lg p-6 max-w-7xl mx-auto animate-fade-in">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b text-left bg-gray-100">
-                <th className="p-3">Order</th>
-                <th className="p-3">Total</th>
-                <th className="p-3">Payment</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Tracking Number</th>
-                <th className="p-3">Current Location</th>
-                <th className="p-3">Date</th>
-                <th className="p-3">Options</th>
+              <tr className="bg-green-100 text-left text-gray-800 font-semibold rounded-t-lg">
+                <th className="p-4">Order</th>
+                <th className="p-4">Total</th>
+                <th className="p-4">Payment</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Tracking Number</th>
+                <th className="p-4">Current Location</th>
+                <th className="p-4">Date</th>
+                <th className="p-4">Options</th>
               </tr>
             </thead>
             <tbody>
               {orders.length > 0 ? (
-                orders.map((order) => (
-                  <tr key={order._id} className="border-b text-sm">
-                    <td className="p-3">{order._id}</td>
-                    <td className="p-3">${order.total.toFixed(2)}</td>
-                    <td className="p-3">{order.paymentMethod || "N/A"}</td>
-                    <td className={`p-3 font-semibold ${order.status === "Completed" ? "text-green-600" : "text-red-600"}`}>
-                      {order.status}
+                orders.map((order, index) => (
+                  <motion.tr
+                    key={order._id}
+                    className={`border-b text-sm ${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-green-50 transition-colors`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.1 }}
+                  >
+                    <td className="p-4">{order._id}</td>
+                    <td className="p-4">${order.total.toFixed(2)}</td>
+                    <td className="p-4">{order.paymentMethod || "N/A"}</td>
+                    <td className="p-4">
+                      <button
+                        className={`rounded-full px-4 py-1 text-sm font-semibold transition-colors ${
+                          order.status === "Pending"
+                            ? "bg-red-100 text-red-800 hover:bg-red-200"
+                            : order.status === "Completed"
+                            ? "bg-green-100 text-green-800 hover:bg-green-200"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        }`}
+                        disabled
+                      >
+                        {order.status}
+                      </button>
                     </td>
-                    <td className="p-3">{order.trackingNumber || "N/A"}</td>
-                    <td className="p-3">{order.trackingLocation || "N/A"}</td>
-                    <td className="p-3">{new Date(order.createdAt).toLocaleDateString()}</td>
-                    <td className="p-3">
-                      <Link to={`/orders/${order._id}`} className="text-blue-600 hover:underline">View</Link>
+                    <td className="p-4">{order.trackingNumber || "N/A"}</td>
+                    <td className="p-4">{order.trackingLocation || "N/A"}</td>
+                    <td className="p-4">{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 flex gap-2">
+                      <Link to={`/orders/${order._id}`} className="text-green-600 hover:text-green-700 font-medium">View</Link>
                       {order.status === "Completed" && (
                         <button
                           onClick={() => setShowReviewForm(order._id)}
-                          className="ml-2 text-green-600 hover:underline"
+                          className="text-green-600 hover:text-green-700 font-medium"
                         >
                           Add Review
                         </button>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center p-6 text-gray-500">No records found!</td>
+                  <td colSpan="8" className="bg-white rounded-lg p-6 text-gray-600 text-center">
+                    No records found!
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
           {showReviewForm && (
-            <div className="mt-4">
-              <h3 className="text-lg font-semibold">Add Review</h3>
-              <div className="flex gap-1 mb-2">
+            <div className="mt-4 bg-white rounded-lg border border-gray-200 p-4">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Add Review</h3>
+              <div className="flex gap-1 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <span
                     key={i}
                     onClick={() => setReview({ ...review, rating: i + 1 })}
-                    className={`text-2xl cursor-pointer ${i < review.rating ? "text-yellow-400" : "text-gray-300"}`}
+                    className={`text-2xl cursor-pointer transition-colors ${i < review.rating ? "text-yellow-400" : "text-gray-300"} hover:text-yellow-400`}
                   >
                     ★
                   </span>
                 ))}
               </div>
-              <textarea
-                value={review.review}
-                onChange={(e) => setReview({ ...review, review: e.target.value })}
-                placeholder="Write your review..."
-                className="w-full p-2 border rounded mb-2"
-              />
+              <div className="relative">
+                <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
+                  Your Review
+                </label>
+                <textarea
+                  value={review.review}
+                  onChange={(e) => setReview({ ...review, review: e.target.value })}
+                  placeholder="Write your review..."
+                  className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-600"
+                  rows="4"
+                />
+              </div>
               <button
                 onClick={() => handleReviewSubmit(showReviewForm)}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 hover:scale-105 transition-all duration-300 mt-4"
               >
                 Submit Review
               </button>
