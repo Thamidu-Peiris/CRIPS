@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import CustomerHeader from "../components/CustomerHeader";
-import axios from 'axios';
-import { FaArrowLeft, FaArrowRight, FaChevronUp } from "react-icons/fa";
-import { FaWater, FaLeaf, FaTree, FaPagelines, FaSeedling } from "react-icons/fa";
-import { FaShoppingBasket, FaBoxOpen, FaTruck } from "react-icons/fa";
+import axios from "axios";
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaChevronUp,
+  FaWater,
+  FaLeaf,
+  FaTree,
+  FaPagelines,
+  FaSeedling,
+  FaShoppingBasket,
+  FaBoxOpen,
+  FaTruck,
+  FaAngleDown,
+} from "react-icons/fa";
 
 const Home = () => {
   const slides = [
@@ -37,12 +47,56 @@ const Home = () => {
   const [featuredPlants, setFeaturedPlants] = useState([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [profileImage, setProfileImage] = useState("/default-profile.png");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [cart, setCart] = useState([]);
   const navigate = useNavigate();
 
   // State for auto-scrolling category slider
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const categorySliderRef = useRef(null);
+
+  // Update user state and cart
+  useEffect(() => {
+    const updateUserState = () => {
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      if (userInfo) {
+        setFirstName(userInfo.firstName || "");
+        setLastName(userInfo.lastName || "");
+        const imagePath = userInfo.profileImage
+          ? `http://localhost:5000${userInfo.profileImage}`
+          : "/default-profile.png";
+        setProfileImage(imagePath);
+        setIsLoggedIn(true);
+      } else {
+        setFirstName("");
+        setLastName("");
+        setProfileImage("/default-profile.png");
+        setIsLoggedIn(false);
+      }
+
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      setCart(storedCart);
+    };
+
+    updateUserState();
+
+    const handleStorageChange = () => {
+      updateUserState();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("userInfoChanged", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("userInfoChanged", handleStorageChange);
+    };
+  }, []);
 
   // Auto-rotation for Hero Slider
   useEffect(() => {
@@ -75,29 +129,29 @@ const Home = () => {
   useEffect(() => {
     if (isPaused) return;
 
-    const categoryWidth = 160; // Width of one category item
+    const categoryWidth = 160;
     const totalCategories = categories.length;
-    const maxScroll = categoryWidth * totalCategories; // Width of one full set of categories
+    const maxScroll = categoryWidth * totalCategories;
 
     const interval = setInterval(() => {
       setScrollPosition((prevPosition) => {
-        const newPosition = prevPosition + 1; // Adjust speed here
+        const newPosition = prevPosition + 1;
         if (newPosition >= maxScroll) {
-          // Reset to start for infinite loop
-          categorySliderRef.current.scrollTo({ left: 0, behavior: 'instant' });
+          categorySliderRef.current.scrollTo({ left: 0, behavior: "instant" });
           return 0;
         }
-        categorySliderRef.current.scrollTo({ left: newPosition, behavior: 'smooth' });
+        categorySliderRef.current.scrollTo({ left: newPosition, behavior: "smooth" });
         return newPosition;
       });
-    }, 30); // Adjust interval for smoother scrolling
+    }, 30);
 
     return () => clearInterval(interval);
   }, [categories.length, isPaused]);
 
   useEffect(() => {
-    axios.post('http://localhost:5000/api/visitor/record')
-      .catch(err => console.error('Failed to record visit:', err));
+    axios
+      .post("http://localhost:5000/api/visitor/record")
+      .catch((err) => console.error("Failed to record visit:", err));
   }, []);
 
   useEffect(() => {
@@ -105,11 +159,14 @@ const Home = () => {
       try {
         const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
         const data = await response.json();
-        const selectedPlants = data.filter(plant => plant.quantity > 0).slice(0, 4).map(plant => ({
-          name: plant.plantName,
-          price: `$${plant.itemPrice.toFixed(2)}`,
-          img: plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg',
-        }));
+        const selectedPlants = data
+          .filter((plant) => plant.quantity > 0)
+          .slice(0, 4)
+          .map((plant) => ({
+            name: plant.plantName,
+            price: `$${plant.itemPrice.toFixed(2)}`,
+            img: plant.plantImage || "http://localhost:5000/uploads/default-plant.jpg",
+          }));
         setFeaturedPlants(selectedPlants);
       } catch (error) {
         console.error("Error fetching featured plants:", error);
@@ -141,6 +198,22 @@ const Home = () => {
     setCurrentImage((prevImage) => (prevImage - 1 + slides.length) % slides.length);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userInfo");
+    localStorage.removeItem("cart");
+    setFirstName("");
+    setLastName("");
+    setProfileImage("/default-profile.png");
+    setIsLoggedIn(false);
+    setDropdownOpen(false);
+    navigate("/");
+    window.dispatchEvent(new Event("userInfoChanged"));
+  };
+
+  const toggleDropdown = () => {
+    setDropdownOpen((prev) => !prev);
+  };
+
   const reviews = [
     { name: "Emily Thompson", review: "I love the quality of plants I received! Will order again.", img: "/user1.jpg" },
     { name: "James Anderson", review: "Fast delivery and excellent service. Highly recommend!", img: "/user2.jpg" },
@@ -168,42 +241,204 @@ const Home = () => {
   };
 
   const dotCount = Math.ceil(reviews.length / 3);
+  const fullName = `${firstName} ${lastName}`.trim();
 
   return (
     <>
-      {/* Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-5 bg-white shadow-lg">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Aqua Plants Logo" className="h-10 mr-2" />
-        </div>
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium hover:text-green-800 transition">Home</Link>
-          <Link to="/shop" className="text-gray-600 hover:text-green-800 transition">Shop</Link>
-          <Link to="/careers" className="text-gray-600 hover:text-green-800 transition">Careers</Link>
-          <Link to="/about" className="text-gray-600 hover:text-green-800 transition">About</Link>
-          <Link to="/contact" className="text-gray-600 hover:text-green-800 transition">Contact Us</Link>
-        </div>
-        <CustomerHeader />
-      </nav>
-
-      {/* Hero Section */}
-      <header className="relative text-white h-[600px] pt-16">
+      {/* Hero Section with Header Inside */}
+      <header className="relative text-white h-[600px]">
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
-          style={{ 
+          style={{
             backgroundImage: `url(${slides[currentImage].image})`,
-            backgroundAttachment: 'fixed',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundAttachment: "fixed",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
           }}
         >
           <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+        </div>
+        {/* Header Wrapper Inside Slider */}
+        <div className="relative z-50 h-24 flex items-center justify-center pt-4">
+          <nav className="flex justify-between items-center px-6 py-3 w-[90%] max-w-5xl bg-white shadow-lg rounded-full">
+            <img src="/logo.png" alt="Logo" className="h-12" />
+            <div className="flex space-x-6">
+              <Link
+                to="/"
+                className="text-green-700 font-bold relative hover:text-green-800 transition"
+              >
+                Home
+                <span className="absolute bottom-[-2px] left-0 w-full h-[4px] bg-green-500"></span>
+              </Link>
+              <Link to="/shop" className="text-gray-600 hover:text-green-800 transition">
+                Shop
+              </Link>
+              <Link to="/careers" className="text-gray-600 hover:text-green-800 transition">
+                Careers
+              </Link>
+              <Link to="/about" className="text-gray-600 hover:text-green-800 transition">
+                About
+              </Link>
+              <Link to="/contact" className="text-gray-600 hover:text-green-800 transition">
+                Contact Us
+              </Link>
+            </div>
+            {isLoggedIn ? (
+              <div className="flex items-center space-x-4">
+                {/* Cart Link */}
+                <Link
+                  to="/cart"
+                  className="flex items-center space-x-2 text-black hover:text-gray-700 relative transition duration-300"
+                >
+                  <img
+                    src="/home/cart-icon.png"
+                    alt="Cart"
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => (e.target.src = "/default-cart.png")}
+                  />
+                  <span className="text-sm font-medium hidden md:inline">Cart</span>
+                  {cart.length > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                      {cart.length}
+                    </span>
+                  )}
+                </Link>
+
+                {/* Wishlist Link */}
+                <Link
+                  to="/wishlist"
+                  className="flex items-center space-x-2 text-black hover:text-gray-700 transition duration-300"
+                >
+                  <img
+                    src="/home/wishlist-icon.png"
+                    alt="Wishlist"
+                    className="w-6 h-6 object-contain"
+                    onError={(e) => (e.target.src = "/default-wishlist.png")}
+                  />
+                  <span className="text-sm font-medium hidden md:inline">Wishlist</span>
+                </Link>
+
+                {/* Profile Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={toggleDropdown}
+                    className="flex items-center space-x-2 text-black hover:text-gray-700 z-20 transition duration-300"
+                    aria-expanded={dropdownOpen}
+                    aria-controls="profile-dropdown"
+                  >
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-8 h-8 object-cover rounded-full"
+                      onError={(e) => (e.target.src = "/default-profile.png")}
+                    />
+                    <span className="text-sm font-medium hidden md:inline">{fullName}</span>
+                    <FaAngleDown className="text-sm" />
+                  </button>
+                  {dropdownOpen && (
+                    <div
+                      id="profile-dropdown"
+                      className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-50 border border-gray-200"
+                    >
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
+                      >
+                        <img
+                          src="/home/profile-icon.png"
+                          alt="Profile Icon"
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => (e.target.src = "/default-profile-icon.png")}
+                        />
+                        Profile
+                      </Link>
+                      <Link
+                        to="/dashboard/orders"
+                        className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
+                      >
+                        <img
+                          src="/home/orders-icon.png"
+                          alt="Orders Icon"
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => (e.target.src = "/default-orders-icon.png")}
+                        />
+                        Orders
+                      </Link>
+                      <Link
+                        to="/dashboard/tracking"
+                        className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
+                      >
+                        <img
+                          src="/home/tracking-icon.png"
+                          alt="Tracking Icon"
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => (e.target.src = "/default-tracking-icon.png")}
+                        />
+                        Tracking
+                      </Link>
+                      <Link
+                        to="/dashboard/support"
+                        className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
+                      >
+                        <img
+                          src="/home/support-icon.png"
+                          alt="Support Icon"
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => (e.target.src = "/default-support-icon.png")}
+                        />
+                        Support
+                      </Link>
+                      <Link
+                        to="/dashboard/settings"
+                        className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
+                      >
+                        <img
+                          src="/home/settings-icon.png"
+                          alt="Settings Icon"
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => (e.target.src = "/default-settings-icon.png")}
+                        />
+                        Profile Settings
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 w-full text-left transition duration-300"
+                      >
+                        <img
+                          src="/home/logout-icon.png"
+                          alt="Logout Icon"
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => (e.target.src = "/default-logout-icon.png")}
+                        />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="flex space-x-3">
+                <Link
+                  to="/login"
+                  className="bg-white text-black px-4 py-1 rounded-full border border-green-500 hover:bg-green-500 hover:text-white transition duration-300"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  to="/customerregister"
+                  className="bg-white text-black px-4 py-1 rounded-full border border-green-500 hover:bg-green-500 hover:text-white transition duration-300"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
+          </nav>
         </div>
         <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-4">
           <div className="max-w-lg">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight relative inline-block animate-slide-in-top">
               {slides[currentImage].title}
-              <span className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 transition-all duration-500 group-hover:w-full"></span>
+              <span className="absolute bottom-0 left-0 w-0 h-1 bg-green-400 transition-all duration-300 group-hover:w-full"></span>
             </h1>
             <p className="text-lg mt-4 text-gray-200 animate-slide-in-left delay-100">
               {slides[currentImage].description}
@@ -236,7 +471,7 @@ const Home = () => {
               key={index}
               onClick={() => setCurrentImage(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentImage === index ? 'bg-green-600 scale-125' : 'bg-gray-400'
+                currentImage === index ? "bg-green-600 scale-125" : "bg-gray-400"
               }`}
             />
           ))}
@@ -245,56 +480,74 @@ const Home = () => {
 
       {/* Category Slider Section */}
       <section className="bg-white py-6 shadow-lg">
-        <div className="max-w-[868px] mx-auto px-4"> {/* Adjusted for 5 * 160px + 5 * 12px + 8px */}
-          <div
-            className="relative overflow-hidden"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+  <div className="max-w-[868px] mx-auto px-4">
+    <div
+      className="relative overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      <div
+        ref={categorySliderRef}
+        className="flex"
+        style={{
+          width: `${160 * categories.length * 2}px`,
+        }}
+      >
+        {[...categories, ...categories].map((category, index) => (
+          <Link
+            key={index}
+            to={`/shop?category=${category.name.toLowerCase()}`}
+            className="group flex flex-col items-center mx-6 flex-shrink-0 w-[120px] p-4 rounded-lg transition-all duration-300 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-600"
+            aria-label={`Select ${category.name} category`}
           >
             <div
-              ref={categorySliderRef}
-              className="flex"
-              style={{
-                width: `${160 * categories.length * 2}px`, // Total width for duplicated categories
+              className="relative text-4xl mb-3 text-gray-500 group-hover:text-green-600 transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
+              tabIndex={0}
+              role="button"
+              aria-label={`Select ${category.name} category`}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  navigate(`/shop?category=${category.name.toLowerCase()}`);
+                }
               }}
             >
-              {/* Duplicate categories for infinite loop */}
-              {[...categories, ...categories].map((category, index) => (
-                <Link
-                  key={index}
-                  to={`/shop?category=${category.name.toLowerCase()}`}
-                  className="group flex flex-col items-center text-gray-500 hover:text-green-600 transition-all duration-300 mx-6 flex-shrink-0"
-                  style={{ width: '120px' }} // Fixed width for each category item
-                >
-                  <div className="text-4xl mb-3 text-gray-400 group-hover:text-green-600 transition-all duration-300">
-                    {category.icon}
-                  </div>
-                  <span className="text-lg font-semibold">{category.name}</span>
-                </Link>
-              ))}
+              {category.icon}
             </div>
-          </div>
-        </div>
-      </section>
+            <span className="text-lg font-semibold text-gray-500 group-hover:text-green-600 transition-all duration-300">
+              {category.name}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+
 
       {/* Video Section */}
       <section className="relative text-center py-16 bg-white">
-        <h2 className="text-3xl md:text-5xl font-bold text-green-700 animate-fade-in">Discover Aquatic Beauty</h2>
+        <h2 className="text-3xl md:text-5xl font-bold text-green-700 animate-fade-in">
+          Discover Aquatic Beauty
+        </h2>
         <p className="text-gray-600 mt-2 animate-fade-in delay-100">
           Explore the serene allure of aquatic plants for your home or office
         </p>
         <div className="flex justify-center space-x-4 mt-8 animate-fade-in delay-200">
-        <Link to="/customerregister" >
-          <button className="px-6 py-3 border-2 border-green-600 bg-green-600 text-white font-semibold rounded-md hover:bg-green-800 transition-all duration-300">
-            Join us now
-          </button></Link>
-          <Link to= "/login">
-          <button className="px-8 py-3 border-2 border-green-600 text-green-600 font-semibold rounded-md hover:bg-green-600 hover:text-white transition-all duration-300">
-            Sign in
-          </button></Link>
+          <Link to="/customerregister">
+            <button className="px-6 py-3 border-2 border-green-600 bg-green-600 text-white font-semibold rounded-md hover:bg-green-800 transition-all duration-300">
+              Join us now
+            </button>
+          </Link>
+          <Link to="/login">
+            <button className="px-8 py-3 border-2 border-green-600 text-green-600 font-semibold rounded-md hover:bg-green-600 hover:text-white transition-all duration-300">
+              Sign in
+            </button>
+          </Link>
         </div>
         <div className="mt-8 flex justify-center">
-          <video controls className="w-[800px] h-[450px] rounded-2xl shadow-2xl object-cover">
+          <video controls className="w-[800px1818px] h-[450px] rounded-2xl shadow-2xl object-cover">
             <source src="/promo-video.mp4" type="video/mp4" />
             Your browser does not support the video tag.
           </video>
@@ -386,10 +639,10 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div
             className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 ease-in-out ${
-              isTransitioning ? 'opacity-70 scale-95' : 'opacity-100 scale-100'
+              isTransitioning ? "opacity-70 scale-95" : "opacity-100 scale-100"
             }`}
             style={{
-              transform: `translateX(${isTransitioning ? '-10%' : '0'})`,
+              transform: `translateX(${isTransitioning ? "-10%" : "0"})`,
             }}
           >
             {getVisibleReviews().map((review) => (
@@ -415,7 +668,7 @@ const Home = () => {
                 key={index}
                 onClick={() => handleDotClick(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  Math.floor(currentReviewIndex / 3) === index ? 'bg-green-600 scale-125' : 'bg-gray-400'
+                  Math.floor(currentReviewIndex / 3) === index ? "bg-green-600 scale-125" : "bg-gray-400"
                 }`}
               />
             ))}
@@ -426,16 +679,8 @@ const Home = () => {
       {/* Discount Banner */}
       <section className="bg-gradient-to-r from-green-500 to-green-700 text-white text-center p-8">
         <h3 className="text-2xl font-bold">Sign Up Today and Get 10% Off Your First Order!</h3>
-        <div className="max-w-md mx-auto mt-4 flex gap-3">
-          <input
-            type="email"
-            placeholder="Enter your email"
-            className="p-3 rounded-l-full bg-white text-gray-800 w-full focus:outline-none"
-          />
-          <button className="px-6 py-3 bg-black text-white rounded-r-full hover:bg-gray-800 transition">
-            Subscribe
-          </button>
-        </div>
+        
+          
       </section>
 
       {/* Footer */}
@@ -450,7 +695,12 @@ const Home = () => {
           </div>
           <div>
             <h3 className="text-lg font-bold mb-4">Contact Us</h3>
-            <p>📧 <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">support@aquaplants.com</a></p>
+            <p>
+              📧{" "}
+              <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">
+                support@aquaplants.com
+              </a>
+            </p>
             <p>📞 (555) 123-4567</p>
           </div>
           <div>
