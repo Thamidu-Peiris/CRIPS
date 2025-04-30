@@ -1,7 +1,7 @@
-// frontend\src\pages\Login.js
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { motion } from "framer-motion";
 import CustomerHeader from "../components/CustomerHeader";
 
 const Login = () => {
@@ -27,9 +27,9 @@ const Login = () => {
 
       console.log("[DEBUG] Login response:", response.data);
 
-      // Check if login is successful and user status (if provided) (T)
+      // Check if login is successful and user status (if provided)
       const user = response.data.user;
-      if (user && user.role === "Customers" || user.role === "Wholesale Dealers") {
+      if (user && (user.role === "Customers" || user.role === "Wholesale Dealers")) {
         // Temporary frontend check until backend enforces status
         if (user.status && user.status.toLowerCase() !== "approved") {
           throw new Error(`Your account is ${user.status}. Please wait for approval or contact support if declined.`);
@@ -40,7 +40,7 @@ const Login = () => {
       localStorage.setItem("userInfo", JSON.stringify(response.data.user));
       localStorage.setItem("userId", response.data.user.id);
       localStorage.setItem("token", response.data.token);
-      const role = response.data.role || ""; // Keep the role as-is (do not lowercase)
+      const role = response.data.role || "";
       localStorage.setItem("role", role);
 
       console.log("[DEBUG] Stored in localStorage:");
@@ -62,28 +62,24 @@ const Login = () => {
       } else if (role === "Cutters") {
         console.log("[DEBUG] Redirecting to /cutters-dashboard");
         navigate("/cutters-dashboard");
-      }else if (role === "TransportManager") {
+      } else if (role === "TransportManager") {
         console.log("[DEBUG] Redirecting to /TM-dashboard");
         navigate("/transport-dashboard");
-      }else if (role === "supplier") {
+      } else if (role === "supplier") {
         console.log("[DEBUG] Redirecting to /supplier-dashboard");
         navigate("/supplier-dashboard");
-      }
-       else if (role === "InventoryManager") {
+      } else if (role === "InventoryManager") {
         console.log("[DEBUG] Redirecting to /inventory-manager-dashboard");
         navigate("/inventory-manager-dashboard");
       } else if (role === "Sales Manager") {
         console.log("[DEBUG] Redirecting to /sales-manager-dashboard");
         navigate("/sales-manager-dashboard");
-        
       } else if (role === "Customers" || role === "Wholesale Dealers") {
-        console.log("[DEBUG] Redirecting to /customer-dashboard");
-        navigate("/shop");  // Adjust path as per your project route
-      }
-      
-      else {
+        console.log("[DEBUG] Redirecting to /shop");
+        navigate("/shop");
+      } else {
         console.log("[DEBUG] Redirecting to /shop (default for Customer)");
-        
+        navigate("/shop");
       }
     } catch (error) {
       console.error("[DEBUG] Error logging in:", error.response?.data || error.message);
@@ -93,52 +89,114 @@ const Login = () => {
   };
 
   return (
-    <div className="font-sans">
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-        </div>
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/careers" className="text-gray-600">Careers</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+    <div
+      className="font-sans min-h-screen bg-gradient-to-b from-green-50/80 to-white/80 bg-cover bg-center"
+      style={{
+        backgroundImage: `url('/loginbg.jpg')`, // Ensure this image is in frontend/public/loginbg.jpg
+        backgroundBlendMode: "overlay",
+        backgroundAttachment: "fixed",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Navigation Bar */}
+      <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+        <motion.img
+          src="/logo.png"
+          alt="Logo"
+          className="h-12 transition-transform hover:scale-110"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div className="flex items-center space-x-8">
+          <Link to="/" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            Home
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link to="/shop" className="text-green-700 font-bold text-lg hover:text-[#7ccc04] transition relative group">
+            Shop
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link to="/careers" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            Careers
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link to="/about" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            About
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link to="/contact" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            Contact Us
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
         </div>
         <CustomerHeader />
       </nav>
 
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
-          <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Login</h2>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="emailOrUsername"
-              placeholder="Email or Username"
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg bg-gray-100 mb-4"
-              required
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg bg-gray-100 mb-4"
-              required
-            />
-            <button
+      {/* Login Content */}
+      <div className="flex items-center justify-center min-h-screen">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-md w-full bg-white/20 backdrop-blur-lg p-8 rounded-3xl shadow-2xl border border-white/30"
+        >
+          <h2 className="text-4xl font-bold text-center text-green-800 mb-8">Login</h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <input
+                type="text"
+                name="emailOrUsername"
+                placeholder="Email or Username"
+                onChange={handleChange}
+                className="w-full p-4 bg-white/30 backdrop-blur-sm rounded-full border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500"
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                onChange={handleChange}
+                className="w-full p-4 bg-white/30 backdrop-blur-sm rounded-full border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-500"
+                required
+              />
+            </motion.div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition duration-300"
+              className="w-full bg-[#87de04] text-white py-4 rounded-full font-medium text-lg hover:bg-[#7ccc04] transition-all shadow-lg"
+
             >
               Login
-            </button>
+            </motion.button>
           </form>
-          <p className="text-center mt-4">
-            Don't have an account? <Link to="/customerregister" className="text-green-600">Register here</Link>
-          </p>
-        </div>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-center mt-6 text-white/90 text-lg"
+          >
+            Don't have an account?{" "}
+            <Link
+              to="/customerregister"
+              className="text-gray-700 hover:text-gray-800 font-bold text-lg transition relative group"
+            >
+              Register here
+              <span className="absolute left-0 bottom-0 w-full h-[2px] bg-gray-700 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </Link>
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   );

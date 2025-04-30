@@ -80,35 +80,35 @@ const Shop = () => {
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Home
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/shop"
-            className="text-green-700 font-bold text-lg hover:text-green-600 transition relative group"
+            className="text-green-700 font-bold text-lg hover:text-[#7ccc04] transition relative group"
           >
             Shop
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/careers"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Careers
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/about"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             About
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/contact"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Contact Us
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
         </div>
         <CustomerHeader />
