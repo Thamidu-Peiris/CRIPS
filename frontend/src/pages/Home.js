@@ -534,7 +534,7 @@ const Home = () => {
                   aria-label={`Select ${category.name} category`}
                 >
                   <div
-                    className="relative text-4xl mb-3 text-gray-500 group-hover:text-green-600 transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
+                    className="relative text-4xl mb-3 text-gray-400 group-hover:text-green-600 transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
                     tabIndex={0}
                     role="button"
                     aria-label={`Select ${category.name} category`}
