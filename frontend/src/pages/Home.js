@@ -53,12 +53,27 @@ const Home = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cart, setCart] = useState([]);
+  const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
 
   // State for auto-scrolling category slider
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const categorySliderRef = useRef(null);
+
+  // Handle scroll to toggle border
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Update user state and cart
   useEffect(() => {
@@ -245,7 +260,7 @@ const Home = () => {
 
   return (
     <>
-      {/* Hero Section with Header Inside */}
+      {/* Hero Section with Fixed Header */}
       <header className="relative text-white h-[600px]">
         <div
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
@@ -258,9 +273,13 @@ const Home = () => {
         >
           <div className="absolute inset-0 bg-black bg-opacity-10"></div>
         </div>
-        {/* Header Wrapper Inside Slider */}
-        <div className="relative z-50 h-24 flex items-center justify-center pt-4">
-          <nav className="flex justify-between items-center px-6 py-3 w-[90%] max-w-5xl bg-white shadow-lg rounded-full">
+        {/* Fixed Header Wrapper */}
+        <div className="fixed top-0 left-0 w-full z-50 h-24 flex items-center justify-center pt-4">
+          <nav
+            className={`flex justify-between items-center px-6 py-3 w-[90%] max-w-5xl bg-white shadow-lg rounded-full transition-all duration-300 ${
+              isScrolled ? "border-4 border-[#7ccc04]" : ""
+            }`}
+          >
             <img src="/logo.png" alt="Logo" className="h-12" />
             <div className="flex items-center space-x-6">
               <Link
@@ -433,26 +452,22 @@ const Home = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex space-x-6">
-                <Link
-                  to="/login"
-                  className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
-                >
-                  Sign in
-                  <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+              <div className="flex space-x-4">
+                < Link to="/login">
+                  <button className="px-4 py-2 bg-transparent border-2 border-[#86d411] text-[#86d411] font-bold text-lg rounded-full hover:bg-[#6fb309] hover:text-white hover:border-[#6fb309] transition duration-300">
+                    Login
+                  </button>
                 </Link>
-                <Link
-                  to="/customerregister"
-                  className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
-                >
-                  Sign Up
-                  <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <Link to="/customerregister">
+                  <button className="px-4 py-2 bg-[#87de04] border-2 border-[#86d411] text-white font-bold text-lg rounded-full hover:bg-[#6fb309] transition duration-300 hover:border-[#6fb309]">
+                    Sign Up
+                  </button>
                 </Link>
               </div>
             )}
           </nav>
         </div>
-        <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-4">
+        <div className="relative z-10 flex items-center h-full max-w-7xl mx-auto px-4 pt-24">
           <div className="max-w-lg">
             <h1 className="text-4xl md:text-5xl font-extrabold leading-tight relative inline-block animate-slide-in-top">
               {slides[currentImage].title}
@@ -462,14 +477,11 @@ const Home = () => {
               {slides[currentImage].description}
             </p>
             <button
-  className="mt-6 px-8 py-3 bg-[#87de04] text-white font-semibold rounded-full hover:border-2 hover:border-white hover:bg-transparent hover:border-transparent transition transform hover:scale-105 shadow-lg hover:shadow-green-100/00 animate-bounce-in delay-200"
-  onClick={handlePlantClick}
->
-  Shop Now
-</button>
-
-
-
+              className="mt-6 px-8 py-3 bg-[#87de04] text-white font-semibold rounded-full hover:border-2 hover:border-white hover:bg-transparent hover:border-transparent transition transform hover:scale-105 shadow-lg hover:shadow-green-100/00 animate-bounce-in delay-200"
+              onClick={handlePlantClick}
+            >
+              Shop Now
+            </button>
           </div>
         </div>
         {/* Navigation Arrows */}
@@ -527,7 +539,7 @@ const Home = () => {
                     role="button"
                     aria-label={`Select ${category.name} category`}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
+                      if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
                         navigate(`/shop?category=${category.name.toLowerCase()}`);
                       }
