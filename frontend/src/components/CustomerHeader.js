@@ -206,13 +206,13 @@ const CustomerHeader = () => {
         <div className="flex space-x-3">
           <Link
             to="/customerregister"
-            className="border border-green-500 text-green-500 px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-500 hover:text-white transition duration-300"
+            className="border border-green-600 text-green-600 px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-600 hover:text-white transition duration-300"
           >
             Sign Up
           </Link>
           <Link
             to="/login"
-            className="bg-green-600 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-700 transition duration-300"
+            className="bg-green-600 text-white px-3 py-1 md:px-5 md:py-2 rounded-lg hover:bg-green-700 transition duration-300"
           >
             Login
           </Link>

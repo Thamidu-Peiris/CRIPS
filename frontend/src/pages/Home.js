@@ -265,38 +265,38 @@ const Home = () => {
             <div className="flex items-center space-x-6">
               <Link
                 to="/"
-                className="text-green-700 font-bold text-lg hover:text-green-600 transition relative group"
+                className="text-green-700 font-bold text-lg hover:text-[#7ccc04] transition relative group"
               >
                 Home
-                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link
                 to="/shop"
                 className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
               >
                 Shop
-                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link
                 to="/careers"
                 className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
               >
                 Careers
-                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link
                 to="/about"
                 className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
               >
                 About
-                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
               <Link
                 to="/contact"
                 className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
               >
                 Contact Us
-                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
               </Link>
             </div>
             {isLoggedIn ? (
@@ -462,7 +462,7 @@ const Home = () => {
               {slides[currentImage].description}
             </p>
             <button
-  className="mt-6 px-8 py-3 bg-transparent text-white font-semibold rounded-full border-2 border-white hover:bg-green-600 hover:border-transparent transition transform hover:scale-105 shadow-lg hover:shadow-green-100/00 animate-bounce-in delay-200"
+  className="mt-6 px-8 py-3 bg-[#87de04] text-white font-semibold rounded-full hover:border-2 hover:border-white hover:bg-transparent hover:border-transparent transition transform hover:scale-105 shadow-lg hover:shadow-green-100/00 animate-bounce-in delay-200"
   onClick={handlePlantClick}
 >
   Shop Now
@@ -492,7 +492,7 @@ const Home = () => {
               key={index}
               onClick={() => setCurrentImage(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                currentImage === index ? "bg-green-600 scale-125" : "bg-gray-400"
+                currentImage === index ? "bg-[#7ccc04] scale-125" : "bg-gray-400"
               }`}
             />
           ))}
@@ -696,12 +696,12 @@ const Home = () => {
       </section>
 
       {/* Discount Banner */}
-      <section className="bg-gradient-to-r from-green-500 to-green-700 text-white text-center p-8">
+      <section className="bg-gradient-to-r from-[#7ccc04] to-[#7ccc04] text-white text-center p-8">
         <h3 className="text-2xl font-bold">Sign Up Today and Get 10% Off Your First Order!</h3>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white p-10 text-center border-t-4 border-green-600">
+      <footer className="bg-gray-900 text-white p-10 text-center border-t-4 border-[#7ccc04]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
@@ -751,7 +751,7 @@ const Home = () => {
         <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
         <button
           onClick={handleBackToTop}
-          className="mt-4 p-3 bg-green-600 rounded-full text-white hover:bg-green-700 transition transform hover:scale-105"
+          className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-green-700 transition transform hover:scale-105"
         >
           <FaChevronUp />
         </button>
