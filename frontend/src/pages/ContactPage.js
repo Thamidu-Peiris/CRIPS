@@ -101,7 +101,7 @@ const ContactPage = () => {
 
       {/* Contact Form or Confirmation Banner */}
       <div className="max-w-3xl mx-auto bg-white shadow-lg p-8 mt-10 rounded-lg">
-        <h2 className="text-3xl font-bold text-center text-green-600 mb-6">Contact Us</h2>
+        <h2 className="text-3xl font-bold text-center text-[#63A302] mb-6">Contact Us</h2>
         {submitted ? (
           <div className="bg-green-100 text-green-800 font-bold p-6 rounded-lg text-center animate-fade-in">
             Message Sent Successfully
