@@ -559,7 +559,7 @@ const Home = () => {
 
       {/* Video Section */}
       <section className="relative text-center py-16 bg-white">
-        <h2 className="text-3xl md:text-5xl font-bold text-green-700 animate-fade-in">
+        <h2 className="text-3xl md:text-5xl font-bold text-[#66A901] animate-fade-in">
           Discover Aquatic Beauty
         </h2>
         <p className="text-gray-600 mt-2 animate-fade-in delay-100">
@@ -567,12 +567,12 @@ const Home = () => {
         </p>
         <div className="flex justify-center space-x-4 mt-8 animate-fade-in delay-200">
           <Link to="/customerregister">
-            <button className="px-6 py-3 border-2 border-green-600 bg-green-600 text-white font-semibold rounded-md hover:bg-green-800 transition-all duration-300">
+            <button className="px-6 py-3 border-2 border-[#87de04] bg-[#87de04] text-white font-semibold rounded-md hover:bg-[#64A503] transition-all duration-300">
               Join us now
             </button>
           </Link>
           <Link to="/login">
-            <button className="px-8 py-3 border-2 border-green-600 text-green-600 font-semibold rounded-md hover:bg-green-600 hover:text-white transition-all duration-300">
+            <button className="px-8 py-3 border-2 border-[#80D304] text-[#80D304] font-semibold rounded-md hover:bg-[#87de04] hover:text-white transition-all duration-300">
               Sign in
             </button>
           </Link>
@@ -586,37 +586,37 @@ const Home = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-12 bg-gradient-to-b from-green-500 to-green-600 text-center">
+      <section className="py-12 bg-gradient-to-b from-[#87de04] to-[#87de04] text-center">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in">How It Works</h2>
-        <p className="text-lg text-gray-200 mb-10 animate-fade-in delay-100">
+        <p className="text-lg text-gray-100 mb-10 animate-fade-in delay-100">
           AquaPlants makes it easy to enhance your aquarium
         </p>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
           <div className="relative flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
-            <div className="absolute -top-4 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+            <div className="absolute -top-4 w-8 h-8 bg-[#66A901] text-white rounded-full flex items-center justify-center text-lg font-bold">
               1
             </div>
-            <div className="text-5xl mb-3 text-green-600">
+            <div className="text-5xl mb-3 text-[#80D205]">
               <FaShoppingBasket />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Choose Your Plants</h3>
             <p className="text-sm text-gray-600">Browse our vibrant aquatic plants for your aquarium.</p>
           </div>
           <div className="relative flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
-            <div className="absolute -top-4 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+            <div className="absolute -top-4 w-8 h-8 bg-[#66A901] text-white rounded-full flex items-center justify-center text-lg font-bold">
               2
             </div>
-            <div className="text-5xl mb-3 text-green-600">
+            <div className="text-5xl mb-3 text-[#80D205]">
               <FaBoxOpen />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Place Your Order</h3>
             <p className="text-sm text-gray-600">Add plants to your cart and checkout securely.</p>
           </div>
           <div className="relative flex flex-col items-center p-6 bg-white rounded-lg shadow-lg">
-            <div className="absolute -top-4 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+            <div className="absolute -top-4 w-8 h-8 bg-[#66A901] text-white rounded-full flex items-center justify-center text-lg font-bold">
               3
             </div>
-            <div className="text-5xl mb-3 text-green-600">
+            <div className="text-5xl mb-3 text-[#80D205]">
               <FaTruck />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Get Fast Delivery</h3>
