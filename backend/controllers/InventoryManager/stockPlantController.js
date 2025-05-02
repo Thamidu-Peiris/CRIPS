@@ -1,3 +1,4 @@
+// backend\controllers\InventoryManager\stockPlantController.js
 const Plant = require('../../models/GrowerHandler/Plant');
 const Stock = require('../../models/InventoryM/Stock');
 

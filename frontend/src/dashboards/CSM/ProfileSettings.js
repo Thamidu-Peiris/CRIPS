@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\CSM\ProfileSettings.js
+// frontend\src\dashboards\CSM\ProfileSettings.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

@@ -1,4 +1,4 @@
-// backend/controllers/InventoryM/OrderStockController.js
+// backend\controllers\InventoryManager\OrderStockController.js
 const Stock = require('../../models/InventoryM/Stock');
 const Supplier = require('../../models/SupplierM/Supplier');
 const Order = require('../../models/InventoryM/Order');

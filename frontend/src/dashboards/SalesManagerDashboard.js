@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\SalesManagerDashboard.js
+// frontend\src\dashboards\SalesManagerDashboard.js
 import React from "react";
 import { Link } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";

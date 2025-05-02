@@ -1,3 +1,4 @@
+// frontend\src\components\InventoryM\Navbar.js
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Sidebar() {

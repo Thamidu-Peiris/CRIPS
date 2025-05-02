@@ -1,5 +1,5 @@
 
-//CRIPS\frontend\src\dashboards\Customer\CustomerChangePassword.js
+// frontend\src\dashboards\Customer\CustomerChangePassword.js
 
 import React, { useState } from "react";
 import axios from "axios";

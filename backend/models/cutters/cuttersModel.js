@@ -1,4 +1,4 @@
-// backend/models/cutters/cuttersModel.js
+// backend\models\cutters\cuttersModel.js
 const mongoose = require("mongoose");
 
 const cuttersSchema = new mongoose.Schema({

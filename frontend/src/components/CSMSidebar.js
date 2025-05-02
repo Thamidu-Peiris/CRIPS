@@ -1,4 +1,4 @@
-// CRIPS/frontend/src/components/CSMSidebar.js
+// frontend\src\components\CSMSidebar.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Add these imports
 import { MdDashboard } from "react-icons/md";
@@ -76,13 +76,13 @@ const CSMSidebar = () => {
         </li>
         <li>
           <a
-            href="#manage-orders"
+            href="/csm/manage-orders"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick("#manage-orders");
+              handleItemClick("/csm/manage-orders");
             }}
             className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "#manage-orders"
+              selectedItem === "/csm/manage-orders"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}

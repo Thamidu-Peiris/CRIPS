@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\SalesReports\ProductReport.js
+// frontend\src\dashboards\SalesReports\ProductReport.js
 import React from "react";
 import { Link } from "react-router-dom";
 import { PieChart, Pie, Cell } from "recharts";

@@ -1,3 +1,4 @@
+// frontend\src\components\CustomerHeader.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaAngleDown } from 'react-icons/fa';
@@ -205,13 +206,13 @@ const CustomerHeader = () => {
         <div className="flex space-x-3">
           <Link
             to="/customerregister"
-            className="border border-green-500 text-green-500 px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-500 hover:text-white transition duration-300"
+            className="border border-[#63A302] text-[#63A302] font-bold px-3 py-1 md:px-4 md:py-2 rounded-full hover:bg-[#609D03] hover:text-white transition duration-300"
           >
             Sign Up
           </Link>
           <Link
             to="/login"
-            className="bg-green-600 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-700 transition duration-300"
+            className="bg-[#82D504] font-bold text-white px-3 py-1 md:px-5 md:py-2 rounded-full hover:bg-[#609D03] transition duration-300"
           >
             Login
           </Link>

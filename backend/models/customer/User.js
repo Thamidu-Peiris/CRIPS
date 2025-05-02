@@ -1,4 +1,3 @@
-//CRIPS\backend\models\customer\User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -14,8 +13,9 @@ const userSchema = new mongoose.Schema({
   businessAddress: { type: String },
   taxId: { type: String },
   profileImage: { type: String },
-  status: { type: String, default: 'pending', enum: ['pending', 'approved', 'declined'] } // Add status field
-});
+  status: { type: String, default: 'pending', enum: ['pending', 'approved', 'declined'] },
+  approvedAt: { type: Date } // Add approvedAt field to track approval date
+}, { timestamps: true }); // Ensure timestamps are enabled for createdAt and updatedAt
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;

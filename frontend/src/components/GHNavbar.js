@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\components\GHnavbar.js
+// frontend\src\components\GHNavbar.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdNotificationsNone } from "react-icons/md";

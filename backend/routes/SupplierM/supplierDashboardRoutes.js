@@ -1,3 +1,4 @@
+// backend\routes\SupplierM\supplierDashboardRoutes.js
 const express = require('express');
 const router = express.Router();
 const supplierDashboardController = require('../../controllers/Supplier/supplierDashboardController');

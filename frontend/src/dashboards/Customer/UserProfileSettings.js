@@ -1,10 +1,9 @@
-// CRIPS\frontend\src\dashboards\Customer\UserProfileSettings.js
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import CustomerHeader from "../../components/CustomerHeader"; // Adjust the import path based on your structure
+import CustomerHeader from "../../components/CustomerHeader";
 import { FaLock, FaCamera, FaUserCircle } from "react-icons/fa";
-
+import { motion } from "framer-motion";
 
 const UserProfileSettings = () => {
   const navigate = useNavigate();
@@ -17,7 +16,8 @@ const UserProfileSettings = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [selectedFile, setSelectedFile] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" or "error"
 
   useEffect(() => {
     const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -74,10 +74,14 @@ const UserProfileSettings = () => {
         ? `http://localhost:5000${response.data.user.profileImage}`
         : "/default-profile.png";
       setProfileImage(newImagePath);
-      alert("Profile updated successfully!");
+      setMessage("Profile updated successfully!");
+      setMessageType("success");
+      setTimeout(() => setMessage(""), 3000); // Clear message after 3 seconds
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
+      setMessage("Failed to update profile.");
+      setMessageType("error");
+      setTimeout(() => setMessage(""), 3000);
     }
   };
 
@@ -89,11 +93,14 @@ const UserProfileSettings = () => {
           data: { email: userInfo.email },
         });
         localStorage.removeItem("userInfo");
-        alert("Account deleted successfully!");
-        navigate("/login");
+        setMessage("Account deleted successfully!");
+        setMessageType("success");
+        setTimeout(() => navigate("/login"), 3000); // Navigate after showing message
       } catch (error) {
         console.error("Error deleting account:", error);
-        alert("Failed to delete account.");
+        setMessage("Failed to delete account.");
+        setMessageType("error");
+        setTimeout(() => setMessage(""), 3000);
       }
     }
   };
@@ -102,140 +109,176 @@ const UserProfileSettings = () => {
     navigate("/customer/change-password");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    navigate("/");
-  };
-
   return (
-    <div className="font-sans min-h-screen bg-gray-100">
-      {/* 🔹 Navbar */}
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
+    <div className="min-h-screen bg-green-50 pt-0">
+      {/* Navigation */}
+      <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+        <motion.img
+          src="/logo.png"
+          alt="Logo"
+          className="h-12 transition-transform hover:scale-110"
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 0.5 }}
+        />
+        <div className="flex items-center space-x-8">
+          <Link
+            to="/"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Home
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/shop"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Shop
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/dashboard/orders"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Orders
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/about"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            About
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link
+            to="/contact"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
+          >
+            Contact Us
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
         </div>
-
-        {/* 🔹 Navigation Links */}
-        <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/orders" className="text-gray-600">Orders</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
-        </div>
-
-
-        {/* 🔹 Customer Header */}
         <CustomerHeader />
-
       </nav>
 
-      {/* 🔹 Breadcrumb Navigation (Optional, based on OrdersPage.js) */}
-      <div className="text-gray-500 mb-4 p-6">
-        <Link to="/" className="hover:underline">Home</Link> / Profile Settings
-      </div>
+      {/* Content */}
+      <div className="px-4 pb-12">
+        <div className="bg-white shadow-sm p-4 mx-4 mt-4 rounded-lg">
+          <div className="text-gray-500 text-sm">
+            <Link to="/" className="text-green-600 hover:text-green-700 transition">Home</Link> / Profile Settings
+          </div>
+        </div>
 
-      {/* 🔹 Profile Settings Content */}
-      <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6 text-green-700">Profile Settings</h2>
+        <h2 className="text-4xl font-extrabold text-green-800 mt-8 mb-6 text-center">Profile Settings</h2>
 
-        <div className="space-y-6">
-          <div className="flex flex-col items-center">
-            <div className="relative">
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
-                onError={(e) => {
-                  e.target.src = "/default-profile.png";
-                }}
-              />
-              <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-gray-200 p-2 rounded-full cursor-pointer">
-                <input
-                  id="profile-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                <FaCamera className="text-gray-600" />
-              </label>
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-3xl mx-auto animate-fade-in">
+          {message && (
+            <div
+              className={`p-6 rounded-lg text-center font-bold animate-fade-in mb-6 ${
+                messageType === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+              }`}
+            >
+              {message}
             </div>
-            <p className="text-gray-700 font-medium mt-2">{username}</p>
-          </div>
+          )}
 
-          <div>
-            <label className="block text-gray-700 mb-2">Email Address (confirmed)</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded-lg bg-gray-100"
-              disabled
-            />
-          </div>
+          <div className="space-y-4">
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative">
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-green-200 hover:scale-105 transition-transform"
+                  onError={(e) => {
+                    e.target.src = "/default-profile.png";
+                  }}
+                />
+                <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-full cursor-pointer hover:bg-green-700">
+                  <input
+                    id="profile-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <FaCamera />
+                </label>
+              </div>
+              <p className="text-gray-800 font-semibold text-lg mt-2">{username}</p>
+            </div>
 
-          <div>
-            <label className="block text-gray-700 mb-2">First Name</label>
-            <input
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full p-2 border rounded-lg bg-gray-100"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address (confirmed)</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full p-3 border border-gray-200 rounded-lg bg-gray-100 cursor-not-allowed text-gray-800"
+                disabled
+              />
+            </div>
 
-          <div>
-            <label className="block text-gray-700 mb-2">Last Name</label>
-            <input
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full p-2 border rounded-lg bg-gray-100"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-800"
+              />
+            </div>
 
-          <div>
-            <label className="block text-gray-700 mb-2">Phone Number</label>
-            <input
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="w-full p-2 border rounded-lg bg-gray-100"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-800"
+              />
+            </div>
 
-          <div>
-            <label className="block text-gray-700 mb-2">Address</label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full p-2 border rounded-lg bg-gray-100"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-800"
+              />
+            </div>
 
-          <div className="flex space-x-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full p-3 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-600 text-gray-800"
+              />
+            </div>
+
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={handleChangePassword}
+                className="flex items-center px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 hover:scale-105 transition-all duration-300"
+              >
+                <FaLock className="mr-2 text-gray-600" /> Change Password
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                className="flex items-center px-4 py-2 bg-red-100 text-red-800 rounded-lg hover:bg-red-200 hover:scale-105 transition-all duration-300"
+              >
+                <FaUserCircle className="mr-2 text-red-600" /> Delete Account
+              </button>
+            </div>
+
             <button
-              onClick={handleChangePassword}
-              className="flex items-center px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
+              onClick={handleSaveChanges}
+              className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 hover:scale-105 transition-all duration-300"
             >
-              <FaLock className="mr-2" /> Change Password
-            </button>
-            <button
-              onClick={handleDeleteAccount}
-              className="flex items-center px-4 py-2 bg-red-200 rounded-lg hover:bg-red-300 text-red-600"
-            >
-              <FaUserCircle className="mr-2" /> Delete Account
+              Save Changes
             </button>
           </div>
-
-          <button
-            onClick={handleSaveChanges}
-            className="w-full bg-green-700 text-white py-2 rounded-lg hover:bg-green-800"
-          >
-            Save Changes
-          </button>
         </div>
       </div>
     </div>

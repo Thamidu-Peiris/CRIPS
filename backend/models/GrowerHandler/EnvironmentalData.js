@@ -1,3 +1,4 @@
+// backend\models\GrowerHandler\EnvironmentalData.js
 const mongoose = require('mongoose');
 
 const environmentalDataSchema = new mongoose.Schema({

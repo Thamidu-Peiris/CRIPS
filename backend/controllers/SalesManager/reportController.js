@@ -1,4 +1,4 @@
-// backend/controllers/SalesManager/reportController.js
+// backend\controllers\SalesManager\reportController.js
 const Transaction = require("../../models/salesManager/FinancialModel");
 const Customer = require("../../models/salesManager/CustomerModel");
 const Payroll = require("../../models/salesManager/PayrollModel");

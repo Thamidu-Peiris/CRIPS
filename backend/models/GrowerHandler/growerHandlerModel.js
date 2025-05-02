@@ -1,4 +1,4 @@
-// backend/models/growerHandler/growerHandlerModel.js
+// backend\models\GrowerHandler\growerHandlerModel.js
 const mongoose = require("mongoose");
 
 const growerHandlerSchema = new mongoose.Schema({

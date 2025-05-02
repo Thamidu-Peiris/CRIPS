@@ -1,4 +1,4 @@
-// backend/models/JobApplication.js
+// backend\models\JobApplication.js
 const mongoose = require("mongoose");
 
 const jobApplicationSchema = new mongoose.Schema({

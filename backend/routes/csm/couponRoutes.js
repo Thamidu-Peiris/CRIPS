@@ -1,3 +1,4 @@
+// CRIPS\backend\routes\csm\couponRoutes.js
 const express = require('express');
 const router = express.Router();
 const Coupon = require('../../models/customer/Coupon');

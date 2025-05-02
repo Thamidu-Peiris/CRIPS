@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\SalesReports\FinancialReport.js
+// frontend\src\dashboards\SalesReports\FinancialReport.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 

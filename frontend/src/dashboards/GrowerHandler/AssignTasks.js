@@ -1,3 +1,4 @@
+// frontend\src\dashboards\GrowerHandler\AssignTasks.js
 import React, { useState } from "react";
 
 const AssignTasks = () => {
@@ -26,6 +27,25 @@ const AssignTasks = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitting task:", taskData);
+
+    //  validation for dueDate
+    const currentDate = new Date(); // Get today's date
+    const selectedDueDate = new Date(taskData.dueDate); // Convert dueDate string to Date object
+    
+    // Reset time to midnight for both dates to compare only the date portion
+    currentDate.setHours(0, 0, 0, 0);
+    selectedDueDate.setHours(0, 0, 0, 0);
+
+    // Check if dueDate is not strictly after today
+    if (selectedDueDate <= currentDate) {
+      setError("Due date must be in the future (after today)");
+      setIsSuccess(false);
+      return; // Stop submission if validation fails
+    }
+    
+
+    // Clear any previous error if validation passes
+    setError(null);
 
     try {
       const response = await fetch("http://localhost:5000/api/grower/tasks", {

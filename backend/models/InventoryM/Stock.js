@@ -1,4 +1,4 @@
-// backend/models/InventoryM/Stock.js
+// backend\models\InventoryM\Stock.js
 const mongoose = require('mongoose');
 
 const stockSchema = new mongoose.Schema({
