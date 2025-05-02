@@ -19,7 +19,7 @@ const AboutPage = () => {
   };
 
   return (
-    <div className="font-sans min-h-screen bg-green-50">
+    <div className="font-sans min-h-screen bg-white">
       {/* Navigation */}
       <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <motion.img
@@ -66,26 +66,9 @@ const AboutPage = () => {
             <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
         </div>
-        {userInfo ? (
+        
           <CustomerHeader />
-        ) : (
-          <div className="flex items-center space-x-8">
-            <Link
-              to="/customerregister"
-              className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
-            >
-              Sign Up
-              <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </Link>
-            <Link
-              to="/login"
-              className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
-            >
-              Login
-              <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </Link>
-          </div>
-        )}
+        
       </nav>
 
       {/* Breadcrumb Navigation */}
@@ -97,7 +80,7 @@ const AboutPage = () => {
 
       {/* About Section */}
       <div className="max-w-7xl mx-auto bg-white shadow-lg p-12 mt-10 rounded-xl text-center animate-fade-in">
-        <h2 className="text-5xl font-extrabold text-green-800 mb-6">About Us</h2>
+        <h2 className="text-5xl font-extrabold text-[#63A302] mb-6">About Us</h2>
         <p className="text-lg text-gray-700 max-w-3xl mx-auto">
           Welcome to AquaPlants – your trusted source for high-quality aquatic plants.
           We specialize in providing fresh, vibrant, and healthy plants for all aquatic enthusiasts.
@@ -107,24 +90,24 @@ const AboutPage = () => {
         {/* Our Mission & Vision */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
           <motion.div
-            className="bg-green-100 rounded-xl shadow-md p-6 hover:scale-105 transition-all duration-300"
+            className="bg-[#F1FFDD] rounded-xl shadow-md p-6 hover:scale-105 transition-all duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <h3 className="text-3xl font-bold text-gray-800 mb-4">Our Mission</h3>
+            <h3 className="text-3xl font-bold text-[#528701] mb-4">Our Mission</h3>
             <p className="text-gray-700">
               Our mission is to promote sustainable aquascaping by providing
               the highest quality aquatic plants while ensuring environmental responsibility.
             </p>
           </motion.div>
           <motion.div
-            className="bg-green-100 rounded-xl shadow-md p-6 hover:scale-105 transition-all duration-300"
+            className="bg-[#F1FFDD] rounded-xl shadow-md p-6 hover:scale-105 transition-all duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <h3 className="text-3xl font-bold text-gray-800 mb-4">Our Vision</h3>
+            <h3 className="text-3xl font-bold text-[#528701] mb-4">Our Vision</h3>
             <p className="text-gray-700">
               We envision a world where aquatic life thrives in every home,
               bringing tranquility and beauty through well-maintained aquariums.
@@ -134,7 +117,7 @@ const AboutPage = () => {
 
         {/* Our Team */}
         <div className="mt-12">
-          <h3 className="text-3xl font-bold text-gray-800 mb-6">Meet Our Team</h3>
+          <h3 className="text-3xl font-bold text-gray-500 mb-6">Meet Our Team</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((id) => (
               <motion.div
@@ -147,7 +130,7 @@ const AboutPage = () => {
                 <img
                   src={`/team${id}.jpg`}
                   alt={`Team Member ${id}`}
-                  className="w-24 h-24 object-cover rounded-full mx-auto border-2 border-green-200"
+                  className="w-24 h-24 object-cover rounded-full mx-auto border-2 border-white"
                   onError={(e) => (e.target.src = "/default-team.jpg")}
                 />
                 <h4 className="text-lg font-bold text-gray-800 mt-4">Team Member {id}</h4>
@@ -159,7 +142,7 @@ const AboutPage = () => {
       </div>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-10 border-t-4 border-green-600">
+      <footer className="bg-gradient-to-r from-gray-900 to-gray-800 text-white p-10 border-t-4 border-[#87de04]">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>

@@ -454,7 +454,7 @@ const Home = () => {
             ) : (
               <div className="flex space-x-4">
                 < Link to="/login">
-                  <button className="px-4 py-2 bg-transparent border-2 border-[#86d411] text-[#86d411] font-bold text-lg rounded-full hover:bg-[#6fb309] hover:text-white hover:border-[#6fb309] transition duration-300">
+                  <button className="px-6 py-2 bg-transparent border-2 border-[#86d411] text-[#86d411] font-bold text-lg rounded-full hover:bg-[#6fb309] hover:text-white hover:border-[#6fb309] transition duration-300">
                     Login
                   </button>
                 </Link>
