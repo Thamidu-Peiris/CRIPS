@@ -627,7 +627,7 @@ const Home = () => {
 
       {/* Featured Plants */}
       <section className="py-16 bg-gray-50">
-        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-8 animate-fade-in">
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-[#66A901] mb-8 animate-fade-in">
           Featured Plants
         </h2>
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center gap-8 px-4">
@@ -643,9 +643,9 @@ const Home = () => {
                 className="w-full h-44 object-cover rounded-xl mb-4"
                 onError={(e) => (e.target.src = "/default-plant.jpg")}
               />
-              <h3 className="text-lg font-semibold text-green-800 mb-2">{plant.name}</h3>
-              <p className="text-green-600 font-bold text-xl mb-2">{plant.price}</p>
-              <button className="px-5 py-2 text-sm rounded-full bg-green-100 text-green-800 border border-green-600 hover:bg-green-200 hover:scale-105 transition-all duration-300 mt-auto">
+              <h3 className="text-lg font-semibold text-[#487602] mb-2">{plant.name}</h3>
+              <p className="text-[#6AB000] font-bold text-xl mb-2">{plant.price}</p>
+              <button className="px-5 py-2 text-sm rounded-full bg-[#DBFFA4] text-[#4D7F01] border border-green-600 hover:bg-[#87de04] hover:text-white font-bold hover:scale-105 transition-all duration-300 mt-auto">
                 View Details
               </button>
             </div>
@@ -654,7 +654,7 @@ const Home = () => {
         <div className="text-center mt-8 animate-fade-in delay-300">
           <Link
             to="/shop"
-            className="inline-block px-8 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition transform hover:scale-105"
+            className="inline-block px-8 py-3 bg-[#82D702] text-white font-semibold rounded-full hover:bg-[#6AB000] transition transform hover:scale-105"
           >
             See More Plants
           </Link>
@@ -664,7 +664,7 @@ const Home = () => {
       {/* Customer Reviews */}
       <section className="py-16 bg-gray-100 relative overflow-hidden">
         <div className="absolute inset-0 bg-opacity-10 bg-green-50"></div>
-        <h2 className="text-3xl md:text-4xl text-center font-bold text-green-800 mb-12 animate-fade-in">
+        <h2 className="text-3xl md:text-4xl text-center font-bold text-[#66A901] mb-12 animate-fade-in">
           Hear from Our Awesome Users!
         </h2>
         <div className="max-w-7xl mx-auto px-4">
@@ -687,7 +687,7 @@ const Home = () => {
                   className="w-16 h-16 rounded-full mb-4 object-cover border-2 border-green-200"
                   onError={(e) => (e.target.src = "/default-user.jpg")}
                 />
-                <h3 className="text-lg font-semibold text-green-800 mb-2">{review.name}</h3>
+                <h3 className="text-lg font-semibold text-[#4D8100] mb-2">{review.name}</h3>
                 <p className="text-yellow-500 mb-2">★★★★★</p>
                 <p className="text-gray-600 text-center text-sm">{review.review}</p>
               </div>
@@ -699,7 +699,7 @@ const Home = () => {
                 key={index}
                 onClick={() => handleDotClick(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  Math.floor(currentReviewIndex / 3) === index ? "bg-green-600 scale-125" : "bg-gray-400"
+                  Math.floor(currentReviewIndex / 3) === index ? "bg-[#87de04] scale-125" : "bg-gray-400"
                 }`}
               />
             ))}
@@ -763,7 +763,7 @@ const Home = () => {
         <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
         <button
           onClick={handleBackToTop}
-          className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-green-700 transition transform hover:scale-105"
+          className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-[#589101] transition transform hover:scale-105"
         >
           <FaChevronUp />
         </button>
