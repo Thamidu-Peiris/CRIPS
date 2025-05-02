@@ -534,7 +534,7 @@ const Home = () => {
                   aria-label={`Select ${category.name} category`}
                 >
                   <div
-                    className="relative text-4xl mb-3 text-gray-400 group-hover:text-green-600 transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
+                    className="relative text-4xl mb-3 text-[#C3C5C0] group-hover:text-[#87de04] transition-all duration-300 cursor-pointer pointer-events-auto transform group-hover:scale-110 hover:text-green-600 hover:scale-110"
                     tabIndex={0}
                     role="button"
                     aria-label={`Select ${category.name} category`}
@@ -547,7 +547,7 @@ const Home = () => {
                   >
                     {category.icon}
                   </div>
-                  <span className="text-lg font-semibold text-gray-500 group-hover:text-green-600 transition-all duration-300">
+                  <span className="text-lg font-semibold text-[#A0A29D] group-hover:text-[#74C001] transition-all duration-300">
                     {category.name}
                   </span>
                 </Link>
