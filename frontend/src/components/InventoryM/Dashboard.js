@@ -52,7 +52,7 @@ export default function Dashboard() {
             const updateDate = new Date(s.updatedAt || s.createdAt);
             return updateDate >= sevenDaysAgo;
           },
-          "Stock Update Count"
+          "Stock Updates"
         );
         const expiringStocks = calculateCount(
           stocksData,
