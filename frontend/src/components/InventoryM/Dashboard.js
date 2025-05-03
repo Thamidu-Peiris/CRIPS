@@ -11,52 +11,92 @@ Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Toolti
 export default function Dashboard() {
   const [stocks, setStocks] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
-  const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState({
-    totalStocks: 0,
-    lowStocks: 0,
-    totalSuppliers: 0,
-    recentOrders: 0,
+    stockUpdateCount: { value: 0, text: "Stock Update Count" },
+    totalSuppliers: { value: 0, text: "Total Suppliers" },
+    expiringStocks: { value: 0, text: "Expiring Stocks" },
+    recentSuppliers: { value: 0, text: "Recent Suppliers" },
   });
   const [authError, setAuthError] = useState("");
   const navigate = useNavigate();
 
+  // Reusable function to calculate counts with custom condition and text
+  const calculateCount = (data, condition, text) => {
+    if (!Array.isArray(data)) {
+      console.error(`Invalid data for ${text}: Expected an array`, data);
+      return { value: 0, text };
+    }
+    const count = condition ? data.filter(condition).length : data.length;
+    return { value: count, text };
+  };
+
   const fetchData = async () => {
     try {
       // Fetch stocks
-      const stockResponse = await axios.get("http://localhost:5000/api/stocks");
-      const stocksData = stockResponse.data;
-      setStocks(stocksData);
-
-      // Fetch suppliers
-      const supplierResponse = await axios.get("http://localhost:5000/api/suppliers");
-      const suppliersData = supplierResponse.data;
-      setSuppliers(suppliersData);
-
-      // Fetch orders
-      const orderResponse = await axios.get("http://localhost:5000/api/order-stock/orders");
-      const ordersData = orderResponse.data;
-      setOrders(ordersData);
-
-      // Calculate stats
-      const totalStocks = stocksData.length;
-      const lowStocks = stocksData.filter(s => s.quantity < 40).length;
-      const totalSuppliers = suppliersData.length;
-      const recentOrders = ordersData.filter(o => {
-        const orderDate = new Date(o.createdAt);
+      try {
+        const stockResponse = await axios.get("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
+        console.log("Stock API response:", stockResponse.data);
+        const { stocks: stocksData } = stockResponse.data;
+        if (!Array.isArray(stocksData)) {
+          console.error("Invalid stock data: 'stocks' is not an array:", stocksData);
+          throw new Error("Invalid stock data: Expected an array of stocks.");
+        }
+        setStocks(stocksData);
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        return orderDate >= sevenDaysAgo;
-      }).length;
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+        const stockUpdateCount = calculateCount(
+          stocksData,
+          (s) => {
+            const updateDate = new Date(s.updatedAt || s.createdAt);
+            return updateDate >= sevenDaysAgo;
+          },
+          "Stock Update Count"
+        );
+        const expiringStocks = calculateCount(
+          stocksData,
+          (s) => {
+            if (!s.expirationDate) return false;
+            const expirationDate = new Date(s.expirationDate);
+            return expirationDate <= thirtyDaysFromNow && expirationDate >= new Date();
+          },
+          "Expiring Stocks"
+        );
+        setStats((prev) => ({ ...prev, stockUpdateCount, expiringStocks }));
+      } catch (stockError) {
+        console.error("Stock fetch error:", stockError.message);
+        setAuthError(`Failed to fetch stocks: ${stockError.message}`);
+        // Continue with other fetches
+      }
 
-      setStats({
-        totalStocks,
-        lowStocks,
-        totalSuppliers,
-        recentOrders,
-      });
+      // Fetch suppliers
+      try {
+        const supplierResponse = await axios.get("http://localhost:5000/api/suppliers");
+        console.log("Supplier API response:", supplierResponse.data);
+        const suppliersData = supplierResponse.data;
+        if (!Array.isArray(suppliersData)) {
+          console.error("Invalid supplier data: Expected an array:", suppliersData);
+          throw new Error("Invalid supplier data: Expected an array of suppliers.");
+        }
+        setSuppliers(suppliersData);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const totalSuppliers = calculateCount(suppliersData, null, "Total Suppliers");
+        const recentSuppliers = calculateCount(
+          suppliersData,
+          (s) => new Date(s.createdAt) >= sevenDaysAgo,
+          "Recent Suppliers"
+        );
+        setStats((prev) => ({ ...prev, totalSuppliers, recentSuppliers }));
+      } catch (supplierError) {
+        console.error("Supplier fetch error:", supplierError.message);
+        setAuthError(prev => prev ? `${prev}; Failed to fetch suppliers: ${supplierError.message}` : `Failed to fetch suppliers: ${supplierError.message}`);
+        // Continue
+      }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Unexpected error in fetchData:", error.message);
+      setAuthError(prev => prev ? `${prev}; Unexpected error: ${error.message}` : `Unexpected error: ${error.message}`);
     }
   };
 
@@ -143,35 +183,6 @@ export default function Dashboard() {
     },
   };
 
-  // Stock Status Distribution (Pie Chart)
-  const pieChartData = {
-    labels: ["Low Stocks", "Adequate Stocks"],
-    datasets: [
-      {
-        data: [
-          stats.lowStocks,
-          stats.totalStocks - stats.lowStocks,
-        ],
-        backgroundColor: ["#FF6384", "#36A2EB"],
-        hoverBackgroundColor: ["#FF4D6D", "#2F86D6"],
-      },
-    ],
-  };
-
-  const pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: "bottom" },
-      title: {
-        display: true,
-        text: "Stock Status Distribution",
-        font: { size: 16 },
-        padding: { top: 10, bottom: 20 },
-      },
-    },
-  };
-
   // New Suppliers (Last 7 Days) (Bar Chart)
   const newSuppliersData = {
     labels: getLast7Days().map(date => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
@@ -216,12 +227,55 @@ export default function Dashboard() {
     },
   };
 
-  const handleStocksClick = () => {
-    navigate("/in-stock");
+  // Stock Updates by Category (Pie Chart)
+  const pieChartData = {
+    labels: [...new Set(stocks.map(s => s.category || "Unknown"))],
+    datasets: [
+      {
+        data: [...new Set(stocks.map(s => s.category || "Unknown"))].map(category => {
+          const sevenDaysAgo = new Date();
+          sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+          return stocks.filter(s => {
+            const updateDate = new Date(s.updatedAt || s.createdAt);
+            return (s.category || "Unknown") === category && updateDate >= sevenDaysAgo;
+          }).length;
+        }),
+        backgroundColor: [
+          "#FF6384",
+          "#36A2EB",
+          "#FFCE56",
+          "#4BC0C0",
+          "#9966FF",
+          "#FF9F40",
+        ],
+        hoverBackgroundColor: [
+          "#FF4D6D",
+          "#2F86D6",
+          "#E6B800",
+          "#3BA8A8",
+          "#7A52CC",
+          "#E68A00",
+        ],
+      },
+    ],
   };
 
-  const handleOrderStockClick = () => {
-    navigate("/order-stock");
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "bottom" },
+      title: {
+        display: true,
+        text: "Stock Updates by Category (Last 7 Days)",
+        font: { size: 16 },
+        padding: { top: 10, bottom: 20 },
+      },
+    },
+  };
+
+  const handleStocksClick = () => {
+    navigate("/in-stock");
   };
 
   const handleSuppliersClick = () => {
@@ -246,10 +300,10 @@ export default function Dashboard() {
         <h1 className="text-4xl font-bold text-green-800 mb-6"></h1>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
           {[
-            { title: "Total Stocks", value: stats.totalStocks, onClick: handleStocksClick, clickable: true },
-            { title: "Low Stocks", value: stats.lowStocks, onClick: handleStocksClick, clickable: true },
-            { title: "Total Suppliers", value: stats.totalSuppliers, onClick: handleSuppliersClick, clickable: true },
-            { title: "Recent Orders", value: stats.recentOrders, onClick: handleOrderStockClick, clickable: true },
+            { title: stats.stockUpdateCount.text, value: stats.stockUpdateCount.value, onClick: handleStocksClick, clickable: true },
+            { title: stats.totalSuppliers.text, value: stats.totalSuppliers.value, onClick: handleSuppliersClick, clickable: true },
+            { title: stats.expiringStocks.text, value: stats.expiringStocks.value, onClick: handleStocksClick, clickable: true },
+            { title: stats.recentSuppliers.text, value: stats.recentSuppliers.value, onClick: handleSuppliersClick, clickable: true },
           ].map((item, index) => (
             <div 
               key={index} 
@@ -266,10 +320,10 @@ export default function Dashboard() {
             <Bar data={barChartData} options={barChartOptions} />
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
-            <Pie data={pieChartData} options={pieChartOptions} />
+            <Bar data={newSuppliersData} options={newSuppliersChartOptions} />
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
-            <Bar data={newSuppliersData} options={newSuppliersChartOptions} />
+            <Pie data={pieChartData} options={pieChartOptions} />
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-md mt-6">
