@@ -29,14 +29,25 @@ const PlantDetails = () => {
     const fetchPopularPlants = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        const sortedPlants = data
+        console.log("Popular plants API response:", data); // Debug log
+        const stocksData = data.stocks || [];
+        if (!Array.isArray(stocksData)) {
+          console.error("Expected an array for stocks, received:", stocksData);
+          setPopularPlants([]);
+          return;
+        }
+        const sortedPlants = stocksData
           .filter((p) => p.quantity > 0 && p._id !== id)
-          .sort((a, b) => b.quantity - a.quantity)
+          .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
           .slice(0, 4);
         setPopularPlants(sortedPlants);
       } catch (error) {
         console.error("Error fetching popular plants:", error);
+        setPopularPlants([]);
       }
     };
     fetchPopularPlants();
@@ -89,20 +100,23 @@ const PlantDetails = () => {
         <div className="flex items-center space-x-8">
           <Link to="/" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
             Home
-            <span className="absolute left-0  bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link to="/shop" className="text-green-700 font-bold text-lg hover:text-green-600 transition relative group">
             Shop
             <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-100 transition-transform duration-300"></span>
           </Link>
-          <Link to="/careers" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group ">Careers
-          <span className="absolute left-0  bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-           </Link>
-          <Link to="/about" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">About
-          <span className="absolute left-0  bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          <Link to="/careers" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            Careers
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
-          <Link to="/contact" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">Contact Us
-          <span className="absolute left-0  bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          <Link to="/about" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            About
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+          </Link>
+          <Link to="/contact" className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group">
+            Contact Us
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
         </div>
         <CustomerHeader />
@@ -172,7 +186,7 @@ const PlantDetails = () => {
                   <input
                     type="number"
                     value={quantity}
-                    onChange={(e) => setQuantity(Math.max(1, Math.min(plant.quantity, parseInt(e.target.value))))}
+                    onChange={(e) => setQuantity(Math.max(1, Math.min(plant.quantity, parseInt(e.target.value || 1))))}
                     className="w-16 text-center bg-transparent text-green-900 font-medium text-lg focus:outline-none"
                     min="1"
                     max={plant.quantity}
