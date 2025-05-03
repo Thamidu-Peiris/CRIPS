@@ -264,7 +264,17 @@ export default function Dashboard() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "bottom" },
+      legend: {
+        position: "right", // Legend on the right side
+        labels: {
+          boxWidth: 20, // Width of the color box
+          boxHeight: 20, // Height of the color box
+          padding: 10, // Space between legend items
+          font: {
+            size: 12, // Font size of legend text
+          },
+        },
+      },
       title: {
         display: true,
         text: "Stock Updates by Category (Last 7 Days)",
@@ -320,10 +330,10 @@ export default function Dashboard() {
             <Bar data={barChartData} options={barChartOptions} />
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
-            <Bar data={newSuppliersData} options={newSuppliersChartOptions} />
+            <Pie data={pieChartData} options={pieChartOptions} />
           </div>
           <div className="bg-white p-6 rounded-2xl shadow-md" style={{ height: "300px" }}>
-            <Pie data={pieChartData} options={pieChartOptions} />
+            <Bar data={newSuppliersData} options={newSuppliersChartOptions} />
           </div>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-md mt-6">
