@@ -15,10 +15,21 @@ const Shop = () => {
     const fetchStockedPlants = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/inventory/plantstock/allPlantStocks");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setPlants(data);
+        // Extract the stocks array from the response
+        const stocksData = data.stocks || [];
+        if (!Array.isArray(stocksData)) {
+          console.error("Expected an array for stocks, received:", stocksData);
+          setPlants([]);
+          return;
+        }
+        setPlants(stocksData);
       } catch (error) {
         console.error("Error fetching stocked plants:", error);
+        setPlants([]); // Set to empty array on error
       }
     };
     fetchStockedPlants();
