@@ -1,4 +1,3 @@
-// frontend\src\pages\SysManager\profile.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../../dashboards/SM/sideBar";
@@ -152,18 +151,18 @@ const Profile = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 font-sans">
+        <div className="flex min-h-screen bg-teal-50 font-sans">
             <Sidebar />
             <div className="ml-64 flex-1 p-6">
-                <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-6 rounded-xl shadow-lg mb-6">
+                <div className="bg-gradient-to-r from-teal-300 to-teal-500 text-white p-6 rounded-xl shadow-md mb-6">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h1 className="text-4xl font-extrabold tracking-tight">System Manager Profile</h1>
-                            <p className="text-xl mt-2 font-light">Welcome, {managerName}!</p>
+                            <h1 className="text-4xl font-extrabold tracking-tight text-green-900">System Manager Profile</h1>
+                            <p className="text-xl mt-2 font-light text-gray-100">Welcome, {managerName}!</p>
                         </div>
                         <button
                             onClick={() => navigate("/sm-dashboard")}
-                            className="flex items-center bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white px-5 py-3 rounded-xl transition duration-300 shadow-md transform hover:scale-105 active:scale-95"
+                            className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-5 py-3 rounded-xl transition duration-300 shadow-md transform hover:scale-105 active:scale-95"
                         >
                             <FaArrowLeft className="mr-2" /> Back to Dashboard
                         </button>
@@ -171,30 +170,30 @@ const Profile = () => {
                 </div>
 
                 {error && (
-                    <div className="bg-red-500/20 border-l-4 border-red-500 text-red-300 p-4 mb-6 rounded-xl flex justify-between items-center shadow-md">
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl flex justify-between items-center shadow-md">
                         <p>{error}</p>
                         <button
                             onClick={fetchProfile}
-                            className="flex items-center bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-4 py-2 rounded-xl transition duration-300 transform hover:scale-105 active:scale-95"
+                            className="flex items-center bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition duration-300 transform hover:scale-105 active:scale-95"
                         >
                             <FaRedo className="mr-2" /> Retry
                         </button>
                     </div>
                 )}
                 {successMessage && (
-                    <div className="bg-green-500/20 border-l-4 border-green-500 text-green-300 p-4 mb-6 rounded-xl shadow-md">
+                    <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-xl shadow-md">
                         <p>{successMessage}</p>
                     </div>
                 )}
 
                 <div className="flex justify-center">
-                    <div className="bg-gray-800/80 backdrop-blur-lg p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-700/50">
+                    <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md border border-gray-200">
                         {loading ? (
-                            <p className="text-center text-gray-300">Loading profile...</p>
+                            <p className="text-center text-gray-600">Loading profile...</p>
                         ) : (
                             <>
                                 <div className="flex justify-center mb-8">
-                                    <div className="relative w-28 h-28 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center shadow-lg transform transition duration-300 hover:scale-110">
+                                    <div className="relative w-28 h-28 bg-green-500 rounded-full flex items-center justify-center shadow-lg transform transition duration-300 hover:scale-110">
                                         <FaUser className="text-5xl text-white" />
                                         <div className="absolute inset-0 rounded-full border-4 border-white/30"></div>
                                     </div>
@@ -203,50 +202,50 @@ const Profile = () => {
                                 {!editing ? (
                                     <div className="space-y-6">
                                         <div className="flex items-center">
-                                            <FaUser className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                First Name: <span className="font-normal text-white">{admin.firstName || "N/A"}</span>
+                                            <FaUser className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                First Name: <span className="font-normal text-gray-800">{admin.firstName || "N/A"}</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <FaUser className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                Last Name: <span className="font-normal text-white">{admin.lastName || "N/A"}</span>
+                                            <FaUser className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                Last Name: <span className="font-normal text-gray-800">{admin.lastName || "N/A"}</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <FaUser className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                Username: <span className="font-normal text-white">{admin.username || "N/A"}</span>
+                                            <FaUser className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                Username: <span className="font-normal text-gray-800">{admin.username || "N/A"}</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <FaEnvelope className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                Email: <span className="font-normal text-white">{admin.email || "N/A"}</span>
+                                            <FaEnvelope className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                Email: <span className="font-normal text-gray-800">{admin.email || "N/A"}</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <FaPhone className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                Contact: <span className="font-normal text-white">{admin.contactNo || "N/A"}</span>
+                                            <FaPhone className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                Contact: <span className="font-normal text-gray-800">{admin.contactNo || "N/A"}</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <FaBirthdayCake className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                DOB: <span className="font-normal text-white">{admin.dob ? new Date(admin.dob).toLocaleDateString() : "N/A"}</span>
+                                            <FaBirthdayCake className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                DOB: <span className="font-normal text-gray-800">{admin.dob ? new Date(admin.dob).toLocaleDateString() : "N/A"}</span>
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <FaMapMarkerAlt className="text-cyan-400 mr-3 text-xl" />
-                                            <p className="text-lg font-semibold text-gray-300">
-                                                Address: <span className="font-normal text-white">{admin.address || "N/A"}</span>
+                                            <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
+                                            <p className="text-lg font-semibold text-gray-600">
+                                                Address: <span className="font-normal text-gray-800">{admin.address || "N/A"}</span>
                                             </p>
                                         </div>
                                         <button
                                             onClick={() => setEditing(true)}
-                                            className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center shadow-md transform hover:scale-105 active:scale-95"
+                                            className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center shadow-md transform hover:scale-105 active:scale-95"
                                             disabled={loading}
                                         >
                                             <FaEdit className="mr-2" /> Edit Profile
@@ -255,99 +254,99 @@ const Profile = () => {
                                 ) : (
                                     <form onSubmit={handleSubmit} className="space-y-6">
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaUser className="mr-2 text-cyan-400" /> First Name
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaUser className="mr-2 text-green-500" /> First Name
                                             </label>
                                             <input
                                                 type="text"
                                                 name="firstName"
                                                 value={formData.firstName}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
                                         </div>
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaUser className="mr-2 text-cyan-400" /> Last Name
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaUser className="mr-2 text-green-500" /> Last Name
                                             </label>
                                             <input
                                                 type="text"
                                                 name="lastName"
                                                 value={formData.lastName}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
                                         </div>
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaUser className="mr-2 text-cyan-400" /> Username
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaUser className="mr-2 text-green-500" /> Username
                                             </label>
                                             <input
                                                 type="text"
                                                 name="username"
                                                 value={formData.username}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
                                         </div>
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaEnvelope className="mr-2 text-cyan-400" /> Email
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaEnvelope className="mr-2 text-green-500" /> Email
                                             </label>
                                             <input
                                                 type="email"
                                                 name="email"
                                                 value={formData.email}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
                                         </div>
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaPhone className="mr-2 text-cyan-400" /> Contact No
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaPhone className="mr-2 text-green-500" /> Contact No
                                             </label>
                                             <input
                                                 type="text"
                                                 name="contactNo"
                                                 value={formData.contactNo}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
                                         </div>
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaBirthdayCake className="mr-2 text-cyan-400" /> DOB
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaBirthdayCake className="mr-2 text-green-500" /> DOB
                                             </label>
                                             <input
                                                 type="date"
                                                 name="dob"
                                                 value={formData.dob}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
                                         </div>
                                         <div className="relative">
-                                            <label className="block text-gray-300 font-semibold mb-1 flex items-center">
-                                                <FaMapMarkerAlt className="mr-2 text-cyan-400" /> Address
+                                            <label className="block text-gray-600 font-semibold mb-1 flex items-center">
+                                                <FaMapMarkerAlt className="mr-2 text-green-500" /> Address
                                             </label>
                                             <input
                                                 type="text"
                                                 name="address"
                                                 value={formData.address}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
                                                 required
                                                 disabled={loading}
                                             />
@@ -355,7 +354,7 @@ const Profile = () => {
                                         <div className="flex space-x-4">
                                             <button
                                                 type="submit"
-                                                className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center shadow-md transform hover:scale-105 active:scale-95"
+                                                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center shadow-md transform hover:scale-105 active:scale-95"
                                                 disabled={loading}
                                             >
                                                 <FaSave className="mr-2" /> {loading ? "Saving..." : "Save Changes"}
@@ -363,7 +362,7 @@ const Profile = () => {
                                             <button
                                                 type="button"
                                                 onClick={handleCancel}
-                                                className="w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center shadow-md transform hover:scale-105 active:scale-95"
+                                                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center shadow-md transform hover:scale-105 active:scale-95"
                                                 disabled={loading}
                                             >
                                                 <FaTimes className="mr-2" /> Cancel
