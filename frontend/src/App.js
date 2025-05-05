@@ -48,7 +48,7 @@ import TrackingPage from "./dashboards/Customer/TrackingPage";
 import CustomerOrders from "./dashboards/TransportManager/CustomerOrders.js";
 import ManageOrders from "./dashboards/CSM/ManageOrders";
 import OrderStatusHistory from "./dashboards/Customer/OrderStatusHistory";
-
+import CreateCoupons from './dashboards/CSM/CreateCoupons';
 
 
 
@@ -114,6 +114,7 @@ function App() {
         <Route path="/csm/dashboard" element={<CustomerServiceDashboard />} />
         <Route path="/csm/customer-requests" element={<CustomerRequests />} />
         <Route path="/csm/customers-list" element={<CustomersList />} />
+        <Route path="/csm/coupons" element={<CreateCoupons />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CutterDashboard/>} />
         
