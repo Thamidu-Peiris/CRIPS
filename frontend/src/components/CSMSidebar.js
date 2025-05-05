@@ -1,53 +1,63 @@
 // frontend\src\components\CSMSidebar.js
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Add these imports
+import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
 import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown } from "react-icons/fi";
 
 const CSMSidebar = () => {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false);
-  const [customerManagementOpen, setCustomerManagementOpen] = useState(false); // Add state for Customer Management dropdown
-  const [selectedItem, setSelectedItem] = useState("/csm/dashboard"); // Default selected item
-  const location = useLocation(); // Get current route
-  const navigate = useNavigate(); // For programmatic navigation
+  const [customerManagementOpen, setCustomerManagementOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false); // New state for Settings dropdown
+  const [selectedItem, setSelectedItem] = useState("/csm/dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  // Sync selectedItem with current route on mount and route change
   useEffect(() => {
     const currentPath = location.pathname;
     setSelectedItem(currentPath);
 
-    // Automatically open Help Center dropdown if on a related route
+    // Automatically open Help Center dropdown
     if (
       currentPath === "/csm/knowledge-base" ||
-      currentPath === "/dashboard/support-tickets"
+      currentPath === "/csm/support-tickets"
     ) {
       setHelpCenterOpen(true);
     } else {
       setHelpCenterOpen(false);
     }
 
-    // Automatically open Customer Management dropdown if on a related route
+    // Automatically open Customer Management dropdown
     if (
-      currentPath === "/customer-management" ||
-      currentPath === "/customer-requests"
+      currentPath === "/csm/customers-list" ||
+      currentPath === "/csm/customer-requests"
     ) {
       setCustomerManagementOpen(true);
     } else {
       setCustomerManagementOpen(false);
     }
+
+    // Automatically open Settings dropdown
+    if (
+      currentPath === "/csm/update-profile" ||
+      currentPath === "/csm/change-password"
+    ) {
+      setSettingsOpen(true);
+    } else {
+      setSettingsOpen(false);
+    }
   }, [location.pathname]);
 
   const handleItemClick = (href) => {
     if (href === "#help-center") {
-      // Toggle Help Center dropdown without navigating
       setHelpCenterOpen(!helpCenterOpen);
       setSelectedItem(href);
     } else if (href === "#customer-management") {
-      // Toggle Customer Management dropdown without navigating
       setCustomerManagementOpen(!customerManagementOpen);
       setSelectedItem(href);
+    } else if (href === "#settings") {
+      setSettingsOpen(!settingsOpen);
+      setSelectedItem(href);
     } else {
-      // Navigate to the route and update selected item
       setSelectedItem(href);
       navigate(href);
     }
@@ -90,7 +100,6 @@ const CSMSidebar = () => {
             <FiShoppingCart className="mr-3" /> Manage Orders
           </a>
         </li>
-        
         <li>
           <a
             href="#shipments"
@@ -115,7 +124,7 @@ const CSMSidebar = () => {
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
               selectedItem === "#help-center" ||
               selectedItem === "/csm/knowledge-base" ||
-              selectedItem === "/dashboard/support-tickets"
+              selectedItem === "/csm/support-tickets"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
@@ -127,7 +136,6 @@ const CSMSidebar = () => {
               className={`transition-transform ${helpCenterOpen ? "rotate-180" : ""}`}
             />
           </button>
-
           {helpCenterOpen && (
             <ul className="ml-8 mt-2 space-y-2">
               <li>
@@ -172,8 +180,8 @@ const CSMSidebar = () => {
             onClick={() => handleItemClick("#customer-management")}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
               selectedItem === "#customer-management" ||
-              selectedItem === "/customer-management" ||
-              selectedItem === "/customer-requests"
+              selectedItem === "/csm/customers-list" ||
+              selectedItem === "/csm/customer-requests"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
@@ -185,7 +193,6 @@ const CSMSidebar = () => {
               className={`transition-transform ${customerManagementOpen ? "rotate-180" : ""}`}
             />
           </button>
-
           {customerManagementOpen && (
             <ul className="ml-8 mt-2 space-y-2">
               <li>
@@ -240,21 +247,62 @@ const CSMSidebar = () => {
             <FiTag className="mr-3" /> Discounts & Promotions
           </a>
         </li>
+
+        {/* Settings with Dropdown */}
         <li>
-          <a
-            href="#settings"
-            onClick={(e) => {
-              e.preventDefault();
-              handleItemClick("#settings");
-            }}
-            className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "#settings"
+          <button
+            onClick={() => handleItemClick("#settings")}
+            className={`flex items-center justify-between w-full p-3 rounded-lg ${
+              selectedItem === "#settings" ||
+              selectedItem === "/csm/update-profile" ||
+              selectedItem === "/csm/change-password"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <FiSettings className="mr-3" /> Settings
-          </a>
+            <span className="flex items-center">
+              <FiSettings className="mr-3" /> Settings
+            </span>
+            <FiChevronDown
+              className={`transition-transform ${settingsOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+          {settingsOpen && (
+            <ul className="ml-8 mt-2 space-y-2">
+              <li>
+                <a
+                  href="/update-profile"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleItemClick("/update-profile");
+                  }}
+                  className={`block p-2 rounded-lg ${
+                    selectedItem === "/update-profile"
+                      ? "bg-green-200 text-gray-800"
+                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
+                  }`}
+                >
+                  Update Profile
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/change-password"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleItemClick("/change-password");
+                  }}
+                  className={`block p-2 rounded-lg ${
+                    selectedItem === "/change-password"
+                      ? "bg-green-200 text-gray-800"
+                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
+                  }`}
+                >
+                  Change Password
+                </a>
+              </li>
+            </ul>
+          )}
         </li>
       </ul>
     </nav>
