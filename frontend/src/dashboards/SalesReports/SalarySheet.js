@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Modal from "react-modal";
-import jsPDF from "jspdf"; // For PDF export
-import autoTable from "jspdf-autotable"; // Import autoTable directly
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
 // Bind modal to your appElement for accessibility
 Modal.setAppElement("#root");
@@ -265,9 +267,7 @@ const SalarySheet = () => {
     document.body.removeChild(link);
   };
 
-
   // Export to PDF
-  // Updated: Export to PDF
   const exportToPDF = () => {
     if (salarySheet.length === 0) {
       alert("No data available to export.");
@@ -319,37 +319,25 @@ const SalarySheet = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-[275px] bg-gray-300 p-5">
-        <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-        <ul className="space-y-5">
-          <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard</Link></li>
-          <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📉 Financial Report</Link></li>
-          <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
-          <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
-          <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet</Link></li>
-          <li><Link to="/ReportHub" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Reports Hub</Link></li>
-          <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300"> ⚙ Settings</Link></li>
-        </ul>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6 flex flex-col justify-start">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-green-600 mb-6">Employee Payroll</h1>
-          <div>
-            {/* Month and Year Selection */}
+    <div className="flex h-screen bg-gray-200">
+      <SalesManagerSidebar />
+      <main className="flex-1 p-6 flex flex-col justify-start">
+        <SalesManagerNavbar />
+        <div className="flex justify-between items-center mb-6 mt-6">
+          <h1 className="text-3xl font-bold text-green-600">Employee Payroll</h1>
+          <div className="flex items-center gap-2 flex-wrap">
             <select
               value={month}
               onChange={(e) => {
                 setMonth(e.target.value);
                 navigate(`/SalarySheet?month=${e.target.value}&year=${year}`);
               }}
-              className="mr-2 p-2 border rounded"
+              className="p-2 border rounded bg-white"
             >
               {[...Array(12)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{new Date(0, i).toLocaleString("default", { month: "long" })}</option>
+                <option key={i + 1} value={i + 1}>
+                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                </option>
               ))}
             </select>
             <select
@@ -358,7 +346,7 @@ const SalarySheet = () => {
                 setYear(e.target.value);
                 navigate(`/SalarySheet?month=${month}&year=${e.target.value}`);
               }}
-              className="mr-2 p-2 border rounded"
+              className="p-2 border rounded bg-white"
             >
               {[...Array(5)].map((_, i) => {
                 const y = new Date().getFullYear() - 2 + i;
@@ -367,324 +355,325 @@ const SalarySheet = () => {
             </select>
             <button
               onClick={exportToCSV}
-              className="bg-blue-500 text-white px-4 py-2 rounded-full mr-2"
+              className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
             >
               Export to CSV
             </button>
             <button
               onClick={exportToPDF}
-              className="bg-purple-500 text-white px-4 py-2 rounded-full mr-2"
+              className="bg-purple-500 text-white px-4 py-2 rounded-full hover:bg-purple-600"
             >
               Export to PDF
             </button>
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="bg-green-500 px-4 py-2 rounded-full"
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600"
             >
               Add Salary Sheet
             </button>
           </div>
         </div>
 
-        {/* Income Statement */}
-        <div className="bg-white p-5 rounded-lg shadow-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold">
-              CRIPS Salary Sheet for {new Date(0, month - 1).toLocaleString("default", { month: "long" })} {year}
-            </h2>
-          </div>
-
+        {/* Salary Sheet Table */}
+        <div className="bg-white p-6 rounded-2xl shadow-md">
+          <h2 className="text-lg font-bold mb-4">
+            CRIPS Salary Sheet for {new Date(0, month - 1).toLocaleString("default", { month: "long" })} {year}
+          </h2>
           {loading ? (
-            <p className="text-center p-4">Loading...</p>
+            <p className="text-center p-4 text-gray-500">Loading...</p>
           ) : error ? (
             <p className="text-red-500 text-center p-4">{error}</p>
           ) : (
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-gray-300 p-2">Sr. No</th>
-                  <th className="border border-gray-300 p-2">Name of Employee</th>
-                  <th className="border border-gray-300 p-2">Designation</th>
-                  <th className="border border-gray-300 p-2">Basic (Rs.)</th>
-                  <th className="border border-gray-300 p-2">Allowances / OverTime (Rs.)</th>
-                  <th className="border border-gray-300 p-2">Deductions (Rs.)</th>
-                  <th className="border border-gray-300 p-2">Net Salary (Rs.)</th>
-                  <th className="border border-gray-300 p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {salarySheet.length > 0 ? (
-                  salarySheet.map((entry, index) => (
-                    <tr key={entry._id} className="text-center">
-                      <td className="border border-gray-300 p-2">{index + 1}</td>
-                      <td className="border border-gray-300 p-2">{entry.employeeName}</td>
-                      <td className="border border-gray-300 p-2">{entry.designation}</td>
-                      <td className="border border-gray-300 p-2">{entry.basicSalary}</td>
-                      <td className="border border-gray-300 p-2">{entry.allowances || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.deductions || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.netSalary}</td>
-                      <td className="border border-gray-300 p-2">
-                        <button
-                          onClick={() => {
-                            setUpdateEntry(entry);
-                            setIsUpdateModalOpen(true);
-                          }}
-                          className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
-                        >
-                          Update
-                        </button>
-                        <button
-                          onClick={() => handleDelete(entry._id)}
-                          className="bg-red-500 text-white px-2 py-1 rounded"
-                        >
-                          Delete
-                        </button>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-300 p-3">Sr. No</th>
+                    <th className="border border-gray-300 p-3">Name of Employee</th>
+                    <th className="border border-gray-300 p-3">Designation</th>
+                    <th className="border border-gray-300 p-3">Basic (Rs.)</th>
+                    <th className="border border-gray-300 p-3">Allowances / OverTime (Rs.)</th>
+                    <th className="border border-gray-300 p-3">Deductions (Rs.)</th>
+                    <th className="border border-gray-300 p-3">Net Salary (Rs.)</th>
+                    <th className="border border-gray-300 p-3">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salarySheet.length > 0 ? (
+                    salarySheet.map((entry, index) => (
+                      <tr key={entry._id} className="text-center">
+                        <td className="border border-gray-300 p-3">{index + 1}</td>
+                        <td className="border border-gray-300 p-3">{entry.employeeName}</td>
+                        <td className="border border-gray-300 p-3">{entry.designation}</td>
+                        <td className="border border-gray-300 p-3">{entry.basicSalary}</td>
+                        <td className="border border-gray-300 p-3">{entry.allowances || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.deductions || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.netSalary}</td>
+                        <td className="border border-gray-300 p-3">
+                          <button
+                            onClick={() => {
+                              setUpdateEntry(entry);
+                              setIsUpdateModalOpen(true);
+                            }}
+                            className="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600"
+                          >
+                            Update
+                          </button>
+                          <button
+                            onClick={() => handleDelete(entry._id)}
+                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="text-center p-4 text-gray-600">
+                        No salary sheet data available for this month.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center p-4">
-                      No salary sheet data available for this month.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-      </div>
 
-      {/* Modal for Adding Salary Sheet */}
-      <Modal
-        isOpen={isAddModalOpen}
-        onRequestClose={() => setIsAddModalOpen(false)}
-        className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-2xl font-bold mb-4">Add Salary Sheet</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-1">Month</label>
-            <select
-              value={month}
-              onChange={(e) => setMonth(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            >
-              {[...Array(12)].map((_, i) => (
-                <option key={i + 1} value={i + 1}>{new Date(0, i).toLocaleString("default", { month: "long" })}</option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block mb-1">Year</label>
-            <select
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              className="w-full p-2 border rounded"
-              required
-            >
-              {[...Array(5)].map((_, i) => {
-                const y = new Date().getFullYear() - 2 + i;
-                return <option key={y} value={y}>{y}</option>;
-              })}
-            </select>
-          </div>
-
-          {entries.map((entry, index) => (
-            <div key={index} className="grid grid-cols-7 gap-2 mb-2">
-              <input
-                type="text"
-                placeholder="Employee Name"
-                value={entry.employeeName}
-                onChange={(e) => handleInputChange(index, "employeeName", e.target.value)}
-                className="p-2 border rounded"
+        {/* Modal for Adding Salary Sheet */}
+        <Modal
+          isOpen={isAddModalOpen}
+          onRequestClose={() => setIsAddModalOpen(false)}
+          className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-20"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        >
+          <h2 className="text-2xl font-bold mb-4">Add Salary Sheet</h2>
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <label className="block mb-1 font-semibold">Month</label>
+              <select
+                value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                className="w-full p-2 border rounded bg-white"
                 required
-              />
-              <input
-                type="text"
-                placeholder="Designation"
-                value={entry.designation}
-                onChange={(e) => handleInputChange(index, "designation", e.target.value)}
-                className="p-2 border rounded"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Basic Salary"
-                value={entry.basicSalary}
-                onChange={(e) => handleInputChange(index, "basicSalary", e.target.value)}
-                className="p-2 border rounded"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Allowances"
-                value={entry.allowances}
-                onChange={(e) => handleInputChange(index, "allowances", e.target.value)}
-                className="p-2 border rounded"
-              />
-              <input
-                type="number"
-                placeholder="Deductions"
-                value={entry.deductions}
-                onChange={(e) => handleInputChange(index, "deductions", e.target.value)}
-                className="p-2 border rounded"
-              />
-              <input
-                type="number"
-                placeholder="Net Salary"
-                value={entry.netSalary}
-                readOnly
-                className="p-2 border rounded bg-gray-100"
-              />
-              <button
-                type="button"
-                onClick={() => removeEntry(index)}
-                className={`bg-red-500 text-white p-2 rounded ${entries.length === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-                disabled={entries.length === 1}
               >
-                Remove
-              </button>
+                {[...Array(12)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {new Date(0, i).toLocaleString("default", { month: "long" })}
+                  </option>
+                ))}
+              </select>
             </div>
-          ))}
+            <div className="mb-4">
+              <label className="block mb-1 font-semibold">Year</label>
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="w-full p-2 border rounded bg-white"
+                required
+              >
+                {[...Array(5)].map((_, i) => {
+                  const y = new Date().getFullYear() - 2 + i;
+                  return <option key={y} value={y}>{y}</option>;
+                })}
+              </select>
+            </div>
 
-          <button
-            type="button"
-            onClick={addEntry}
-            className="bg-blue-500 text-white px-4 py-2 rounded mb-4"
-          >
-            Add Another Employee
-          </button>
+            {entries.map((entry, index) => (
+              <div key={index} className="grid grid-cols-7 gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Employee Name"
+                  value={entry.employeeName}
+                  onChange={(e) => handleInputChange(index, "employeeName", e.target.value)}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Designation"
+                  value={entry.designation}
+                  onChange={(e) => handleInputChange(index, "designation", e.target.value)}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Basic Salary"
+                  value={entry.basicSalary}
+                  onChange={(e) => handleInputChange(index, "basicSalary", e.target.value)}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Allowances"
+                  value={entry.allowances}
+                  onChange={(e) => handleInputChange(index, "allowances", e.target.value)}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="number"
+                  placeholder="Deductions"
+                  value={entry.deductions}
+                  onChange={(e) => handleInputChange(index, "deductions", e.target.value)}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="number"
+                  placeholder="Net Salary"
+                  value={entry.netSalary}
+                  readOnly
+                  className="p-2 border rounded bg-gray-100"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeEntry(index)}
+                  className={`bg-red-500 text-white p-2 rounded ${entries.length === 1 ? "opacity-50 cursor-not-allowed" : "hover:bg-red-600"}`}
+                  disabled={entries.length === 1}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
 
-          <div className="flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setIsAddModalOpen(false)}
-              className="bg-gray-500 text-white px-4 py-2 rounded"
+              onClick={addEntry}
+              className="bg-blue-500 text-white px-4 py-2 rounded mb-4 hover:bg-blue-600"
             >
-              Cancel
+              Add Another Employee
             </button>
-            <button
-              type="submit"
-              className="bg-green-500 text-white px-4 py-2 rounded"
-            >
-              Confirm
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Modal for Updating Salary Sheet Entry */}
-      <Modal
-        isOpen={isUpdateModalOpen}
-        onRequestClose={() => {
-          setIsUpdateModalOpen(false);
-          setUpdateEntry(null);
-        }}
-        className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-20"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-2xl font-bold mb-4">Update Salary Sheet Entry</h2>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {updateEntry && (
-          <form onSubmit={handleUpdateSubmit}>
-            <div className="grid grid-cols-6 gap-2 mb-2">
-              <input
-                type="text"
-                placeholder="Employee Name"
-                value={updateEntry.employeeName}
-                onChange={(e) => handleUpdateInputChange("employeeName", e.target.value)}
-                className="p-2 border rounded"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Designation"
-                value={updateEntry.designation}
-                onChange={(e) => handleUpdateInputChange("designation", e.target.value)}
-                className="p-2 border rounded"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Basic Salary"
-                value={updateEntry.basicSalary}
-                onChange={(e) => handleUpdateInputChange("basicSalary", e.target.value)}
-                className="p-2 border rounded"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Allowances"
-                value={updateEntry.allowances}
-                onChange={(e) => handleUpdateInputChange("allowances", e.target.value)}
-                className="p-2 border rounded"
-              />
-              <input
-                type="number"
-                placeholder="Deductions"
-                value={updateEntry.deductions}
-                onChange={(e) => handleUpdateInputChange("deductions", e.target.value)}
-                className="p-2 border rounded"
-              />
-              <input
-                type="number"
-                placeholder="Net Salary"
-                value={updateEntry.netSalary}
-                readOnly
-                className="p-2 border rounded bg-gray-100"
-              />
-            </div>
 
             <div className="flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setIsUpdateModalOpen(false);
-                  setUpdateEntry(null);
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded"
+                onClick={() => setIsAddModalOpen(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded"
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
               >
-                Save
+                Confirm
               </button>
             </div>
           </form>
-        )}
-      </Modal>
+        </Modal>
 
-      {/* Modal for Confirming Update */}
-      <Modal
-        isOpen={isConfirmModalOpen}
-        onRequestClose={() => setIsConfirmModalOpen(false)}
-        className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto mt-40"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
-      >
-        <h2 className="text-xl font-bold mb-4">Confirm Update</h2>
-        <p className="mb-4">Are you sure you want to update this salary sheet entry?</p>
-        <div className="flex justify-end gap-2">
-          <button
-            onClick={() => setIsConfirmModalOpen(false)}
-            className="bg-gray-500 text-white px-4 py-2 rounded"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={confirmUpdate}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Confirm
-          </button>
-        </div>
-      </Modal>
+        {/* Modal for Updating Salary Sheet Entry */}
+        <Modal
+          isOpen={isUpdateModalOpen}
+          onRequestClose={() => {
+            setIsUpdateModalOpen(false);
+            setUpdateEntry(null);
+          }}
+          className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mt-20"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        >
+          <h2 className="text-2xl font-bold mb-4">Update Salary Sheet Entry</h2>
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          {updateEntry && (
+            <form onSubmit={handleUpdateSubmit}>
+              <div className="grid grid-cols-6 gap-2 mb-2">
+                <input
+                  type="text"
+                  placeholder="Employee Name"
+                  value={updateEntry.employeeName}
+                  onChange={(e) => handleUpdateInputChange("employeeName", e.target.value)}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Designation"
+                  value={updateEntry.designation}
+                  onChange={(e) => handleUpdateInputChange("designation", e.target.value)}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Basic Salary"
+                  value={updateEntry.basicSalary}
+                  onChange={(e) => handleUpdateInputChange("basicSalary", e.target.value)}
+                  className="p-2 border rounded"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Allowances"
+                  value={updateEntry.allowances}
+                  onChange={(e) => handleUpdateInputChange("allowances", e.target.value)}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="number"
+                  placeholder="Deductions"
+                  value={updateEntry.deductions}
+                  onChange={(e) => handleUpdateInputChange("deductions", e.target.value)}
+                  className="p-2 border rounded"
+                />
+                <input
+                  type="number"
+                  placeholder="Net Salary"
+                  value={updateEntry.netSalary}
+                  readOnly
+                  className="p-2 border rounded bg-gray-100"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsUpdateModalOpen(false);
+                    setUpdateEntry(null);
+                  }}
+                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          )}
+        </Modal>
+
+        {/* Modal for Confirming Update */}
+        <Modal
+          isOpen={isConfirmModalOpen}
+          onRequestClose={() => setIsConfirmModalOpen(false)}
+          className="bg-white p-6 rounded-lg shadow-lg max-w-sm mx-auto mt-40"
+          overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+        >
+          <h2 className="text-xl font-bold mb-4">Confirm Update</h2>
+          <p className="mb-4">Are you sure you want to update this salary sheet entry?</p>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={() => setIsConfirmModalOpen(false)}
+              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmUpdate}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Confirm
+            </button>
+          </div>
+        </Modal>
+      </main>
     </div>
   );
 };

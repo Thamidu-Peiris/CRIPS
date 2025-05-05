@@ -1,25 +1,25 @@
+
 // backend\controllers\SalesManager\reportController.js
+/* eslint-disable */
 const Transaction = require("../../models/salesManager/FinancialModel");
 const Customer = require("../../models/salesManager/CustomerModel");
 const Payroll = require("../../models/salesManager/PayrollModel");
 const Product = require("../../models/salesManager/ProductModel");
+const CustomerOrder = require("../../models/customer/CustomerOrder");
 
 // Financial Report Controller
 const getFinancialReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    // Validate date range
     if (!startDate || !endDate) {
       return res.status(400).json({ error: "startDate and endDate are required" });
     }
 
-    // Fetch transactions within the date range
     const transactions = await Transaction.find({
       date: { $gte: new Date(startDate), $lte: new Date(endDate) },
     }).sort({ date: 1 });
 
-    // Calculate aggregates
     const aggregates = await Transaction.aggregate([
       {
         $match: {
@@ -46,8 +46,8 @@ const getFinancialReport = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching financial report:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching financial report:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
@@ -56,7 +56,6 @@ const getCustomerReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    // Fetch top customers by total purchases
     let query = {};
     if (startDate && endDate) {
       query.lastPurchaseDate = {
@@ -69,7 +68,6 @@ const getCustomerReport = async (req, res) => {
       .sort({ totalPurchases: -1 })
       .limit(5);
 
-    // Fetch payment method distribution
     const paymentMethods = await Customer.aggregate([
       { $match: query },
       {
@@ -80,14 +78,12 @@ const getCustomerReport = async (req, res) => {
       },
     ]);
 
-    // Calculate percentages for payment methods
     const total = paymentMethods.reduce((sum, method) => sum + method.count, 0);
     const paymentMethodData = paymentMethods.map((method) => ({
       name: method._id,
       value: total > 0 ? (method.count / total) * 100 : 0,
     }));
 
-    // Fetch summary data (new customers, total purchases)
     const newCustomers = await Customer.countDocuments({
       createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
     });
@@ -106,8 +102,8 @@ const getCustomerReport = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching customer report:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching customer report:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
@@ -116,18 +112,15 @@ const getPayrollReport = async (req, res) => {
   try {
     const { month, year } = req.query;
 
-    // Validate month and year
     if (!month || !year) {
       return res.status(400).json({ error: "month and year are required" });
     }
 
-    // Fetch payroll data for the specified month and year
     const payroll = await Payroll.find({
       month: Number(month),
       year: Number(year),
     }).sort({ employeeName: 1 });
 
-    // Calculate total payroll cost
     const totalPayroll = await Payroll.aggregate([
       {
         $match: {
@@ -148,8 +141,8 @@ const getPayrollReport = async (req, res) => {
       totalPayroll: totalPayroll[0]?.total || 0,
     });
   } catch (error) {
-    console.error("Error fetching payroll report:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching payroll report:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
@@ -158,7 +151,6 @@ const getProductPerformanceReport = async (req, res) => {
   try {
     const { category, startDate, endDate, sortBy = "revenue" } = req.query;
 
-    // Build query based on filters
     let query = {};
     if (category) {
       query.category = category;
@@ -170,10 +162,8 @@ const getProductPerformanceReport = async (req, res) => {
       };
     }
 
-    // Fetch products
     const products = await Product.find(query).sort({ [sortBy]: -1 });
 
-    // Calculate aggregates
     const aggregates = await Product.aggregate([
       { $match: query },
       {
@@ -185,11 +175,9 @@ const getProductPerformanceReport = async (req, res) => {
       },
     ]);
 
-    // Fetch top and least selling products
     const topSelling = await Product.find(query).sort({ unitsSold: -1 }).limit(3);
     const leastSelling = await Product.find(query).sort({ unitsSold: 1 }).limit(3);
 
-    // Calculate sales trend (average units sold per product)
     const salesTrend = await Product.aggregate([
       { $match: query },
       {
@@ -211,101 +199,316 @@ const getProductPerformanceReport = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching product performance report:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching product performance report:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
 // Dashboard Data Controller (for SalesManagerDashboard.js)
 const getDashboardData = async (req, res) => {
   try {
-    // Fetch revenue data for the bar chart (last 12 months)
-    const revenueData = await Transaction.aggregate([
+    console.log("Fetching dashboard data...");
+
+    // Initialize default response
+    const responseData = {
+      revenueData: [],
+      topSellingPlants: [],
+      recentOrders: [],
+      orderStatusDistribution: [],
+      topPlantsUnits: [],
+      summary: {
+        last7DaysUnits: 0,
+        lastMonthRevenue: 0,
+        totalOrders: 0,
+        avgOrderValue: 0,
+        pendingOrders: 0,
+        revenueGrowth: 0,
+      },
+    };
+
+    // Fetch recent orders from CustomerOrder
+    console.log("Fetching recent CustomerOrders...");
+    const recentOrders = await CustomerOrder.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate("userId", "firstName lastName")
+      .catch((err) => {
+        console.error("CustomerOrder query error:", err.message);
+        return [];
+      });
+    responseData.recentOrders = recentOrders.map((order) => ({
+      id: order._id,
+      customer: order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : "Unknown",
+      amount: order.total || 0,
+      status: order.status || "Unknown",
+    }));
+    console.log("Recent orders:", responseData.recentOrders);
+
+    // Fetch summary data
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+
+    // Last 7 days units
+    console.log("Aggregating last 7 days units...");
+    const salesLast7Days = await CustomerOrder.aggregate([
       {
         $match: {
-          date: {
-            $gte: new Date(new Date().setMonth(new Date().getMonth() - 12)),
-          },
+          createdAt: { $gte: sevenDaysAgo },
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: null,
+          totalUnits: { $sum: "$items.quantity" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("Sales last 7 days aggregation error:", err.message);
+      return [{ totalUnits: 0 }];
+    });
+    responseData.summary.last7DaysUnits = salesLast7Days[0]?.totalUnits || 0;
+    console.log("Sales last 7 days:", responseData.summary.last7DaysUnits);
+
+    // Last 30 days revenue
+    console.log("Aggregating last month revenue from CustomerOrder...");
+    const revenueOrders = await CustomerOrder.find({
+      createdAt: { $gte: thirtyDaysAgo },
+      status: "Completed",
+    }).select('_id total createdAt status');
+    console.log("Found orders for lastMonthRevenue:", revenueOrders.length, revenueOrders);
+
+    const revenueLastMonth = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: "Completed",
         },
       },
       {
         $group: {
-          _id: { $month: "$date" },
-          revenue: { $sum: "$income" },
+          _id: null,
+          totalRevenue: { $sum: "$total" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("CustomerOrder revenue aggregation error:", err.message);
+      return [{ totalRevenue: 0 }];
+    });
+    responseData.summary.lastMonthRevenue = revenueLastMonth[0]?.totalRevenue || 0;
+    console.log("Revenue last month:", responseData.summary.lastMonthRevenue);
+
+    // Total orders (last 30 days)
+    console.log("Aggregating total orders (last 30 days)...");
+    const totalOrders = await CustomerOrder.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo },
+      status: "Completed",
+    }).catch((err) => {
+      console.error("Total orders query error:", err.message);
+      return 0;
+    });
+    responseData.summary.totalOrders = totalOrders;
+    console.log("Total orders (last 30 days):", totalOrders);
+
+    // Average order value (last 30 days)
+    console.log("Aggregating average order value (last 30 days)...");
+    const avgOrderValue = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          avgValue: { $avg: "$total" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("Average order value aggregation error:", err.message);
+      return [{ avgValue: 0 }];
+    });
+    responseData.summary.avgOrderValue = avgOrderValue[0]?.avgValue || 0;
+    console.log("Average order value (last 30 days):", responseData.summary.avgOrderValue);
+
+    // Pending orders (last 30 days)
+    console.log("Aggregating pending orders (last 30 days)...");
+    const pendingOrders = await CustomerOrder.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo },
+      status: "Pending",
+    }).catch((err) => {
+      console.error("Pending orders query error:", err.message);
+      return 0;
+    });
+    responseData.summary.pendingOrders = pendingOrders;
+    console.log("Pending orders (last 30 days):", pendingOrders);
+
+    // Revenue growth (last 30 days vs previous 30 days)
+    console.log("Aggregating revenue for previous 30 days...");
+    const prevRevenue = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("Previous revenue aggregation error:", err.message);
+      return [{ totalRevenue: 0 }];
+    });
+    const prevRevenueValue = prevRevenue[0]?.totalRevenue || 0;
+    const currentRevenue = responseData.summary.lastMonthRevenue;
+    responseData.summary.revenueGrowth = prevRevenueValue > 0
+      ? ((currentRevenue - prevRevenueValue) / prevRevenueValue) * 100
+      : currentRevenue > 0 ? 100 : 0;
+    console.log("Previous revenue:", prevRevenueValue, "Current revenue:", currentRevenue, "Revenue growth (%):", responseData.summary.revenueGrowth);
+
+    // Order status distribution (last 30 days) for Pie Chart
+    console.log("Aggregating order status distribution (last 30 days)...");
+    const orderStatusDistribution = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          name: "$_id",
+          value: "$count",
+          _id: 0,
+        },
+      },
+    ]).catch((err) => {
+      console.error("Order status distribution aggregation error:", err.message);
+      return [];
+    });
+    responseData.orderStatusDistribution = orderStatusDistribution;
+    console.log("Order status distribution:", orderStatusDistribution);
+
+    // Units sold by top plants (last 30 days) for Bar Chart
+    console.log("Aggregating units sold by top plants (last 30 days)...");
+    const topPlantsUnits = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: "$items.plantName",
+          unitsSold: { $sum: "$items.quantity" },
+        },
+      },
+      {
+        $sort: { unitsSold: -1 },
+      },
+      {
+        $limit: 5,
+      },
+      {
+        $project: {
+          name: "$_id",
+          unitsSold: 1,
+          _id: 0,
+        },
+      },
+    ]).catch((err) => {
+      console.error("Top plants units aggregation error:", err.message);
+      return [];
+    });
+    responseData.topPlantsUnits = topPlantsUnits;
+    console.log("Top plants units:", topPlantsUnits);
+
+    // Revenue data for the bar chart (last 12 months)
+    console.log("Aggregating CustomerOrder data for revenue chart...");
+    const ordersForChart = await CustomerOrder.find({
+      createdAt: {
+        $gte: new Date(new Date().setMonth(new Date().getMonth() - 12)),
+      },
+      status: "Completed",
+    }).select('_id total createdAt status');
+    console.log("Found orders for revenueData:", ordersForChart.length, ordersForChart);
+
+    const revenueData = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(new Date().setMonth(new Date().getMonth() - 12)),
+          },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          revenue: { $sum: "$total" },
         },
       },
       {
         $sort: { _id: 1 },
       },
-    ]);
+      {
+        $project: {
+          month: {
+            $arrayElemAt: [
+              ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+              { $subtract: ["$_id", 1] },
+            ],
+          },
+          revenue: 1,
+          _id: 0,
+        },
+      },
+    ]).catch((err) => {
+      console.error("CustomerOrder chart aggregation error:", err.message);
+      return [];
+    });
+    responseData.revenueData = revenueData;
+    console.log("Revenue data:", revenueData);
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const revenueChartData = revenueData.map((item) => ({
-      month: months[item._id - 1],
-      revenue: item.revenue,
-    }));
-
-    // Fetch top selling products
+    // Fetch top-selling plants
+    console.log("Fetching top-selling Products...");
     const topSellingPlants = await Product.find()
       .sort({ unitsSold: -1 })
-      .limit(5);
+      .limit(3)
+      .select("_id name image unitsSold")
+      .catch((err) => {
+        console.error("Product query error:", err.message);
+        return [];
+      });
+    responseData.topSellingPlants = topSellingPlants.map((plant) => ({
+      id: plant._id,
+      name: plant.name,
+      sold: plant.unitsSold,
+      image: plant.image || "/default-plant.jpg",
+    }));
+    console.log("Top-selling plants:", responseData.topSellingPlants);
 
-    // Fetch recent orders (simulated with customer purchases)
-    const recentOrders = await Customer.find()
-      .sort({ lastPurchaseDate: -1 })
-      .limit(5)
-      .select("name totalPurchases lastPurchaseDate");
-
-    // Fetch summary data (last 7 days sales, last month revenue)
-    const last7Days = new Date(new Date().setDate(new Date().getDate() - 7));
-    const lastMonthStart = new Date(new Date().setMonth(new Date().getMonth() - 1));
-    const lastMonthEnd = new Date();
-
-    const salesLast7Days = await Product.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: last7Days },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalUnits: { $sum: "$unitsSold" },
-        },
-      },
-    ]);
-
-    const revenueLastMonth = await Transaction.aggregate([
-      {
-        $match: {
-          date: { $gte: lastMonthStart, $lte: lastMonthEnd },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$income" },
-        },
-      },
-    ]);
-
-    res.status(200).json({
-      revenueChartData,
-      topSellingPlants,
-      recentOrders: recentOrders.map((order) => ({
-        id: order._id,
-        customer: order.name,
-        amount: order.totalPurchases,
-        status: "Complete", // Placeholder status
-      })),
-      summary: {
-        salesLast7Days: salesLast7Days[0]?.totalUnits || 0,
-        revenueLastMonth: revenueLastMonth[0]?.totalRevenue || 0,
-      },
-    });
+    console.log("Sending response:", responseData);
+    res.status(200).json(responseData);
   } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching dashboard data:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
@@ -314,12 +517,10 @@ const addSalarySheet = async (req, res) => {
   try {
     const { entries, month, year } = req.body;
 
-    // Validate input
     if (!entries || !Array.isArray(entries) || !month || !year) {
       return res.status(400).json({ error: "Entries, month, and year are required" });
     }
 
-    // Add month and year to each entry and save to database
     const payrollEntries = entries.map((entry) => ({
       ...entry,
       month: Number(month),
@@ -329,8 +530,8 @@ const addSalarySheet = async (req, res) => {
     const savedEntries = await Payroll.insertMany(payrollEntries);
     res.status(201).json({ message: "Salary sheet created successfully", entries: savedEntries });
   } catch (error) {
-    console.error("Error adding salary sheet:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error adding salary sheet:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
@@ -350,23 +551,21 @@ const getSalarySheet = async (req, res) => {
 
     res.status(200).json(payrollEntries);
   } catch (error) {
-    console.error("Error fetching salary sheet:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error fetching salary sheet:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
-// New: Update a salary sheet entry
+// Update a salary sheet entry
 const updateSalarySheetEntry = async (req, res) => {
   try {
     const { id } = req.params;
     const { employeeName, designation, basicSalary, allowances, deductions, netSalary } = req.body;
 
-    // Validate input
     if (!employeeName || !designation || !basicSalary || !netSalary) {
       return res.status(400).json({ error: "All required fields must be provided" });
     }
 
-    // Find and update the entry
     const updatedEntry = await Payroll.findByIdAndUpdate(
       id,
       {
@@ -377,7 +576,7 @@ const updateSalarySheetEntry = async (req, res) => {
         deductions: Number(deductions) || 0,
         netSalary: Number(netSalary),
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!updatedEntry) {
@@ -387,17 +586,16 @@ const updateSalarySheetEntry = async (req, res) => {
     console.log("Updated entry:", updatedEntry);
     res.status(200).json({ message: "Salary sheet entry updated successfully", entry: updatedEntry });
   } catch (error) {
-    console.error("Error updating salary sheet entry:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error updating salary sheet entry:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
-// New: Delete a salary sheet entry
+// Delete a salary sheet entry
 const deleteSalarySheetEntry = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find and delete the entry
     const deletedEntry = await Payroll.findByIdAndDelete(id);
 
     if (!deletedEntry) {
@@ -407,8 +605,8 @@ const deleteSalarySheetEntry = async (req, res) => {
     console.log("Deleted entry:", deletedEntry);
     res.status(200).json({ message: "Salary sheet entry deleted successfully" });
   } catch (error) {
-    console.error("Error deleting salary sheet entry:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error("Error deleting salary sheet entry:", error.message);
+    res.status(500).json({ error: "Internal server error", details: error.message });
   }
 };
 
