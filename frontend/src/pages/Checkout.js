@@ -25,13 +25,13 @@ const Checkout = () => {
   const [cardType, setCardType] = useState("");
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
-  const [orderSuccess, setOrderSuccess] = useState(false); // New state for order success
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [couponCode, setCouponCode] = useState(localStorage.getItem("couponCode") || "");
+  const [discount, setDiscount] = useState(localStorage.getItem("discount") ? parseFloat(localStorage.getItem("discount")) : 0);
   const navigate = useNavigate();
 
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
   const totalCost = cart.reduce((sum, item) => sum + item.quantity * item.itemPrice, 0);
-  const couponCode = localStorage.getItem("couponCode") || "";
-  const discount = localStorage.getItem("discount") ? parseFloat(localStorage.getItem("discount")) : 0;
   const finalTotal = totalCost - discount;
 
   const handleShippingSubmit = (e) => {
@@ -72,6 +72,33 @@ const Checkout = () => {
     setCardDetails({ ...cardDetails, cvv: value });
   };
 
+  const handleApplyCoupon = async () => {
+    if (!couponCode) {
+      setError("Please enter a coupon code.");
+      return;
+    }
+    try {
+      const response = await axios.get("http://localhost:5000/api/csm/coupons");
+      const coupons = response.data;
+      const coupon = coupons.find((c) => c.code === couponCode.toUpperCase() && c.isActive);
+      if (coupon) {
+        const discountAmount = (totalCost * coupon.discountPercentage) / 100;
+        setDiscount(discountAmount);
+        localStorage.setItem("couponCode", couponCode.toUpperCase());
+        localStorage.setItem("discount", discountAmount.toString());
+        setError("");
+      } else {
+        setError("Invalid or inactive coupon code.");
+        setDiscount(0);
+        localStorage.removeItem("couponCode");
+        localStorage.removeItem("discount");
+      }
+    } catch (error) {
+      console.error("Error applying coupon:", error);
+      setError("Failed to apply coupon. Please try again.");
+    }
+  };
+
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -81,8 +108,6 @@ const Checkout = () => {
       navigate("/login");
       return;
     }
-
-    console.log("User ID:", userInfo.id);
 
     const validItems = cart.every(item => item._id && item.plantName && item.quantity && item.itemPrice);
     if (!validItems) {
@@ -115,18 +140,17 @@ const Checkout = () => {
       shippingInfo,
       total: finalTotal,
       paymentMethod,
-      couponCode,
+      couponCode: couponCode.toUpperCase(),
       couponDiscount: discount,
     };
 
-    console.log("Submitting order:", order);
     try {
       const response = await axios.post("http://localhost:5000/api/orders", order);
       console.log("Order response:", response.data);
       localStorage.removeItem("cart");
       localStorage.removeItem("couponCode");
       localStorage.removeItem("discount");
-      setOrderSuccess(true); // Set success state
+      setOrderSuccess(true);
     } catch (error) {
       console.error("Error processing payment:", error.response?.data || error.message);
       setError("Failed to process payment: " + (error.response?.data?.message || "Unknown error"));
@@ -134,9 +158,9 @@ const Checkout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-green-50 pt-0">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white pt-0">
       {/* Navigation */}
-      <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
+      <nav className="flex justify-between items-center p-6 bg-white/90 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <motion.img
           src="/logo.png"
           alt="Logo"
@@ -150,47 +174,69 @@ const Checkout = () => {
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Home
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/shop"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Shop
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/careers"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Careers
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/about"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             About
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/contact"
             className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             Contact Us
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[2px] bg-green-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
         </div>
         <CustomerHeader />
       </nav>
 
       {/* Content */}
-      <div className="px-4 pb-12">
-        <h2 className="text-4xl font-extrabold text-green-800 mt-8 mb-6 text-center">Checkout</h2>
-        {error && <p className="bg-red-100 text-red-800 p-4 rounded-lg mb-6 text-center">{error}</p>}
+      <div className="max-w-4xl mx-auto py-16 px-6">
+        <motion.h2
+          className="text-5xl font-extrabold text-green-900 mb-12 text-center tracking-tight"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          Checkout
+        </motion.h2>
+        {error && (
+          <motion.p
+            className="bg-red-100 text-red-800 p-4 rounded-lg mb-6 text-center font-medium"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            {error}
+          </motion.p>
+        )}
 
         {step === 1 ? (
-          <form onSubmit={handleShippingSubmit} className="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto animate-fade-in">
+          <motion.form
+            onSubmit={handleShippingSubmit}
+            className="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto animate-fade-in"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             <h3 className="text-2xl font-bold text-gray-800 mb-6">Shipping Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.keys(shippingInfo).map((key) => (
@@ -209,77 +255,109 @@ const Checkout = () => {
                 </div>
               ))}
             </div>
-            <button
+            <motion.button
               type="submit"
               className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 hover:scale-105 transition-all duration-300 mt-6"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Continue to Payment Method
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
         ) : orderSuccess ? (
-          <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto animate-fade-in">
-            <div className="bg-green-100 text-green-800 font-bold p-6 rounded-lg text-center">
+          <motion.div
+            className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-8 text-center"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="bg-green-100 text-green-800 font-bold p-6 rounded-xl mb-6">
               Payment completed successfully!
             </div>
-            <button
+            <motion.button
               onClick={() => navigate("/dashboard/orders")}
-              className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 hover:scale-105 transition-all duration-300 mt-6"
+              className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-800 transition-all duration-300 shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               View Orders
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         ) : (
-          <form onSubmit={handlePaymentSubmit} className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto animate-fade-in">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Order Summary</h3>
-            <div className="bg-green-100 rounded-xl p-6 mb-6">
+          <motion.form
+            onSubmit={handlePaymentSubmit}
+            className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-8"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <h3 className="text-3xl font-bold text-green-900 mb-8">Order Summary</h3>
+            <div className="bg-green-50 rounded-xl p-6 mb-8">
               {cart.map((item, index) => (
                 <motion.div
                   key={item._id}
-                  className="flex justify-between mb-2 text-gray-700"
+                  className="flex justify-between mb-3 text-gray-700"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <span>{item.plantName} x {item.quantity}</span>
-                  <span>${(item.quantity * item.itemPrice).toFixed(2)}</span>
+                  <span className="font-medium">{item.plantName} x {item.quantity}</span>
+                  <span className="font-semibold">${(item.quantity * item.itemPrice).toFixed(2)}</span>
                 </motion.div>
               ))}
+              <div className="mt-6 flex items-center gap-3">
+                <input
+                  type="text"
+                  placeholder="Coupon Code"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="flex-1 p-3 bg-green-50 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-700"
+                />
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleApplyCoupon}
+                  className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-full hover:from-blue-600 hover:to-blue-800 transition-all shadow-md"
+                >
+                  Apply
+                </motion.button>
+              </div>
               {discount > 0 && (
                 <>
-                  <p className="text-gray-700">Coupon Added: {couponCode}</p>
-                  <p className="text-gray-700">Discount: -${discount.toFixed(2)}</p>
+                  <p className="text-gray-700 mt-3 font-medium">Coupon Applied: {couponCode}</p>
+                  <p className="text-red-500 mt-1 font-semibold">Discount: -${discount.toFixed(2)}</p>
                 </>
               )}
-              <p className="text-green-800 font-bold">Total: ${finalTotal.toFixed(2)}</p>
+              <p className="text-green-900 font-bold text-xl mt-4">Total: ${finalTotal.toFixed(2)}</p>
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Payment Method</h3>
+            <h3 className="text-3xl font-bold text-green-900 mb-8">Payment Method</h3>
             <div className="space-y-6">
               <div className="relative">
-                <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
-                  Payment Method
-                </label>
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full p-4 text-lg border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full p-4 text-lg border border-gray-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none"
                 >
                   <option value="card">Credit/Debit Card</option>
                 </select>
+                <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
+                  Payment Method
+                </label>
               </div>
               <div className="relative">
-                <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
-                  Card Number
-                </label>
                 <input
                   type="text"
                   placeholder="1234 5678 9012 3456"
                   value={cardDetails.cardNumber}
                   onChange={handleCardNumberChange}
                   maxLength={19}
-                  className="w-full p-4 pr-12 text-lg border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full p-4 pr-12 text-lg border border-gray-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
+                <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
+                  Card Number
+                </label>
                 {cardType === "visa" && (
                   <img
                     src="/visa-icon.png"
@@ -299,42 +377,44 @@ const Checkout = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="relative">
-                  <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
-                    Expiry (MM/YY)
-                  </label>
                   <input
                     type="text"
                     placeholder="MM/YY"
                     value={cardDetails.expiry}
                     onChange={handleExpiryChange}
                     maxLength={5}
-                    className="w-full p-4 text-lg border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full p-4 text-lg border border-gray-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
+                  <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
+                    Expiry (MM/YY)
+                  </label>
                 </div>
                 <div className="relative">
-                  <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
-                    CVV
-                  </label>
                   <input
                     type="text"
                     placeholder="CVV"
                     value={cardDetails.cvv}
                     onChange={handleCvvChange}
                     maxLength={3}
-                    className="w-full p-4 text-lg border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-green-600"
+                    className="w-full p-4 text-lg border border-gray-200 rounded-xl bg-white/50 focus:outline-none focus:ring-2 focus:ring-green-500"
                     required
                   />
+                  <label className="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-700">
+                    CVV
+                  </label>
                 </div>
               </div>
             </div>
-            <button
+            <motion.button
               type="submit"
-              className="w-full bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 hover:scale-105 transition-all duration-300 mt-6"
+              className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-800 transition-all duration-300 mt-8 shadow-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Pay
-            </button>
-          </form>
+              Pay Now
+            </motion.button>
+          </motion.form>
         )}
       </div>
     </div>

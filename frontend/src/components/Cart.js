@@ -5,8 +5,6 @@ import CustomerHeader from "./CustomerHeader";
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
-  const [couponCode, setCouponCode] = useState("");
-  const [discount, setDiscount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,22 +13,6 @@ const Cart = () => {
   }, []);
 
   const totalCost = cart.reduce((sum, item) => sum + item.quantity * item.itemPrice, 0);
-  const finalTotal = totalCost - discount;
-
-  const handleApplyCoupon = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/csm/coupons`);
-      const coupons = await response.json();
-      const coupon = coupons.find((c) => c.code === couponCode && c.isActive);
-      if (coupon) {
-        setDiscount((totalCost * coupon.discountPercentage) / 100);
-      } else {
-        alert("Invalid or inactive coupon code");
-      }
-    } catch (error) {
-      console.error("Error applying coupon:", error);
-    }
-  };
 
   const handleCheckout = () => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -149,33 +131,10 @@ const Cart = () => {
                     <span>Total Cost:</span>
                     <span className="font-medium">${totalCost.toFixed(2)}</span>
                   </p>
-                  {discount > 0 && (
-                    <p className="flex justify-between text-red-500">
-                      <span>Discount:</span>
-                      <span className="font-medium">-${discount.toFixed(2)}</span>
-                    </p>
-                  )}
                   <p className="flex justify-between text-green-900 font-semibold border-t pt-4">
-                    <span>Final Total:</span>
-                    <span className="font-bold text-xl">${finalTotal.toFixed(2)}</span>
+                    <span>Total:</span>
+                    <span className="font-bold text-xl">${totalCost.toFixed(2)}</span>
                   </p>
-                </div>
-                <div className="mt-6 flex items-center gap-3">
-                  <input
-                    type="text"
-                    placeholder="Coupon Code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-1 p-3 bg-green-50 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-700"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleApplyCoupon}
-                    className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-3 rounded-full hover:from-blue-600 hover:to-blue-800 transition-all shadow-md"
-                  >
-                    Apply
-                  </motion.button>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
