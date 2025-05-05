@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Add these imports
 import { MdDashboard } from "react-icons/md";
-import { FiShoppingCart, FiDollarSign, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown } from "react-icons/fi";
+import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown } from "react-icons/fi";
 
 const CSMSidebar = () => {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false);
@@ -90,22 +90,7 @@ const CSMSidebar = () => {
             <FiShoppingCart className="mr-3" /> Manage Orders
           </a>
         </li>
-        <li>
-          <a
-            href="#payments"
-            onClick={(e) => {
-              e.preventDefault();
-              handleItemClick("#payments");
-            }}
-            className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "#payments"
-                ? "bg-green-200 text-gray-800"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <FiDollarSign className="mr-3" /> Refund Requests
-          </a>
-        </li>
+        
         <li>
           <a
             href="#shipments"
@@ -241,13 +226,13 @@ const CSMSidebar = () => {
 
         <li>
           <a
-            href="#discounts"
+            href="/csm/coupons"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick("#discounts");
+              handleItemClick("/csm/coupons");
             }}
             className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "#discounts"
+              selectedItem === "/csm/coupons"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
