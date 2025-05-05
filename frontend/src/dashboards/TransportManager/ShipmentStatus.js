@@ -1,7 +1,7 @@
-// frontend\src\dashboards\TransportManager\ShipmentStatus.js
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Sidebar from './Sidebar'; // Import the Sidebar component
+import Sidebar from './Sidebar';
+import { FaShippingFast } from 'react-icons/fa';
 
 export default function ShipmentStatus() {
   const [shipments, setShipments] = useState([]);
@@ -33,99 +33,125 @@ export default function ShipmentStatus() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-blue-900 text-white font-sans flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-teal-50 text-gray-800 font-sans flex">
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-72 p-8">
-        <div className="bg-gray-800/50 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-700/50">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-6">
+      <div className="flex-1 ml-64 p-6">
+        <header className="p-6 bg-white rounded-xl shadow-md border border-gray-200 mb-8">
+          <h1 className="text-4xl font-extrabold text-green-900">
             Shipment Status Tracking
-          </h2>
+          </h1>
+          <p className="text-xl mt-2 font-light text-gray-600">
+            Monitor and update the status of shipments
+          </p>
+        </header>
 
-          {/* Add Shipment Form */}
-          <div className="mb-8 flex space-x-4">
-            <input
-              className="bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              placeholder="Shipment ID"
-              value={newShipment.shipmentId}
-              onChange={(e) => setNewShipment({ ...newShipment, shipmentId: e.target.value })}
-            />
-            <input
-              className="bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              placeholder="Vehicle ID"
-              value={newShipment.vehicleId}
-              onChange={(e) => setNewShipment({ ...newShipment, vehicleId: e.target.value })}
-            />
-            <input
-              className="bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              placeholder="Driver ID"
-              value={newShipment.driverId}
-              onChange={(e) => setNewShipment({ ...newShipment, driverId: e.target.value })}
-            />
-            <input
-              type="date"
-              className="bg-gray-900/50 border border-gray-700 text-white p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 text-gray-400"
-              value={newShipment.departureDate}
-              onChange={(e) => setNewShipment({ ...newShipment, departureDate: e.target.value })}
-            />
-            <button
-              onClick={handleAddShipment}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-300"
-            >
-              Add Shipment
-            </button>
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+          {/* Add Shipment Form - Redesigned as a Card */}
+          <div className="mb-8 bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200">
+            <h2 className="text-2xl font-semibold text-green-900 mb-4 flex items-center">
+              <FaShippingFast className="mr-2 text-green-500" />
+              Add New Shipment
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div>
+                <label className="block text-gray-600 font-semibold mb-1">Shipment ID</label>
+                <input
+                  className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Shipment ID"
+                  value={newShipment.shipmentId}
+                  onChange={(e) => setNewShipment({ ...newShipment, shipmentId: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 font-semibold mb-1">Vehicle ID</label>
+                <input
+                  className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Vehicle ID"
+                  value={newShipment.vehicleId}
+                  onChange={(e) => setNewShipment({ ...newShipment, vehicleId: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 font-semibold mb-1">Driver ID</label>
+                <input
+                  className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Driver ID"
+                  value={newShipment.driverId}
+                  onChange={(e) => setNewShipment({ ...newShipment, driverId: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 font-semibold mb-1">Departure Date</label>
+                <input
+                  type="date"
+                  className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  value={newShipment.departureDate}
+                  onChange={(e) => setNewShipment({ ...newShipment, departureDate: e.target.value })}
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={handleAddShipment}
+                  className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all duration-300"
+                >
+                  Add Shipment
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Shipments Table */}
-          <div className="bg-gray-900/50 p-4 rounded-xl shadow-inner">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-700/50">
-                  <th className="py-2 px-4">Shipment ID</th>
-                  <th className="py-2 px-4">Vehicle</th>
-                  <th className="py-2 px-4">Driver</th>
-                  <th className="py-2 px-4">Status</th>
-                  <th className="py-2 px-4">Departure</th>
-                  <th className="py-2 px-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shipments.map((shipment) => (
-                  <tr
-                    key={shipment._id}
-                    className="border-t border-gray-700/50 hover:bg-gray-800/30 transition-all duration-200"
-                  >
-                    <td className="py-2 px-4">{shipment.shipmentId}</td>
-                    <td className="py-2 px-4">{shipment.vehicleId}</td>
-                    <td className="py-2 px-4">{shipment.driverId}</td>
-                    <td className="py-2 px-4">{shipment.status}</td>
-                    <td className="py-2 px-4">{new Date(shipment.departureDate).toLocaleDateString()}</td>
-                    <td className="py-2 px-4 space-x-2">
-                      <button
-                        onClick={() => handleStatusUpdate(shipment._id, 'In Transit')}
-                        className="bg-yellow-500/80 text-white px-2 py-1 rounded-lg hover:bg-yellow-600 transition-all duration-200"
-                      >
-                        In Transit
-                      </button>
-                      <button
-                        onClick={() => handleStatusUpdate(shipment._id, 'Delivered')}
-                        className="bg-green-500/80 text-white px-2 py-1 rounded-lg hover:bg-green-600 transition-all duration-200"
-                      >
-                        Delivered
-                      </button>
-                      <button
-                        onClick={() => handleDelete(shipment._id)}
-                        className="bg-red-500/80 text-white px-2 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
-                      >
-                        Delete
-                      </button>
-                    </td>
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 className="text-2xl font-semibold text-green-900 mb-4">Shipment Status</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="py-3 px-4 text-gray-800 font-semibold">Shipment ID</th>
+                    <th className="py-3 px-4 text-gray-800 font-semibold">Vehicle</th>
+                    <th className="py-3 px-4 text-gray-800 font-semibold">Driver</th>
+                    <th className="py-3 px-4 text-gray-800 font-semibold">Status</th>
+                    <th className="py-3 px-4 text-gray-800 font-semibold">Departure</th>
+                    <th className="py-3 px-4 text-gray-800 font-semibold">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {shipments.map((shipment) => (
+                    <tr
+                      key={shipment._id}
+                      className="border-b border-gray-200 hover:bg-gray-100 transition-all duration-200"
+                    >
+                      <td className="py-3 px-4">{shipment.shipmentId}</td>
+                      <td className="py-3 px-4">{shipment.vehicleId}</td>
+                      <td className="py-3 px-4">{shipment.driverId}</td>
+                      <td className="py-3 px-4">{shipment.status}</td>
+                      <td className="py-3 px-4">{new Date(shipment.departureDate).toLocaleDateString()}</td>
+                      <td className="py-3 px-4 space-x-2">
+                        <button
+                          onClick={() => handleStatusUpdate(shipment._id, 'In Transit')}
+                          className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition-all duration-200"
+                        >
+                          In Transit
+                        </button>
+                        <button
+                          onClick={() => handleStatusUpdate(shipment._id, 'Delivered')}
+                          className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-all duration-200"
+                        >
+                          Delivered
+                        </button>
+                        <button
+                          onClick={() => handleDelete(shipment._id)}
+                          className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

@@ -90,6 +90,7 @@ import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
 import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
 import SysManageCus from './dashboards/SM/ManageCustomers.js';
 import CustomerDetails from "./dashboards/CSM/CustomerDetails";
+import AddVacancies from "./pages/SysManager/AddVacancies.js";
 
 function App() {
   return (
@@ -180,6 +181,7 @@ function App() {
 
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/add-vacancies" element={<AddVacancies />} />
         
 
 
