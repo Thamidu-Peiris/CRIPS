@@ -1,6 +1,8 @@
 //backend\controllers\customer\orderController.js
+/* eslint-disable */
 const CustomerOrder = require("../../models/customer/CustomerOrder");
 const Coupon = require("../../models/customer/Coupon");
+const Transaction = require("../../models/salesManager/FinancialModel");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require('uuid');
 
@@ -29,7 +31,7 @@ const getOrderById = async (req, res) => {
 };
 
 // Get orders by user ID
-const getOrdersByUserId = async (req, res) => {
+const getOrdersByUserId = async (ereq, res) => {
   try {
     const orders = await CustomerOrder.find({ userId: req.params.userId });
     res.status(200).json(orders);
@@ -53,13 +55,17 @@ const getAllOrders = async (req, res) => {
 // Create order
 const createOrder = async (req, res) => {
   try {
-    const { userId, items, shippingInfo, paymentMethod, couponCode } = req.body;
+    const { userId, items, shippingInfo, paymentMethod, couponCode, status } = req.body;
+
+    console.log("Creating order with data:", { userId, items, shippingInfo, paymentMethod, couponCode, status });
 
     if (!userId || !items || !Array.isArray(items) || items.length === 0 || !shippingInfo || !paymentMethod) {
+      console.error("Missing required fields");
       return res.status(400).json({ message: "Missing required fields" });
     }
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
+      console.error("Invalid userId:", userId);
       return res.status(400).json({ message: "Invalid userId" });
     }
 
@@ -72,6 +78,7 @@ const createOrder = async (req, res) => {
 
     let total = filteredItems.reduce((sum, item) => {
       if (!item.quantity || !item.itemPrice) {
+        console.error("Invalid item data:", item);
         throw new Error("Invalid item data: quantity or itemPrice missing");
       }
       return sum + item.quantity * item.itemPrice;
@@ -83,6 +90,9 @@ const createOrder = async (req, res) => {
       if (coupon && coupon.isActive) {
         couponDiscount = (total * coupon.discountPercentage) / 100;
         total -= couponDiscount;
+        console.log("Applied coupon:", couponCode, "Discount:", couponDiscount);
+      } else {
+        console.log("Invalid or inactive coupon:", couponCode);
       }
     }
 
@@ -94,14 +104,34 @@ const createOrder = async (req, res) => {
       paymentMethod,
       couponCode,
       couponDiscount,
-      status: "Pending",
-      statusHistory: [{ status: "Pending", updatedAt: new Date(), updatedBy: userId }],
+      status: status || "Pending",
+      statusHistory: [{ status: status || "Pending", updatedAt: new Date(), updatedBy: userId }],
     });
 
-    await order.save();
-    res.status(201).json(order);
+    const savedOrder = await order.save();
+    console.log("Order created:", savedOrder._id, "Status:", savedOrder.status, "Total:", savedOrder.total);
+
+    // Create a transaction if the order is completed
+    if (savedOrder.status === "Completed") {
+      try {
+        const transaction = new Transaction({
+          date: new Date(),
+          income: savedOrder.total,
+          expense: 0,
+          balance: savedOrder.total,
+        });
+        const savedTransaction = await transaction.save();
+        console.log("Transaction created for order:", savedOrder._id, "Transaction ID:", savedTransaction._id, "Income:", savedTransaction.income);
+      } catch (transactionError) {
+        console.error("Error creating transaction for order:", savedOrder._id, "Error:", transactionError.message);
+      }
+    } else {
+      console.log("No transaction created for order:", savedOrder._id, "as status is:", savedOrder.status);
+    }
+
+    res.status(201).json(savedOrder);
   } catch (error) {
-    console.error("Error saving order:", error);
+    console.error("Error saving order:", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -112,30 +142,58 @@ const updateOrderStatus = async (req, res) => {
     const { orderId } = req.params;
     const { status, updatedBy } = req.body;
 
+    console.log("Updating order status:", { orderId, status, updatedBy });
+
     if (!mongoose.Types.ObjectId.isValid(orderId) || !mongoose.Types.ObjectId.isValid(updatedBy)) {
+      console.error("Invalid orderId or updatedBy:", { orderId, updatedBy });
       return res.status(400).json({ message: "Valid orderId and updatedBy are required" });
     }
 
     if (!['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'].includes(status)) {
+      console.error("Invalid status:", status);
       return res.status(400).json({ message: "Invalid status" });
     }
 
     const order = await CustomerOrder.findById(orderId);
     if (!order) {
+      console.error("Order not found:", orderId);
       return res.status(404).json({ message: "Order not found" });
     }
 
     if (status === "Shipped" && !order.trackingNumber) {
       order.trackingNumber = `TRK-${uuidv4().slice(0, 8).toUpperCase()}`;
+      console.log("Assigned tracking number:", order.trackingNumber);
+    }
+
+    // Create a transaction if status changes to Completed
+    if (status === "Completed" && order.status !== "Completed") {
+      try {
+        const transaction = new Transaction({
+          date: new Date(),
+          income: order.total,
+          expense: 0,
+          balance: order.total,
+        });
+        const savedTransaction = await transaction.save();
+        console.log("Transaction created for order:", order._id, "Transaction ID:", savedTransaction._id, "Income:", savedTransaction.income);
+      } catch (transactionError) {
+        console.error("Error creating transaction for order:", order._id, "Error:", transactionError.message);
+      }
+    } else if (status === "Completed" && order.status === "Completed") {
+      console.log("No transaction created for order:", order._id, "as status is already Completed");
+    } else {
+      console.log("No transaction created for order:", order._id, "as status is:", status);
     }
 
     order.status = status;
     order.statusHistory.push({ status, updatedAt: new Date(), updatedBy });
 
     await order.save();
+    console.log("Order status updated:", order._id, "New Status:", status, "Total:", order.total);
+
     res.status(200).json({ message: "Order status updated", order });
   } catch (error) {
-    console.error("Error updating order status:", error);
+    console.error("Error updating order status:", error.message);
     res.status(500).json({ message: "Failed to update order status", error: error.message });
   }
 };
