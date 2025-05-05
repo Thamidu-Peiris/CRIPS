@@ -88,6 +88,19 @@ exports.universalLogin = async (req, res) => {
       }
     }
 
+    // supplier
+    if (!user) {
+      console.log("Checking supplier..." , CSM.supplier.name);
+      user = await CSM.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
+      });
+      if (user) {
+        console.log("CSM found:", user);
+        role = "Customer Service Manager"; // CSM
+      }
+    }
+
+
      // salseManager-check
     if (!user) {
       console.log("check salseManager...", salseManager.collection.name);
