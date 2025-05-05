@@ -1,14 +1,12 @@
-// frontend\src\components\CSMSidebar.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
-import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown } from "react-icons/fi";
+import { FiBarChart2, FiPackage, FiUsers, FiDollarSign, FiSettings, FiChevronDown } from "react-icons/fi";
 
-const CSMSidebar = () => {
-  const [helpCenterOpen, setHelpCenterOpen] = useState(false);
-  const [customerManagementOpen, setCustomerManagementOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false); // New state for Settings dropdown
-  const [selectedItem, setSelectedItem] = useState("/csm/dashboard");
+const SalesManagerSidebar = () => {
+  const [reportsOpen, setReportsOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState("/sales-manager-dashboard");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,30 +14,22 @@ const CSMSidebar = () => {
     const currentPath = location.pathname;
     setSelectedItem(currentPath);
 
-    // Automatically open Help Center dropdown
+    // Automatically open Reports dropdown
     if (
-      currentPath === "/csm/knowledge-base" ||
-      currentPath === "/csm/support-tickets"
+      currentPath === "/FinancialReport" ||
+      currentPath === "/ProductReport" ||
+      currentPath === "/CustomerReport" ||
+      currentPath === "/ReportHub"
     ) {
-      setHelpCenterOpen(true);
+      setReportsOpen(true);
     } else {
-      setHelpCenterOpen(false);
-    }
-
-    // Automatically open Customer Management dropdown
-    if (
-      currentPath === "/csm/customers-list" ||
-      currentPath === "/csm/customer-requests"
-    ) {
-      setCustomerManagementOpen(true);
-    } else {
-      setCustomerManagementOpen(false);
+      setReportsOpen(false);
     }
 
     // Automatically open Settings dropdown
     if (
-      currentPath === "/csm/update-profile" ||
-      currentPath === "/csm/change-password"
+      currentPath === "/update-profile" ||
+      currentPath === "/change-password"
     ) {
       setSettingsOpen(true);
     } else {
@@ -48,11 +38,8 @@ const CSMSidebar = () => {
   }, [location.pathname]);
 
   const handleItemClick = (href) => {
-    if (href === "#help-center") {
-      setHelpCenterOpen(!helpCenterOpen);
-      setSelectedItem(href);
-    } else if (href === "#customer-management") {
-      setCustomerManagementOpen(!customerManagementOpen);
+    if (href === "#reports") {
+      setReportsOpen(!reportsOpen);
       setSelectedItem(href);
     } else if (href === "#settings") {
       setSettingsOpen(!settingsOpen);
@@ -70,13 +57,13 @@ const CSMSidebar = () => {
       <ul className="space-y-4">
         <li>
           <a
-            href="/csm/dashboard"
+            href="/sales-manager-dashboard"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick("/csm/dashboard");
+              handleItemClick("/sales-manager-dashboard");
             }}
             className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/csm/dashboard"
+              selectedItem === "/sales-manager-dashboard"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
@@ -84,147 +71,92 @@ const CSMSidebar = () => {
             <MdDashboard className="mr-3" /> Dashboard
           </a>
         </li>
-        <li>
-          <a
-            href="/csm/manage-orders"
-            onClick={(e) => {
-              e.preventDefault();
-              handleItemClick("/csm/manage-orders");
-            }}
-            className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/csm/manage-orders"
-                ? "bg-green-200 text-gray-800"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <FiShoppingCart className="mr-3" /> Manage Orders
-          </a>
-        </li>
-        <li>
-          <a
-            href="#shipments"
-            onClick={(e) => {
-              e.preventDefault();
-              handleItemClick("#shipments");
-            }}
-            className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "#shipments"
-                ? "bg-green-200 text-gray-800"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <FiTruck className="mr-3" /> Shipment Tracking
-          </a>
-        </li>
 
-        {/* Help Center with Dropdown */}
+        {/* Reports with Dropdown */}
         <li>
           <button
-            onClick={() => handleItemClick("#help-center")}
+            onClick={() => handleItemClick("#reports")}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
-              selectedItem === "#help-center" ||
-              selectedItem === "/csm/knowledge-base" ||
-              selectedItem === "/csm/support-tickets"
+              selectedItem === "#reports" ||
+              selectedItem === "/FinancialReport" ||
+              selectedItem === "/ProductReport" ||
+              selectedItem === "/CustomerReport" ||
+              selectedItem === "/ReportHub"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
             <span className="flex items-center">
-              <FiHeadphones className="mr-3" /> Help Center
+              <FiBarChart2 className="mr-3" /> Reports
             </span>
             <FiChevronDown
-              className={`transition-transform ${helpCenterOpen ? "rotate-180" : ""}`}
+              className={`transition-transform ${reportsOpen ? "rotate-180" : ""}`}
             />
           </button>
-          {helpCenterOpen && (
+          {reportsOpen && (
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
-                  href="/csm/knowledge-base"
+                  href="/FinancialReport"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/csm/knowledge-base");
+                    handleItemClick("/FinancialReport");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/csm/knowledge-base"
+                    selectedItem === "/FinancialReport"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
                 >
-                  Knowledge Base
+                  Financial Report
                 </a>
               </li>
               <li>
                 <a
-                  href="/csm/support-tickets"
+                  href="/ProductReport"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/csm/support-tickets");
+                    handleItemClick("/ProductReport");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/csm/support-tickets"
+                    selectedItem === "/ProductReport"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
                 >
-                  Support Tickets
-                </a>
-              </li>
-            </ul>
-          )}
-        </li>
-
-        {/* Customer Management with Dropdown */}
-        <li>
-          <button
-            onClick={() => handleItemClick("#customer-management")}
-            className={`flex items-center justify-between w-full p-3 rounded-lg ${
-              selectedItem === "#customer-management" ||
-              selectedItem === "/csm/customers-list" ||
-              selectedItem === "/csm/customer-requests"
-                ? "bg-green-200 text-gray-800"
-                : "text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            <span className="flex items-center">
-              <FiUsers className="mr-3" /> User Management
-            </span>
-            <FiChevronDown
-              className={`transition-transform ${customerManagementOpen ? "rotate-180" : ""}`}
-            />
-          </button>
-          {customerManagementOpen && (
-            <ul className="ml-8 mt-2 space-y-2">
-              <li>
-                <a
-                  href="/csm/customers-list"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleItemClick("/csm/customers-list");
-                  }}
-                  className={`block p-2 rounded-lg ${
-                    selectedItem === "/csm/customers-list"
-                      ? "bg-green-200 text-gray-800"
-                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
-                  }`}
-                >
-                  Customers
+                  Products Report
                 </a>
               </li>
               <li>
                 <a
-                  href="/csm/customer-requests"
+                  href="/CustomerReport"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/csm/customer-requests");
+                    handleItemClick("/CustomerReport");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/csm/customer-requests"
+                    selectedItem === "/CustomerReport"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
                 >
-                  Customer Requests
+                  Customer Reports
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/ReportHub"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleItemClick("/ReportHub");
+                  }}
+                  className={`block p-2 rounded-lg ${
+                    selectedItem === "/ReportHub"
+                      ? "bg-green-200 text-gray-800"
+                      : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
+                  }`}
+                >
+                  Reports Hub
                 </a>
               </li>
             </ul>
@@ -233,18 +165,18 @@ const CSMSidebar = () => {
 
         <li>
           <a
-            href="/csm/coupons"
+            href="/SalarySheet"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick("/csm/coupons");
+              handleItemClick("/SalarySheet");
             }}
             className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/csm/coupons"
+              selectedItem === "/SalarySheet"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <FiTag className="mr-3" /> Discounts & Promotions
+            <FiDollarSign className="mr-3" /> Employee Salary Sheet
           </a>
         </li>
 
@@ -254,8 +186,8 @@ const CSMSidebar = () => {
             onClick={() => handleItemClick("#settings")}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
               selectedItem === "#settings" ||
-              selectedItem === "/csm/update-profile" ||
-              selectedItem === "/csm/change-password"
+              selectedItem === "/update-profile" ||
+              selectedItem === "/change-password"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
@@ -309,4 +241,4 @@ const CSMSidebar = () => {
   );
 };
 
-export default CSMSidebar;
+export default SalesManagerSidebar;

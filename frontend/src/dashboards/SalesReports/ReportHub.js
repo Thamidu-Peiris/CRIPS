@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -244,44 +246,33 @@ const ReportHub = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      {/*Side bar*/} 
-      <div className="w-[275px] bg-gray-300 p-5">
-        <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-        <ul className="space-y-5">
-          <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard </Link></li>
-          <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📉 Financial Report </Link> </li>
-          <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report  </Link> </li>
-          <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports </Link></li>
-          <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet </Link> </li>
-          <li><Link to="/ReportHub" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Reports Hub </Link></li>
-          <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">⚙ Settings </Link></li>
-        </ul>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 p-6">
-        <h1 className="text-3xl font-bold text-green-600 mb-6">Reports Hub</h1>
-        <div className="mb-6 flex items-center">
-          <label className="mr-4 font-semibold">Select Report Type:</label>
-          <select
-            value={reportType}
-            onChange={(e) => setReportType(e.target.value)}
-            className="p-2 border rounded mr-4"
-          >
-            <option value="financial">Financial Report</option>
-            <option value="customer">Customer Report</option>
-            <option value="payroll">Salary Payroll</option>
-            <option value="product">Product Performance</option>
-          </select>
+    <div className="flex h-screen bg-gray-200">
+      <SalesManagerSidebar />
+      <main className="flex-1 p-6">
+        <SalesManagerNavbar />
+        <h1 className="text-3xl font-bold text-green-600 mb-6 mt-6">Reports Hub</h1>
+        <div className="mb-6 flex items-center flex-wrap gap-4">
+          <div className="flex items-center">
+            <label className="mr-4 font-semibold">Select Report Type:</label>
+            <select
+              value={reportType}
+              onChange={(e) => setReportType(e.target.value)}
+              className="p-2 border rounded bg-white"
+            >
+              <option value="financial">Financial Report</option>
+              <option value="customer">Customer Report</option>
+              <option value="payroll">Salary Payroll</option>
+              <option value="product">Product Performance</option>
+            </select>
+          </div>
 
           {/* Show month and year selectors only for payroll report */}
           {reportType === "payroll" && (
-            <>
+            <div className="flex items-center gap-2">
               <select
                 value={month}
                 onChange={(e) => setMonth(e.target.value)}
-                className="mr-2 p-2 border rounded"
+                className="p-2 border rounded bg-white"
               >
                 {[...Array(12)].map((_, i) => (
                   <option key={i + 1} value={i + 1}>
@@ -292,33 +283,35 @@ const ReportHub = () => {
               <select
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
-                className="mr-2 p-2 border rounded"
+                className="p-2 border rounded bg-white"
               >
                 {[...Array(5)].map((_, i) => {
                   const y = new Date().getFullYear() - 2 + i;
                   return <option key={y} value={y}>{y}</option>;
                 })}
               </select>
-            </>
+            </div>
           )}
 
           {/* Export Buttons */}
-          <button
-            onClick={exportToCSV}
-            className="bg-blue-500 text-white px-4 py-2 rounded-full mr-2"
-          >
-            Export to CSV
-          </button>
-          <button
-            onClick={exportToPDF}
-            className="bg-purple-500 text-white px-4 py-2 rounded-full"
-          >
-            Export to PDF
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={exportToCSV}
+              className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
+            >
+              Export to CSV
+            </button>
+            <button
+              onClick={exportToPDF}
+              className="bg-purple-500 text-white px-4 py-2 rounded-full hover:bg-purple-600"
+            >
+              Export to PDF
+            </button>
+          </div>
         </div>
 
         {/* Render the selected report data in a table */}
-        <div className="bg-white p-5 rounded-lg shadow-lg">
+        <div className="bg-white p-6 rounded-2xl shadow-md">
           <h2 className="text-lg font-bold mb-4">
             {reportType === "financial" && "Financial Report"}
             {reportType === "customer" && "Customer Report"}
@@ -328,93 +321,95 @@ const ReportHub = () => {
           </h2>
 
           {loading ? (
-            <p className="text-center p-4">Loading...</p>
+            <p className="text-center p-4 text-gray-500">Loading...</p>
           ) : error ? (
             <p className="text-red-500 text-center p-4">{error}</p>
           ) : !Array.isArray(reportData) || reportData.length === 0 ? (
-            <p className="text-center p-4">No data available for this report.</p>
+            <p className="text-center p-4 text-gray-600">No data available for this report.</p>
           ) : (
-            <table className="w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200">
-                  {reportType === "financial" && (
-                    <>
-                      <th className="border border-gray-300 p-2">Date</th>
-                      <th className="border border-gray-300 p-2">Type</th>
-                      <th className="border border-gray-300 p-2">Amount (Rs.)</th>
-                      <th className="border border-gray-300 p-2">Description</th>
-                    </>
-                  )}
-                  {reportType === "customer" && (
-                    <>
-                      <th className="border border-gray-300 p-2">Customer Name</th>
-                      <th className="border border-gray-300 p-2">Total Purchases</th>
-                      <th className="border border-gray-300 p-2">Total Amount (Rs.)</th>
-                    </>
-                  )}
-                  {reportType === "payroll" && (
-                    <>
-                      <th className="border border-gray-300 p-2">Sr. No</th>
-                      <th className="border border-gray-300 p-2">Name of Employee</th>
-                      <th className="border border-gray-300 p-2">Designation</th>
-                      <th className="border border-gray-300 p-2">Basic (Rs.)</th>
-                      <th className="border border-gray-300 p-2">Allowances / OverTime (Rs.)</th>
-                      <th className="border border-gray-300 p-2">Deductions (Rs.)</th>
-                      <th className="border border-gray-300 p-2">Net Salary (Rs.)</th>
-                    </>
-                  )}
-                  {reportType === "product" && (
-                    <>
-                      <th className="border border-gray-300 p-2">Product Name</th>
-                      <th className="border border-gray-300 p-2">Units Sold</th>
-                      <th className="border border-gray-300 p-2">Total Revenue (Rs.)</th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {reportType === "financial" &&
-                  reportData.map((entry, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="border border-gray-300 p-2">{entry.date || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.type || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.amount || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.description || "-"}</td>
-                    </tr>
-                  ))}
-                {reportType === "customer" &&
-                  reportData.map((entry, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="border border-gray-300 p-2">{entry.customerName || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.totalPurchases || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.totalAmount || "-"}</td>
-                    </tr>
-                  ))}
-                {reportType === "payroll" &&
-                  reportData.map((entry, index) => (
-                    <tr key={entry._id || index} className="text-center">
-                      <td className="border border-gray-300 p-2">{index + 1}</td>
-                      <td className="border border-gray-300 p-2">{entry.employeeName || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.designation || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.basicSalary || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.allowances || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.deductions || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.netSalary || "-"}</td>
-                    </tr>
-                  ))}
-                {reportType === "product" &&
-                  reportData.map((entry, index) => (
-                    <tr key={index} className="text-center">
-                      <td className="border border-gray-300 p-2">{entry.productName || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.unitsSold || "-"}</td>
-                      <td className="border border-gray-300 p-2">{entry.totalRevenue || "-"}</td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    {reportType === "financial" && (
+                      <>
+                        <th className="border border-gray-300 p-3">Date</th>
+                        <th className="border border-gray-300 p-3">Type</th>
+                        <th className="border border-gray-300 p-3">Amount (Rs.)</th>
+                        <th className="border border-gray-300 p-3">Description</th>
+                      </>
+                    )}
+                    {reportType === "customer" && (
+                      <>
+                        <th className="border border-gray-300 p-3">Customer Name</th>
+                        <th className="border border-gray-300 p-3">Total Purchases</th>
+                        <th className="border border-gray-300 p-3">Total Amount (Rs.)</th>
+                      </>
+                    )}
+                    {reportType === "payroll" && (
+                      <>
+                        <th className="border border-gray-300 p-3">Sr. No</th>
+                        <th className="border border-gray-300 p-3">Name of Employee</th>
+                        <th className="border border-gray-300 p-3">Designation</th>
+                        <th className="border border-gray-300 p-3">Basic (Rs.)</th>
+                        <th className="border border-gray-300 p-3">Allowances / OverTime (Rs.)</th>
+                        <th className="border border-gray-300 p-3">Deductions (Rs.)</th>
+                        <th className="border border-gray-300 p-3">Net Salary (Rs.)</th>
+                      </>
+                    )}
+                    {reportType === "product" && (
+                      <>
+                        <th className="border border-gray-300 p-3">Product Name</th>
+                        <th className="border border-gray-300 p-3">Units Sold</th>
+                        <th className="border border-gray-300 p-3">Total Revenue (Rs.)</th>
+                      </>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportType === "financial" &&
+                    reportData.map((entry, index) => (
+                      <tr key={index} className="text-center">
+                        <td className="border border-gray-300 p-3">{entry.date || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.type || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.amount || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.description || "-"}</td>
+                      </tr>
+                    ))}
+                  {reportType === "customer" &&
+                    reportData.map((entry, index) => (
+                      <tr key={index} className="text-center">
+                        <td className="border border-gray-300 p-3">{entry.customerName || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.totalPurchases || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.totalAmount || "-"}</td>
+                      </tr>
+                    ))}
+                  {reportType === "payroll" &&
+                    reportData.map((entry, index) => (
+                      <tr key={entry._id || index} className="text-center">
+                        <td className="border border-gray-300 p-3">{index + 1}</td>
+                        <td className="border border-gray-300 p-3">{entry.employeeName || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.designation || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.basicSalary || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.allowances || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.deductions || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.netSalary || "-"}</td>
+                      </tr>
+                    ))}
+                  {reportType === "product" &&
+                    reportData.map((entry, index) => (
+                      <tr key={index} className="text-center">
+                        <td className="border border-gray-300 p-3">{entry.productName || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.unitsSold || "-"}</td>
+                        <td className="border border-gray-300 p-3">{entry.totalRevenue || "-"}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
