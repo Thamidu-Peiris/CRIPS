@@ -1,10 +1,9 @@
-<<<<<<< Updated upstream
+
 // backend\controllers\Supplier\supplierDashboardController.js
 const Order = require('../../models/InventoryM/OrderStock'); // Use the correct Order model
-=======
->>>>>>> Stashed changes
 
-const Order = require('../../controllers/Supplier/orderStockController');
+
+//const Order = require('../../controllers/Supplier/orderStockController');
 const Supplier = require('../../models/SupplierM/Supplier');
 // Get all orders for the supplier
 exports.getSupplierOrders = async (req, res) => {
