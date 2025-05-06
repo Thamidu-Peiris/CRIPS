@@ -6,6 +6,7 @@ const InventoryManager = require("../models/InventoryM/inventoryManagerModel");
 const SalesManager = require("../models/salesManager/salesManagerModel");
 const TransportManager = require("../models/TransportManager/TransportManagerModel");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 
 // Map job titles to models
 const roleModelMap = {
@@ -22,6 +23,53 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Phone number validation regex (basic example, adjust as needed)
 const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+
+// Function to send email
+const sendThankYouEmail = async (to, firstName, jobTitle) => {
+  try {
+    console.log("Setting up transporter for thank you email...");
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "cripsaquaplants@gmail.com",
+        pass: "yoogriibsdyqtdzu",
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+
+    console.log("Verifying transporter connection...");
+    await transporter.verify();
+    console.log("Transporter is ready to send thank you email!");
+
+    const subject = "Thank You for Applying at CRIPS!";
+    const html = `
+      <h3>Hello ${firstName},</h3>
+      <p>Thank you for applying for the position of <b>${jobTitle}</b> at CRIPS Aqua Plant Export System.</p>
+      <p>We have successfully received your application. Our team will review your submission, and we will inform you shortly regarding the next steps.</p>
+      <p>In the meantime, you can check your application status at any time by visiting: <a href="http://localhost:3000/check-status">Check Application Status</a>.</p>
+      <br/>
+      <p>Best Regards,<br/>CRIPS System Manager</p>
+    `;
+
+    console.log("Preparing thank you email options...");
+    const mailOptions = {
+      from: '"CRIPS Aqua Plant Export" <cripsaquaplants@gmail.com>',
+      to,
+      subject,
+      html,
+    };
+    console.log("Thank you email options prepared:", mailOptions);
+
+    console.log("Attempting to send thank you email...");
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Thank you email sent successfully! Message ID:", info.messageId);
+  } catch (error) {
+    console.error("Error sending thank you email:", error);
+    throw new Error("Failed to send thank you email");
+  }
+};
 
 // Submit a job application
 exports.submitJobApplication = async (req, res) => {
@@ -143,6 +191,15 @@ exports.submitJobApplication = async (req, res) => {
 
     await application.save();
     console.log("Application saved to jobapplications collection:", application);
+
+    // Send thank you email
+    try {
+      await sendThankYouEmail(email, firstName, jobTitle);
+      console.log("Thank you email sent successfully to:", email);
+    } catch (emailError) {
+      console.error("Failed to send thank you email, but application saved:", emailError);
+      // Note: We don't fail the request if the email fails; the application is already saved
+    }
 
     console.log(`Application for ${jobTitle} will be saved to role-specific collection only after approval`);
 
