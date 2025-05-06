@@ -1,4 +1,3 @@
-// frontend\src\dashboards\TransportManager\Sidebar.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaTruck, FaClipboardCheck, FaGasPump, FaMapMarkedAlt, FaChartBar, FaBook, FaUser, FaSignOutAlt, FaBox } from 'react-icons/fa';
@@ -24,9 +23,9 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-72 bg-gray-900/95 backdrop-blur-xl text-white shadow-2xl border-r border-gray-800/50">
-      <div className="p-6 border-b border-gray-800/50">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+    <div className="fixed top-0 left-0 h-screen w-64 bg-teal-100 text-gray-800 shadow-md border-r border-gray-200 p-6">
+      <div className="border-b border-gray-200">
+        <h2 className="text-2xl font-bold text-green-900 text-center">
           CRIPS
         </h2>
       </div>
@@ -36,27 +35,27 @@ export default function Sidebar() {
           <div
             key={index}
             onClick={() => navigate(item.path)}
-            className="flex items-center gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-blue-600/20 cursor-pointer transition-all duration-300 group"
+            className="flex items-center gap-4 px-4 py-3 rounded-xl transition duration-300 hover:bg-green-50 text-gray-600 hover:text-green-900 group"
           >
-            <div className="text-2xl text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300">
+            <div className="text-lg text-green-500 group-hover:text-green-600 transition-colors duration-300">
               {item.icon}
             </div>
-            <span className="text-lg font-medium group-hover:text-cyan-200 transition-colors duration-300">
+            <span className="text-lg font-medium group-hover:text-green-900 transition-colors duration-300">
               {item.name}
             </span>
           </div>
         ))}
       </nav>
 
-      <div className="p-6 border-t border-gray-800/50">
+      <div className="border-t border-gray-200">
         <div
           onClick={handleLogout}
-          className="flex items-center gap-4 px-6 py-4 hover:bg-gradient-to-r hover:from-red-500/20 hover:to-red-600/20 cursor-pointer transition-all duration-300 group"
+          className="flex items-center gap-4 px-4 py-3 rounded-xl transition duration-300 bg-green-500 hover:bg-green-600 text-white cursor-pointer group"
         >
-          <div className="text-2xl text-red-400 group-hover:text-red-300 transition-colors duration-300">
+          <div className="text-lg text-white group-hover:text-gray-100 transition-colors duration-300">
             <FaSignOutAlt />
           </div>
-          <span className="text-lg font-medium group-hover:text-red-200 transition-colors duration-300">
+          <span className="text-lg font-medium group-hover:text-gray-100 transition-colors duration-300">
             Logout
           </span>
         </div>
