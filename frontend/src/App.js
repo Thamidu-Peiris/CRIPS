@@ -86,14 +86,18 @@ import TransportReports from "./dashboards/TransportManager/TransportReports.js"
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
 import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
 import OrderStock from './components/InventoryM/OrderStock.js';
+import InventoryOrders from './components/SupplierM/InventoryOrders';
+import Shipments from './components//SupplierM/Shipments';
+import SupplierProfile from './components//SupplierM/SupplierProfile';
+
 
 import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
 import SysManageCus from './dashboards/SM/ManageCustomers.js';
-<<<<<<< Updated upstream
+
 import CustomerDetails from "./dashboards/CSM/CustomerDetails";
-=======
 import SupplierDashboard from "./components/SupplierM/SupplierDashboard.js";
->>>>>>> Stashed changes
+
+
 
 function App() {
   return (
@@ -185,8 +189,10 @@ function App() {
 
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
-        
-
+        <Route path="/inventory-orders" element={<InventoryOrders />} />
+        <Route path="/shipments" element={<Shipments />} />
+        <Route path="/profile" element={<SupplierProfile />} />
+        <Route path="/supplier-profile" element={<SupplierProfile />} />
 
 
         <Route path="/transport-manager-profile" element={<TMprofile />} />

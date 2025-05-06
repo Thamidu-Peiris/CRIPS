@@ -1,7 +1,6 @@
-// backend\routes\SupplierM\SupplierRoute.js
 const express = require('express');
 const router = express.Router();
-const supplierController = require('../../controllers/Supplier/supplierController'); // Adjusted path to Supplier
+const supplierController = require('../../controllers/Supplier/supplierController'); // For supplier registration and management
 const multer = require('multer');
 
 // Multer setup
@@ -20,6 +19,9 @@ router.get('/pending', supplierController.getPendingSuppliers);
 // Approve/Reject supplier
 router.put('/status/:id', supplierController.updateSupplierStatus);
 
+// Get all suppliers
 router.get('/', supplierController.getAllSuppliers);
+
+
 
 module.exports = router;
