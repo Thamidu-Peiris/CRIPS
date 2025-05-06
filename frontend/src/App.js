@@ -101,6 +101,7 @@ import SupplierDashboard from "./components/SupplierM/SupplierDashboard.js";
 import AddVacancies from "./pages/SysManager/AddVacancies.js";
 import CheckStatus from "./pages/CheckStatus.js";
 import Vehicle from "../src/dashboards/TransportManager/Vehicles.js";
+import TrackOrder from "./dashboards/CSM/TrackOrder.js";
 
 
 function App() {
@@ -205,6 +206,7 @@ function App() {
         <Route path="/inv-profile" element={<InvProfile />} />
         <Route path="/inv-update-profile" element={<InvUpdateProfile />} />
         <Route path="/inv-change-password" element={<InvChangePassword />} />
+        <Route path="/csm/track-order" element={<TrackOrder />} />
 
 
       </Routes>
