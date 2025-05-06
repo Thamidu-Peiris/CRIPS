@@ -50,6 +50,9 @@ import ManageOrders from "./dashboards/CSM/ManageOrders";
 import OrderStatusHistory from "./dashboards/Customer/OrderStatusHistory";
 import CreateCoupons from './dashboards/CSM/CreateCoupons';
 
+import InvProfile from "../src/components/InventoryM/InvProfile.js";
+import InvUpdateProfile from "../src/components/InventoryM/InvUpdateProfile.js";
+import InvChangePassword from "../src/components/InventoryM/InvChangePassword.js";
 
 
 
@@ -198,6 +201,10 @@ function App() {
         <Route path="/transport-manager-profile" element={<TMprofile />} />
         <Route path="/sm-manage-cus" element={<SysManageCus />} />
         <Route path="/vehicles" element={<Vehicle />} />
+
+        <Route path="/inv-profile" element={<InvProfile />} />
+        <Route path="/inv-update-profile" element={<InvUpdateProfile />} />
+        <Route path="/inv-change-password" element={<InvChangePassword />} />
 
 
       </Routes>
