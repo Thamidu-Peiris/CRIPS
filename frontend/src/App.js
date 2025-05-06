@@ -86,13 +86,19 @@ import TransportReports from "./dashboards/TransportManager/TransportReports.js"
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
 import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
 import OrderStock from './components/InventoryM/OrderStock.js';
-import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
+
 import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
 import SysManageCus from './dashboards/SM/ManageCustomers.js';
+
 import CustomerDetails from "./dashboards/CSM/CustomerDetails";
+
+import SupplierDashboard from "./components/SupplierM/SupplierDashboard.js";
+
+
 import AddVacancies from "./pages/SysManager/AddVacancies.js";
 import CheckStatus from "./pages/CheckStatus.js";
 import Vehicle from "../src/dashboards/TransportManager/Vehicles.js";
+
 
 function App() {
   return (
