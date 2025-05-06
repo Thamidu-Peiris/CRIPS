@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\GH\GHUpdateProfile.js
+// frontend\src\dashboards\GrowerHandler\GHUpdateProfile.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

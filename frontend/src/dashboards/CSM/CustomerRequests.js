@@ -1,4 +1,4 @@
-// CRIPS/frontend/src/dashboards/CSM/CustomerManagement.js
+// frontend\src\dashboards\CSM\CustomerRequests.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import CSMNavbar from "../../components/CSMNavbar";

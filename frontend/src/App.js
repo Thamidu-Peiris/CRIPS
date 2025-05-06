@@ -43,11 +43,12 @@ import CustomersList from "./dashboards/CSM/CustomersList";
 import ReportHub from "./dashboards/SalesReports/ReportHub.js";
 import Wishlist from "./components/Wishlist";
 import Checkout from "./pages/Checkout";
-
-
-
-
-
+import OrderDetails from "./pages/OrderDetails";
+import TrackingPage from "./dashboards/Customer/TrackingPage";
+import CustomerOrders from "./dashboards/TransportManager/CustomerOrders.js";
+import ManageOrders from "./dashboards/CSM/ManageOrders";
+import OrderStatusHistory from "./dashboards/Customer/OrderStatusHistory";
+import CreateCoupons from './dashboards/CSM/CreateCoupons';
 
 
 
@@ -88,6 +89,8 @@ import OrderStock from './components/InventoryM/OrderStock.js';
 import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
 import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
 import SysManageCus from './dashboards/SM/ManageCustomers.js';
+import CustomerDetails from "./dashboards/CSM/CustomerDetails";
+import AddVacancies from "./pages/SysManager/AddVacancies.js";
 
 function App() {
   return (
@@ -100,12 +103,19 @@ function App() {
         <Route path="/shop" element={<Shop/>} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/dashboard/orders" element={<OrdersPage />} />
+        <Route path="/orders/:orderId" element={<OrderDetails />} />
+        <Route path="/dashboard/tracking" element={<TrackingPage />} />
+        <Route path="/csm/manage-orders" element={<ManageOrders />} />
+        <Route path="/dashboard/customer-orders" element={<CustomerOrders />} />
+        <Route path="/customer/:customerId" element={<CustomerDetails />} />
+        <Route path="/orders/:orderId/status-history" element={<OrderStatusHistory />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/csm/dashboard" element={<CustomerServiceDashboard />} />
         <Route path="/csm/customer-requests" element={<CustomerRequests />} />
         <Route path="/csm/customers-list" element={<CustomersList />} />
+        <Route path="/csm/coupons" element={<CreateCoupons />} />
         <Route path="/grower-handler-dashboard" element={<GrowerHandlerDashboard />} />
         <Route path="/cutters-dashboard" element={<CutterDashboard/>} />
         
@@ -172,6 +182,7 @@ function App() {
 
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/add-vacancies" element={<AddVacancies />} />
         
 
 

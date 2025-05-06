@@ -1,4 +1,4 @@
-// CRIPS\frontend\src\dashboards\GrowerHandler\GHChangePassword.js
+// frontend\src\dashboards\GrowerHandler\GHChangePassword.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";

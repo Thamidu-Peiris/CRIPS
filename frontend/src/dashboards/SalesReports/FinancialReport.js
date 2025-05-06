@@ -1,6 +1,8 @@
-// CRIPS\frontend\src\dashboards\SalesReports\FinancialReport.js
+// frontend\src\dashboards\SalesReports\FinancialReport.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -56,129 +58,91 @@ const FinancialReport = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-[275px] bg-gray-300 p-5">
-        <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-        <ul className="space-y-5">
-          <li>
-            <Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              🏠 Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              📉 Financial Report
-            </Link>
-          </li>
-          <li>
-            <Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              📦 Products Report
-            </Link>
-          </li>
-          <li>
-            <Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              👥 Customer Reports
-            </Link>
-          </li>
-          <li>
-            <Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              💰 Employee Salary Sheet
-            </Link>
-          </li>
-          <li>
-            <Link to="/ReportHub" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              📊 Reports Hub
-            </Link>
-          </li>
-          <li>
-            <Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              ⚙ Settings
-            </Link>
-          </li>
-        </ul>
-      </div>
-
-      {/* Main Content */}
-      <div className="w-4/5 p-10">
-        <div className="flex justify-between items-center mb-6">
+    <div className="flex h-screen bg-gray-200">
+      <SalesManagerSidebar />
+      <main className="flex-1 p-6">
+        <SalesManagerNavbar />
+        <div className="flex justify-between items-center mb-6 mt-6">
           <h1 className="text-3xl font-bold text-green-600">Financial Report</h1>
-          <button className="bg-green-500 px-4 py-2 rounded-full">Generate Report</button>
+          <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
+            Generate Report
+          </button>
         </div>
 
         {/* Income Statement */}
-        <div className="p-20 bg-gray-100 p-5 mt-10 rounded-lg shadow-lg">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold">Income Statement</h2>
-          </div>
-
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 p-2">Date</th>
-                <th className="border border-gray-300 p-2">Description</th>
-                <th className="border border-gray-300 p-2">Income (Rs.)</th>
-                <th className="border border-gray-300 p-2">Expense (Rs.)</th>
-                <th className="border border-gray-300 p-2">Total Balance (Rs.)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {incstatement.map((order) => (
-                <tr className="text-center">
-                  <td className="border border-gray-300 p-2">{order.date}</td>
-                  <td className="border border-gray-300 p-2">{order.description}</td>
-                  <td className="border border-gray-300 p-2">{order.income}</td>
-                  <td className="border border-gray-300 p-2">{order.expense}</td>
-                  <td className="border border-gray-300 p-2">{order.balance}</td>
+        <div className="bg-white p-6 rounded-2xl shadow-md mb-6">
+          <h2 className="text-lg font-bold mb-4">Income Statement</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-300 p-3">Date</th>
+                  <th className="border border-gray-300 p-3">Description</th>
+                  <th className="border border-gray-300 p-3">Income (Rs.)</th>
+                  <th className="border border-gray-300 p-3">Expense (Rs.)</th>
+                  <th className="border border-gray-300 p-3">Total Balance (Rs.)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {incstatement.map((order, index) => (
+                  <tr key={index} className="text-center">
+                    <td className="border border-gray-300 p-3">{order.date}</td>
+                    <td className="border border-gray-300 p-3">{order.description}</td>
+                    <td className="border border-gray-300 p-3">{order.income}</td>
+                    <td className="border border-gray-300 p-3">{order.expense}</td>
+                    <td className="border border-gray-300 p-3">{order.balance}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Summary Cards */}
-        <div className="mt-10 flex justify-left gap-20">
-          <div className="bg-white shadow-lg rounded-lg p-4 text-center border h-[210px] w-[305px]">
-            <p className="font-bold mb-2">Total Revenue and Expenses Summary (Last 7 days)</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white shadow-md rounded-2xl p-6">
+            <p className="font-bold text-lg mb-4">Total Revenue and Expenses Summary (Last 7 days)</p>
             <div className="flex justify-between mb-2">
-              <p className="text-s font-semibold text-right">Total Income</p>
-              <p className="text-s font-semibold text-right">Rs.28000</p>
+              <p className="text-sm font-semibold">Total Income</p>
+              <p className="text-sm font-semibold">Rs.28000</p>
             </div>
             <div className="flex justify-between mb-2">
-              <p className="text-s font-semibold text-right">Total Expenses</p>
-              <p className="text-s font-semibold text-right">Rs.15000</p>
+              <p className="text-sm font-semibold">Total Expenses</p>
+              <p className="text-sm font-semibold">Rs.15000</p>
             </div>
             <div className="flex justify-between mb-2">
-              <p className="text-s font-semibold text-right">Discounts</p>
-              <p className="text-s font-semibold text-right">Rs.8000</p>
+              <p className="text-sm font-semibold">Discounts</p>
+              <p className="text-sm font-semibold">Rs.8000</p>
             </div>
             <div className="flex justify-between">
-              <p className="text-s font-semibold text-right">Tax Payable</p>
-              <p className="text-s font-semibold text-right">Rs.5000</p>
+              <p className="text-sm font-semibold">Tax Payable</p>
+              <p className="text-sm font-semibold">Rs.5000</p>
             </div>
           </div>
 
-          {/* Fuel Cost */}
-          <div className="w-[385px] h-[200px] p-5 bg-white rounded-lg shadow-lg flex flex-col justify-center items-center">
-            <p className="font-semibold">Total Fuel Cost (Last 7 days)</p>
+          <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col justify-center items-center">
+            <p className="font-semibold text-lg mb-2">Total Fuel Cost (Last 7 days)</p>
             {loading ? (
               <p className="text-gray-500">Loading...</p>
             ) : error ? (
               <p className="text-red-500">{error}</p>
             ) : (
-              <h2 className="text-2xl font-bold">{totalFuelCost}</h2>
+              <h2 className="text-2xl font-bold text-blue-600">{totalFuelCost}</h2>
             )}
           </div>
 
-          <div className="w-[385px] h-[200px] p-5 bg-white rounded-lg shadow-lg flex flex-col justify-center items-center">
-            <p className="font-bold mb-2">Export File</p>
-            <h2 className="text-sm font-semibold mb-2">Download as CSV SpreadSheet or a PDF</h2>
-            <Link to="/ReportHub" className="bg-green-500 text-black px-4 py-2 rounded-full mr-2">
+          <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col justify-center items-center">
+            <p className="font-bold text-lg mb-2">Export File</p>
+            <h2 className="text-sm font-semibold mb-4 text-center">Download as CSV SpreadSheet or a PDF</h2>
+            <Link
+              to="/ReportHub"
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600"
+            >
               Go to Report Hub
             </Link>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

@@ -1,117 +1,220 @@
-// CRIPS\frontend\src\dashboards\SalesManagerDashboard.js
-import React from "react";
+// frontend\src\dashboards\SalesManagerDashboard.js
+/* eslint-disable */
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
-
-const data = [
-  { month: "Jan", revenue: 45000 },
-  { month: "Feb", revenue: 15000 },
-  { month: "Mar", revenue: 20000 },
-  { month: "Apr", revenue: 1000 },
-  { month: "May", revenue: 12000 },
-  { month: "Jun", revenue: 5000 },
-  { month: "Jul", revenue: 25000 },
-  { month: "Aug", revenue: 6000 },
-  { month: "Sep", revenue: 3000 },
-  { month: "Oct", revenue: 17000 },
-  { month: "Nov", revenue: 10000 },
-  { month: "Dec", revenue: 47000 },
-];
-
-const topSellingPlants = [
-  { id: 1, name: "Plant 1", sold: 600, image: "plant1.jpg" },
-  { id: 2, name: "Plant 2", sold: 543, image: "plant2.jpg" },
-  { id: 3, name: "Plant 3", sold: 420, image: "plant3.jpg" },
-];
-
-const recentOrders = [
-  { id: "001", customer: "A", amount: 500, status: "Complete" },
-  { id: "002", customer: "B", amount: 1500, status: "Pending" },
-  { id: "003", customer: "C", amount: 3500, status: "Complete" },
-  { id: "004", customer: "D", amount: 600, status: "Canceled" },
-  { id: "005", customer: "E", amount: 5000, status: "Pending" },
-];
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import SalesManagerNavbar from "../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../components/SalesManagerSidebar";
 
 const SalesManagerDashboard = () => {
+  const [revenueData, setRevenueData] = useState([]);
+  const [topSellingPlants, setTopSellingPlants] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [orderStatusDistribution, setOrderStatusDistribution] = useState([]);
+  const [topPlantsUnits, setTopPlantsUnits] = useState([]);
+  const [salesSummary, setSalesSummary] = useState({
+    units: 0,
+    revenue: 0,
+    totalOrders: 0,
+    avgOrderValue: 0,
+    pendingOrders: 0,
+    revenueGrowth: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Colors for Pie Chart
+  const COLORS = ['#4CAF50', '#FFCA28', '#2196F3', '#AB47BC', '#FF5722'];
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+
+        const apiUrl = "http://localhost:5000/api/sales-report/dashboard-data";
+        console.log("Fetching from:", apiUrl);
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            // Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        console.log("Response Status:", response.status);
+        console.log("Response Headers:", [...response.headers.entries()]);
+
+        if (!response.ok) {
+          const text = await response.text();
+          console.error("Error Response (full):", text);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await response.text();
+          console.error("Non-JSON Response (full):", text);
+          throw new Error(`Response is not JSON: Content-Type is ${contentType}`);
+        }
+
+        const data = await response.json();
+        console.log("Received Data:", data);
+
+        setRevenueData(data.revenueData || []);
+        setTopSellingPlants(data.topSellingPlants || []);
+        setRecentOrders(data.recentOrders || []);
+        setOrderStatusDistribution(data.orderStatusDistribution || []);
+        setTopPlantsUnits(data.topPlantsUnits || []);
+        setSalesSummary({
+          units: data.summary?.last7DaysUnits || 0,
+          revenue: data.summary?.lastMonthRevenue || 0,
+          totalOrders: data.summary?.totalOrders || 0,
+          avgOrderValue: data.summary?.avgOrderValue || 0,
+          pendingOrders: data.summary?.pendingOrders || 0,
+          revenueGrowth: data.summary?.revenueGrowth || 0,
+        });
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Fetch Error:", err.message);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-200">
+        <SalesManagerSidebar />
+        <main className="flex-1 p-6">
+          <SalesManagerNavbar />
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-gray-200">
+        <SalesManagerSidebar />
+        <main className="flex-1 p-6">
+          <SalesManagerNavbar />
+          <div className="text-center text-red-600">Error: {error}</div>
+        </main>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-parent">
-      {/* Sidebar */}
-      <div className="w-[275px] bg-gray-300 p-5">
-        <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-        <ul className="space-y-5">
-          <li><Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">🏠 Dashboard</Link></li>
-          <li><Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📉 Financial Report</Link></li>
-          <li><Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📦 Products Report</Link></li>
-          <li><Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">👥 Customer Reports</Link></li>
-          <li><Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">💰 Employee Salary Sheet</Link></li>
-          <li><Link to="/ReportHub" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">📊 Reports Hub</Link></li>
-          <li><Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300"> ⚙ Settings</Link></li>
-        </ul>
-      </div>
-
-
-      {/* Main Content */}
-      <div className="w-4/5 p-10 text-center relative">
-      {/* Top-left "My Account" Button */}
-       <div className="absolute top-0 right-0 p-4">
-        <button className="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
-         <img
-           src="/default-profile.png"
-           alt="Profile"
-           className="w-8 h-8 object-cover rounded-full"
-          />
-          <span className="text-sm font-medium">Sales Manager</span>
-          <svg
-              stroke="currentColor"
-              fill="currentColor"
-              strokeWidth="0"
-              className="text-sm"
-              height="1em"
-              width="1em"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path>
-            </svg>
-        </button>
-      </div>
-
-        <h1 className="text-3xl font-bold text-green-600">Sales and Report Dashboard Page</h1>
-        <p>Welcome to the Sales Dashboard</p>
+    <div className="flex h-screen bg-gray-200">
+      <SalesManagerSidebar />
+      <main className="flex-1 p-6">
+        <SalesManagerNavbar />
+        
 
         {/* Summary Cards */}
-        <div className="mt-10 flex justify-center gap-10">
-          <div className="bg-white shadow-lg rounded-lg p-5 text-center border">
-            <p className="font-semibold">Sales Summary (Last 7 days)</p>
-            <h2 className="text-2xl font-bold">345 Units</h2>
-            <button> <Link to="/ProductReport" className="text-blue-500 mt-2"> See details</Link></button>
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">Sales Summary</p>
+            <p className="font-semibold text-sm text-gray-500">(Last 7 days)</p>
+            <h2 className="text-2xl font-bold text-blue-600">{salesSummary.units} Units</h2>
+            <Link to="/ProductReport" className="text-blue-500 mt-2 inline-block">See details</Link>
           </div>
-
-          <div className="bg-white shadow-lg rounded-lg p-5 text-center border">
-            <p className="font-semibold">Total Revenue (Last month)</p>
-            <h2 className="text-2xl font-bold">Rs. 26,500</h2>
-            <button><Link to="/FinancialReport" className="text-blue-500 mt-2">See details</Link></button>
+          <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">Revenue </p>
+            <p className="font-semibold text-sm text-gray-500">(Last 30 Days)</p>
+            <h2 className="text-2xl font-bold text-blue-600">$ {salesSummary.revenue.toLocaleString()}</h2>
+            <Link to="/FinancialReport" className="text-blue-500 mt-2 inline-block">See details</Link>
+          </div>
+          <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">Total Orders</p>
+            <p className="font-semibold text-sm text-gray-500">(Last 30 Days)</p>
+            <h2 className="text-2xl font-bold text-blue-600">{salesSummary.totalOrders}</h2>
+            <Link to="/CustomerReport" className="text-blue-500 mt-2 inline-block">See details</Link>
+          </div>
+          <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">Avg. Order Value</p>
+            <p className="font-semibold text-sm text-gray-500">(Last 30 Days)</p>
+            <h2 className="text-2xl font-bold text-blue-600">$ {salesSummary.avgOrderValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h2>
+            <Link to="/FinancialReport" className="text-blue-500 mt-2 inline-block">See details</Link>
+          </div>
+          <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">Revenue Growth </p>
+            <p className="font-semibold text-sm text-gray-500">(Last 30 Days)</p>
+            <h2 className="text-2xl font-bold text-blue-600">{salesSummary.revenueGrowth.toFixed(2)}%</h2>
+            <Link to="/FinancialReport" className="text-blue-500 mt-2 inline-block">See details</Link>
           </div>
         </div>
 
+        {/* Charts Section */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Revenue Chart */}
-        <div className="mt-10 p-10 bg-white p-5 shadow-lg rounded-lg">
-          <h2 className="text-lg font-bold mb-3">Revenue (Rs.)</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="revenue" fill="#4CAF50" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="bg-white p-6 rounded-2xl shadow-md">
+            <h2 className="text-lg font-bold mb-3">Revenue ($)</h2>
+            <div style={{ height: "200px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="revenue" fill="#4CAF50" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Order Status Distribution Pie Chart */}
+          <div className="bg-white p-6 rounded-2xl shadow-md">
+            <h2 className="text-lg font-bold mb-3">Order Status Distribution</h2>
+            <div style={{ height: "200px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={orderStatusDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    fill="#8884d8"
+                    label
+                  >
+                    {orderStatusDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Top Plants Units Bar Chart */}
+          <div className="bg-white p-6 rounded-2xl shadow-md">
+            <h2 className="text-lg font-bold mb-3">Top Plants Units Sold</h2>
+            <div style={{ height: "200px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topPlantsUnits}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="unitsSold" fill="#2196F3" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
-        {/* Top Selling Plants */}
-        <div className="p-10 mt-10 bg-gray-100 p-5 rounded-lg shadow-lg mb-10">
+        {/* Top Selling Plants
+        <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Top Selling Plants</h2>
-            <button> <Link to ="/ProductReport" className="text-blue-500">See details</Link></button>
+            <Link to="/ProductReport" className="text-blue-500">See details</Link>
           </div>
           <div className="flex justify-around">
             {topSellingPlants.map((plant) => (
@@ -124,43 +227,56 @@ const SalesManagerDashboard = () => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Recent Orders */}
-        <div className="p-20 bg-gray-100 p-5 rounded-lg shadow-lg">
+        <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Recent Orders</h2>
-            <button> <Link to="/CustomerReport" className="text-blue-500">See details</Link></button>
+            <Link to="/CustomerReport" className="text-blue-500">See details</Link>
           </div>
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 p-2">Order ID</th>
-                <th className="border border-gray-300 p-2">Customer</th>
-                <th className="border border-gray-300 p-2">Amount (Rs.)</th>
-                <th className="border border-gray-300 p-2">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentOrders.map((order) => (
-                <tr key={order.id} className="text-center">
-                  <td className="border border-gray-300 p-2">{order.id}</td>
-                  <td className="border border-gray-300 p-2">{order.customer}</td>
-                  <td className="border border-gray-300 p-2">{order.amount}</td>
-                  <td className={`border border-gray-300 p-2 font-semibold ${order.status === "Complete" ? "text-green-600" : order.status === "Pending" ? "text-yellow-600" : "text-red-600"}`}>
-                    {order.status}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-300 p-3">Order ID</th>
+                  <th className="border border-gray-300 p-3">Customer</th>
+                  <th className="border border-gray-300 p-3">Amount ($)</th>
+                  <th className="border border-gray-300 p-3">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="text-center">
+                    <td className="border border-gray-300 p-3">{order.id}</td>
+                    <td className="border border-gray-300 p-3">{order.customer}</td>
+                    <td className="border border-gray-300 p-3">$ {order.amount.toLocaleString()}</td>
+                    <td
+                      className={`border border-gray-300 p-3 font-semibold ${
+                        order.status === "Completed"
+                          ? "text-green-600"
+                          : order.status === "Pending"
+                          ? "text-yellow-600"
+                          : order.status === "Shipped"
+                          ? "text-blue-600"
+                          : order.status === "Delivered"
+                          ? "text-purple-600"
+                          : order.status === "Confirmed"
+                          ? "text-orange-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {order.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-
-      </div>
+      </main>
     </div>
   );
 };
 
 export default SalesManagerDashboard;
-
-

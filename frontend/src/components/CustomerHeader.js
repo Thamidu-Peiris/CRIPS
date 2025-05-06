@@ -1,3 +1,4 @@
+// frontend\src\components\CustomerHeader.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaAngleDown } from 'react-icons/fa';
@@ -73,7 +74,7 @@ const CustomerHeader = () => {
           {/* Cart Link */}
           <Link
             to="/cart"
-            className="flex items-center space-x-2 text-gray-300 hover:text-white relative transition duration-300"
+            className="flex items-center space-x-2 text-black hover:text-gray-700 relative transition duration-300"
           >
             <img
               src="/home/cart-icon.png"
@@ -92,7 +93,7 @@ const CustomerHeader = () => {
           {/* Wishlist Link */}
           <Link
             to="/wishlist"
-            className="flex items-center space-x-2 text-gray-300 hover:text-white transition duration-300"
+            className="flex items-center space-x-2 text-black hover:text-gray-700 transition duration-300"
           >
             <img
               src="/home/wishlist-icon.png"
@@ -107,7 +108,7 @@ const CustomerHeader = () => {
           <div className="relative">
             <button
               onClick={toggleDropdown}
-              className="flex items-center space-x-2 text-gray-300 hover:text-white z-20 transition duration-300"
+              className="flex items-center space-x-2 text-black hover:text-gray-700 z-20 transition duration-300"
               aria-expanded={dropdownOpen}
               aria-controls="profile-dropdown"
             >
@@ -123,11 +124,11 @@ const CustomerHeader = () => {
             {dropdownOpen && (
               <div
                 id="profile-dropdown"
-                className="absolute right-0 mt-2 bg-gray-800 rounded-lg shadow-lg w-48 z-50 border border-gray-700/50"
+                className="absolute right-0 mt-2 bg-white rounded-lg shadow-lg w-48 z-50 border border-gray-200"
               >
                 <Link
                   to="/profile"
-                  className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-300"
+                  className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
                 >
                   <img
                     src="/home/profile-icon.png"
@@ -139,7 +140,7 @@ const CustomerHeader = () => {
                 </Link>
                 <Link
                   to="/dashboard/orders"
-                  className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-300"
+                  className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
                 >
                   <img
                     src="/home/orders-icon.png"
@@ -151,7 +152,7 @@ const CustomerHeader = () => {
                 </Link>
                 <Link
                   to="/dashboard/tracking"
-                  className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-300"
+                  className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
                 >
                   <img
                     src="/home/tracking-icon.png"
@@ -163,7 +164,7 @@ const CustomerHeader = () => {
                 </Link>
                 <Link
                   to="/dashboard/support"
-                  className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-300"
+                  className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
                 >
                   <img
                     src="/home/support-icon.png"
@@ -175,7 +176,7 @@ const CustomerHeader = () => {
                 </Link>
                 <Link
                   to="/dashboard/settings"
-                  className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-300"
+                  className="flex items-center px-4 py-2 text-black hover:bg-gray-100 hover:text-gray-900 transition duration-300"
                 >
                   <img
                     src="/home/settings-icon.png"
@@ -187,7 +188,7 @@ const CustomerHeader = () => {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="flex items-center px-4 py-2 text-red-400 hover:bg-red-700/50 hover:text-red-200 w-full text-left transition duration-300"
+                  className="flex items-center px-4 py-2 text-red-600 hover:bg-red-100 hover:text-red-800 w-full text-left transition duration-300"
                 >
                   <img
                     src="/home/logout-icon.png"
@@ -205,13 +206,13 @@ const CustomerHeader = () => {
         <div className="flex space-x-3">
           <Link
             to="/customerregister"
-            className="border border-green-500 text-green-500 px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-500 hover:text-white transition duration-300"
+            className="border border-[#63A302] text-[#63A302] font-bold px-3 py-1 md:px-4 md:py-2 rounded-full hover:bg-[#609D03] hover:text-white transition duration-300"
           >
             Sign Up
           </Link>
           <Link
             to="/login"
-            className="bg-green-600 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg hover:bg-green-700 transition duration-300"
+            className="bg-[#82D504] font-bold text-white px-3 py-1 md:px-5 md:py-2 rounded-full hover:bg-[#609D03] transition duration-300"
           >
             Login
           </Link>

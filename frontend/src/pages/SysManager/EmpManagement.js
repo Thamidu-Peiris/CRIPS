@@ -1,4 +1,3 @@
-// CRIPS\frontend\src\pages\SysManager\smDashboard.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +25,7 @@ const SMDashboard = () => {
   ];
 
   // Add useEffect for initial setup and filtering
-useEffect(() => {
+  useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user && user.firstName && user.lastName) {
       setManagerName(`${user.firstName} ${user.lastName}`);
@@ -87,10 +86,7 @@ useEffect(() => {
     setFilteredEmployees(filtered);
   };
 
-
-
-  // CRIPS\frontend\src\pages\SysManager\smDashboard.js
-const handleUpdateEmployee = async (id, updatedData) => {
+  const handleUpdateEmployee = async (id, updatedData) => {
     try {
       setLoading(true);
       setError("");
@@ -155,92 +151,92 @@ const handleUpdateEmployee = async (id, updatedData) => {
     };
 
     return (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div className="bg-gray-800/90 backdrop-blur-lg p-6 rounded-xl shadow-lg w-full max-w-md border border-gray-700/50">
-          <h2 className="text-2xl font-semibold text-gray-200 mb-4">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+          <h2 className="text-2xl font-semibold text-green-900 mb-4">
             {isEditing ? "Update Employee" : "Employee Details"}
           </h2>
           {isEditing ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">First Name</label>
+                <label className="block text-gray-600 font-semibold mb-1">First Name</label>
                 <input
                   type="text"
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">Last Name</label>
+                <label className="block text-gray-600 font-semibold mb-1">Last Name</label>
                 <input
                   type="text"
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">Role</label>
+                <label className="block text-gray-600 font-semibold mb-1">Role</label>
                 <input
                   type="text"
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                   disabled
                 />
               </div>
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">Email</label>
+                <label className="block text-gray-600 font-semibold mb-1">Email</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">Contact No</label>
+                <label className="block text-gray-600 font-semibold mb-1">Contact No</label>
                 <input
                   type="text"
                   name="contactNo"
                   value={formData.contactNo}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">Address</label>
+                <label className="block text-gray-600 font-semibold mb-1">Address</label>
                 <input
                   type="text"
                   name="address"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-gray-300 font-semibold mb-1">Date of Birth</label>
+                <label className="block text-gray-600 font-semibold mb-1">Date of Birth</label>
                 <input
                   type="date"
                   name="dob"
                   value={formData.dob ? new Date(formData.dob).toISOString().split("T")[0] : ""}
                   onChange={handleChange}
-                  className="w-full p-3 bg-gray-900/50 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div className="flex space-x-4 mt-4">
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white py-3 rounded-xl transition duration-300"
+                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300"
                   disabled={loading}
                 >
                   {loading ? "Saving..." : "Save Changes"}
@@ -248,7 +244,7 @@ const handleUpdateEmployee = async (id, updatedData) => {
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white py-3 rounded-xl transition duration-300"
+                  className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
                   disabled={loading}
                 >
                   Cancel
@@ -258,38 +254,38 @@ const handleUpdateEmployee = async (id, updatedData) => {
           ) : (
             <div className="space-y-4">
               <div className="flex items-center">
-                <FaUser className="text-cyan-400 mr-3 text-xl" />
-                <p className="text-lg text-gray-300">
+                <FaUser className="text-green-500 mr-3 text-xl" />
+                <p className="text-lg text-gray-600">
                   <strong>Name:</strong> {employee.firstName} {employee.lastName}
                 </p>
               </div>
               <div className="flex items-center">
-                <FaUser className="text-cyan-400 mr-3 text-xl" />
-                <p className="text-lg text-gray-300">
+                <FaUser className="text-green-500 mr-3 text-xl" />
+                <p className="text-lg text-gray-600">
                   <strong>Role:</strong> {employee.role}
                 </p>
               </div>
               <div className="flex items-center">
-                <FaEnvelope className="text-cyan-400 mr-3 text-xl" />
-                <p className="text-lg text-gray-300">
+                <FaEnvelope className="text-green-500 mr-3 text-xl" />
+                <p className="text-lg text-gray-600">
                   <strong>Email:</strong> {employee.email}
                 </p>
               </div>
               <div className="flex items-center">
-                <FaPhone className="text-cyan-400 mr-3 text-xl" />
-                <p className="text-lg text-gray-300">
+                <FaPhone className="text-green-500 mr-3 text-xl" />
+                <p className="text-lg text-gray-600">
                   <strong>Contact:</strong> {employee.contactNo || "N/A"}
                 </p>
               </div>
               <div className="flex items-center">
-                <FaMapMarkerAlt className="text-cyan-400 mr-3 text-xl" />
-                <p className="text-lg text-gray-300">
+                <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
+                <p className="text-lg text-gray-600">
                   <strong>Address:</strong> {employee.address || "N/A"}
                 </p>
               </div>
               <div className="flex items-center">
-                <FaBirthdayCake className="text-cyan-400 mr-3 text-xl" />
-                <p className="text-lg text-gray-300">
+                <FaBirthdayCake className="text-green-500 mr-3 text-xl" />
+                <p className="text-lg text-gray-600">
                   <strong>DOB:</strong>{" "}
                   {employee.dob ? new Date(employee.dob).toLocaleDateString() : "N/A"}
                 </p>
@@ -297,20 +293,20 @@ const handleUpdateEmployee = async (id, updatedData) => {
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
+                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
                 >
                   <FaEdit className="mr-2" /> Update
                 </button>
                 <button
                   onClick={() => onDelete(employee._id)}
-                  className="w-full bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
+                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
                 >
                   <FaTrash className="mr-2" /> Delete
                 </button>
               </div>
               <button
                 onClick={onClose}
-                className="w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white py-3 rounded-xl transition duration-300 mt-2"
+                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300 mt-2"
               >
                 Close
               </button>
@@ -322,21 +318,21 @@ const handleUpdateEmployee = async (id, updatedData) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 font-sans">
+    <div className="flex min-h-screen bg-teal-50 font-sans">
       <Sidebar />
       <div className="ml-64 flex-1 p-6">
         {/* Header */}
-        <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-6 rounded-xl shadow-lg mb-6">
+        <div className="bg-gradient-to-r from-teal-300 to-teal-500 text-white p-6 rounded-xl shadow-md mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight">
+              <h1 className="text-4xl font-extrabold tracking-tight text-green-900">
                 System Manager Dashboard
               </h1>
-              <p className="text-xl mt-2 font-light">Welcome, {managerName}!</p>
+              <p className="text-xl mt-2 font-light text-gray-100">Welcome, {managerName}!</p>
             </div>
             <button
               onClick={() => navigate("/sm-dashboard")}
-              className="flex items-center bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white px-4 py-2 rounded-xl transition duration-300"
+              className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition duration-300"
             >
               <FaArrowLeft className="mr-2" /> Back
             </button>
@@ -345,19 +341,19 @@ const handleUpdateEmployee = async (id, updatedData) => {
 
         {/* Error and Success Messages */}
         {error && (
-          <div className="bg-red-500/20 border-l-4 border-red-500 text-red-300 p-4 mb-6 rounded-xl">
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
             <p>{error}</p>
           </div>
         )}
         {successMessage && (
-          <div className="bg-green-500/20 border-l-4 border-green-500 text-green-300 p-4 mb-6 rounded-xl">
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-xl">
             <p>{successMessage}</p>
           </div>
         )}
 
         {/* Employee Management Section */}
-        <div className="bg-gray-800/80 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-gray-700/50">
-          <h2 className="text-2xl font-semibold text-gray-200 mb-4">Employee Management</h2>
+        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+          <h2 className="text-2xl font-semibold text-green-900 mb-4">Employee Management</h2>
           {/* Category Tabs */}
           <div className="flex space-x-2 mb-6 overflow-x-auto">
             {categories.map((category) => (
@@ -366,8 +362,8 @@ const handleUpdateEmployee = async (id, updatedData) => {
                 onClick={() => filterEmployeesByCategory(category)}
                 className={`px-4 py-2 rounded-xl transition duration-300 ${
                   selectedCategory === category
-                    ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                    : "bg-gray-700/50 text-gray-300 hover:bg-gray-600/50"
+                    ? "bg-green-500 text-white"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
                 }`}
               >
                 {category}
@@ -377,9 +373,9 @@ const handleUpdateEmployee = async (id, updatedData) => {
 
           {/* Employee List */}
           {loading ? (
-            <p className="text-center text-gray-300">Loading employees...</p>
+            <p className="text-center text-gray-600">Loading employees...</p>
           ) : filteredEmployees.length === 0 ? (
-            <p className="text-center text-gray-300">
+            <p className="text-center text-gray-600">
               No employees found in this category.
             </p>
           ) : (
@@ -388,17 +384,17 @@ const handleUpdateEmployee = async (id, updatedData) => {
                 <div
                   key={employee._id}
                   onClick={() => setSelectedEmployee(employee)}
-                  className="bg-gray-900/50 p-4 rounded-xl shadow-md hover:shadow-lg transition duration-300 cursor-pointer border border-gray-700/50"
+                  className="bg-gray-100 p-4 rounded-xl shadow-sm hover:shadow-md transition duration-300 cursor-pointer border border-gray-200"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                       <FaUser className="text-2xl text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-200">
+                      <h3 className="text-lg font-semibold text-green-900">
                         {employee.firstName} {employee.lastName}
                       </h3>
-                      <p className="text-gray-400">{employee.role}</p>
+                      <p className="text-gray-600">{employee.role}</p>
                     </div>
                   </div>
                 </div>

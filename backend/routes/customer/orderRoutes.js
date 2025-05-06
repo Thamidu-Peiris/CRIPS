@@ -1,8 +1,12 @@
+// backend\routes\customer\orderRoutes.js
 const express = require('express');
 const router = express.Router();
+const { getOrderById, getOrdersByUserId, getAllOrders, createOrder, updateOrderStatus, updateTrackingLocation, addReview } = require('../../controllers/customer/orderController');
 const CustomerOrder = require('../../models/customer/CustomerOrder');
 const Coupon = require('../../models/customer/Coupon');
 const mongoose = require('mongoose');
+
+
 
 router.post('/', async (req, res) => {
   try {
@@ -83,5 +87,13 @@ router.post('/:id/review', async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+router.post('/', createOrder);
+router.get('/user/:userId', getOrdersByUserId);
+router.get('/:id', getOrderById); 
+router.get('/', getAllOrders); // For CSM dashboard
+router.put('/:orderId/status', updateOrderStatus); // For CSM status updates
+router.put('/:orderId/location', updateTrackingLocation); // For Transport Manager location updates
+router.post('/:id/review', addReview);
 
 module.exports = router;

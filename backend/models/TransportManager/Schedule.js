@@ -1,3 +1,4 @@
+// backend\models\TransportManager\Schedule.js
 const mongoose = require('mongoose');
 
 const scheduleSchema = new mongoose.Schema({

@@ -1,4 +1,3 @@
-// CRIPS\backend\routes\jobRoutes.js
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
@@ -8,9 +7,10 @@ const {
   getAllApplications,
   updateApplicationStatus,
   checkApplicationStatus,
+  deleteApplication, // Import the new function
 } = require("../controllers/jobController");
-const authMiddleware = require("../middleware/auth"); // Import the auth middleware
-const isSystemManager = require("../middleware/isSystemManager"); // Import the isSystemManager middleware
+const authMiddleware = require("../middleware/auth");
+const isSystemManager = require("../middleware/isSystemManager");
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -56,10 +56,11 @@ router.post(
 );
 
 // Protect routes with authMiddleware and isSystemManager
-router.get("/applications", authMiddleware, isSystemManager, getAllApplications); // Only SystemManager can access
-router.put("/applications/:id", authMiddleware, isSystemManager, validateObjectId, updateApplicationStatus); // Only SystemManager can update
+router.get("/applications", authMiddleware, isSystemManager, getAllApplications);
+router.put("/applications/:id", authMiddleware, isSystemManager, validateObjectId, updateApplicationStatus);
+router.delete("/applications/:id", authMiddleware, isSystemManager, validateObjectId, deleteApplication); // New delete route
 
 // Public route for checking application status
 router.get("/application/status", checkApplicationStatus);
 
-module.exports = router; 
+module.exports = router;

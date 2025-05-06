@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import Sidebar from './Sidebar'; // Import the Sidebar component
+import Sidebar from './Sidebar';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -36,8 +36,8 @@ export default function TransportReports() {
       {
         label: 'Completed Shipments',
         data: shipmentData.map(d => d.count),
-        backgroundColor: 'rgba(34, 211, 238, 0.7)', // Cyan accent
-        borderColor: 'rgba(34, 211, 238, 1)',
+        backgroundColor: 'rgba(34, 197, 94, 0.7)', // Green accent
+        borderColor: 'rgba(34, 197, 94, 1)',
         borderWidth: 1,
       },
     ],
@@ -49,59 +49,64 @@ export default function TransportReports() {
       {
         label: 'Fuel Cost (LKR)',
         data: fuelData.map(d => d.totalFuelCost),
-        backgroundColor: 'rgba(16, 185, 129, 0.7)', // Green for contrast
-        borderColor: 'rgba(16, 185, 129, 1)',
+        backgroundColor: 'rgba(34, 197, 94, 0.7)', // Green accent
+        borderColor: 'rgba(34, 197, 94, 1)',
         borderWidth: 1,
-        tension: 0.4, // Smooth line
+        tension: 0.4,
         fill: false,
       },
     ],
   };
 
   const chartOptions = {
-    maintainAspectRatio: false, // Allow custom height
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         labels: {
-          color: '#e5e7eb', // Light gray for text
-          font: { size: 12 }, // Smaller legend text
+          color: '#374151', // Dark gray for text
+          font: { size: 12 },
         },
       },
     },
     scales: {
       x: {
-        ticks: { color: '#e5e7eb', font: { size: 10 } }, // Smaller x-axis text
-        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        ticks: { color: '#374151', font: { size: 12 } },
+        grid: { color: 'rgba(0, 0, 0, 0.1)' },
       },
       y: {
-        ticks: { color: '#e5e7eb', font: { size: 10 } }, // Smaller y-axis text
-        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+        ticks: { color: '#374151', font: { size: 12 } },
+        grid: { color: 'rgba(0, 0, 0, 0.1)' },
       },
     },
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-blue-900 text-white font-sans flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-teal-50 text-gray-800 font-sans flex">
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-72 p-8">
-        <div className="bg-gray-800/50 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-gray-700/50">
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent mb-6">
+      <div className="flex-1 ml-64 p-6">
+        <header className="p-6 bg-white rounded-xl shadow-md border border-gray-200 mb-8">
+          <h1 className="text-4xl font-extrabold text-green-900">
             Transport Reports
-          </h2>
+          </h1>
+          <p className="text-xl mt-2 font-light text-gray-600">
+            Visualize shipment and fuel cost summaries
+          </p>
+        </header>
 
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-cyan-300 mb-4">Shipment Summary</h3>
-            <div className="bg-gray-900/50 p-4 rounded-xl shadow-inner h-64">
+        <div className="space-y-8">
+          {/* Shipment Summary Chart */}
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 className="text-2xl font-semibold text-green-900 mb-4">Shipment Summary</h3>
+            <div className="h-64">
               <Bar data={shipmentChart} options={chartOptions} />
             </div>
           </div>
 
-          <div>
-            <h3 className="text-xl font-semibold text-cyan-300 mb-4">Fuel Cost Summary</h3>
-            <div className="bg-gray-900/50 p-4 rounded-xl shadow-inner h-64">
+          {/* Fuel Cost Summary Chart */}
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+            <h3 className="text-2xl font-semibold text-green-900 mb-4">Fuel Cost Summary</h3>
+            <div className="h-64">
               <Line data={fuelChart} options={chartOptions} />
             </div>
           </div>

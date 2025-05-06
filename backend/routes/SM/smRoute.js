@@ -1,4 +1,4 @@
-// CRIPS\backend\routes\SM\smRoute.js
+// backend\routes\SM\smRoute.js  (SM = System Manager )
 const express = require("express");
 const {
   registerSystemManager,

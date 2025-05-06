@@ -1,7 +1,8 @@
-// CRISPS\frontend\src\dashboards\SalesReports\CustomerReport.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { PieChart, Pie, Cell } from "recharts";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
@@ -67,61 +68,22 @@ const CustomerReport = () => {
   }, []);
 
   return (
-    <div className="flex h-parent bg-gray-100">
-      {/* Sidebar */}
-      <div className="w-[275px] bg-gray-300 p-5">
-        <h2 className="text-xl font-bold mb-5">Side Bar</h2>
-        <ul className="space-y-5">
-          <li>
-            <Link to="/sales-manager-dashboard" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              🏠 Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link to="/FinancialReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              📉 Financial Report
-            </Link>
-          </li>
-          <li>
-            <Link to="/ProductReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              📦 Products Report
-            </Link>
-          </li>
-          <li>
-            <Link to="/CustomerReport" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              👥 Customer Reports
-            </Link>
-          </li>
-          <li>
-            <Link to="/SalarySheet" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              💰 Employee Salary Sheet
-            </Link>
-          </li>
-          <li>
-            <Link to="/ReportHub" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              📊 Reports Hub
-            </Link>
-          </li>
-          <li>
-            <Link to="/dashboard/settings" className="block px-4 py-2 rounded-lg hover:bg-green-600 hover:shadow-lg transition duration-300">
-              ⚙ Settings
-            </Link>
-          </li>
-        </ul>
-      </div>
-
-      {/* Main Content */}
-      <div className="w-4/5 p-6 text-center relative">
-        <div className="flex justify-between items-center mb-5">
+    <div className="flex h-screen bg-gray-200">
+      <SalesManagerSidebar />
+      <main className="flex-1 p-6">
+        <SalesManagerNavbar />
+        <div className="flex justify-between items-center mb-6 mt-6">
           <h1 className="text-3xl font-bold text-green-600">Customer Statistics Report</h1>
-          <button className="bg-green-500 px-4 py-2 rounded-full">Generate Report</button>
+          <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
+            Generate Report
+          </button>
         </div>
 
         {/* Charts and Tables Section */}
-        <div className="flex justify-between gap-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Favorite Payment Method Pie Chart */}
-          <div className="bg-white shadow-lg rounded-lg p-1 ml-20 text-center border w-[500px]">
-            <h2 className="text-lg font-bold mb-4 mt-2">Favorite Payment Method</h2>
+          <div className="bg-white shadow-md rounded-2xl p-6 text-center">
+            <h2 className="text-lg font-bold mb-4">Favorite Payment Method</h2>
             <div className="flex justify-center">
               <PieChart width={350} height={350}>
                 <Pie
@@ -143,55 +105,60 @@ const CustomerReport = () => {
           </div>
 
           {/* Top Customers Table */}
-          <div className="bg-white shadow-lg rounded-lg p-5 border mr-20 w-[400px]">
+          <div className="bg-white shadow-md rounded-2xl p-6">
             <h2 className="text-lg font-bold mb-4 text-center">Top Customers</h2>
-            <table className="w-full text-left">
-              <thead>
-                <tr>
-                  <th className="p-2 text-center">Name</th>
-                  <th className="p-2 text-center">Total Purchase Price (Rs.)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topCustomersData.map((customer, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="p-2 text-center">{customer.name}</td>
-                    <td className="p-2 text-center">{customer.totalPurchase}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-200">
+                    <th className="border border-gray-300 p-3 text-center">Name</th>
+                    <th className="border border-gray-300 p-3 text-center">Total Purchase Price (Rs.)</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {topCustomersData.map((customer, index) => (
+                    <tr key={index} className="border-t">
+                      <td className="border border-gray-300 p-3 text-center">{customer.name}</td>
+                      <td className="border border-gray-300 p-3 text-center">{customer.totalPurchase}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
 
         {/* Summary Cards */}
-        <div className="flex justify-between items-center gap-10 mt-8 mr-20 ml-20">
-          <div className="bg-white shadow-lg rounded-lg p-5 text-center border w-[300px]">
-            <p className="font-semibold">New Customers (Last 7 Days)</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white shadow-md rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">New Customers (Last 7 Days)</p>
             {loading ? (
               <p className="text-gray-500">Loading...</p>
             ) : error ? (
               <p className="text-red-500">{error}</p>
             ) : (
-              <h2 className="text-2xl font-bold">{newCustomersCount}</h2>
+              <h2 className="text-2xl font-bold text-blue-600">{newCustomersCount}</h2>
             )}
           </div>
 
-          <div className="bg-white shadow-lg rounded-lg p-5 text-center border w-[300px]">
-            <p className="font-semibold">Total Purchases (Last 7 days)</p>
-            <h2 className="text-2xl font-bold">15000</h2>
+          <div className="bg-white shadow-md rounded-2xl p-6 text-center">
+            <p className="font-semibold text-lg">Total Purchases (Last 7 days)</p>
+            <h2 className="text-2xl font-bold text-blue-600">15000</h2>
           </div>
 
           {/* Export Report */}
-          <div className="w-[385px] h-[200px] p-5 bg-white rounded-lg shadow-lg flex flex-col justify-center items-center">
-            <p className="font-bold mb-2">Export File</p>
-            <h2 className="text-sm font-semibold mb-2">Download as CSV SpreadSheet or a PDF</h2>
-            <Link to="/ReportHub" className="bg-green-500 text-black px-4 py-2 rounded-full mr-2">
+          <div className="bg-white shadow-md rounded-2xl p-6 flex flex-col justify-center items-center">
+            <p className="font-bold text-lg mb-2">Export File</p>
+            <h2 className="text-sm font-semibold mb-4 text-center">Download as CSV SpreadSheet or a PDF</h2>
+            <Link
+              to="/ReportHub"
+              className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600"
+            >
               Go to Report Hub
             </Link>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

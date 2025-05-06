@@ -1,8 +1,8 @@
-// backend/routes/SalesM/salesReportRoutes.js
+// backend\routes\SalesM\salesReportRoutes.js
 const express = require("express");
 const router = express.Router();
 const salesReportController = require("../../controllers/SalesManager/reportController");
-const User = require("../../models/customer/User"); // Path to the User model
+const User = require("../../models/customer/User");
 const FuelLog = require("../../models/TransportManager/FuelLog");
 
 // Existing routes
@@ -12,23 +12,23 @@ router.get("/payroll-report", salesReportController.getPayrollReport);
 router.get("/product-performance-report", salesReportController.getProductPerformanceReport);
 router.get("/dashboard-data", salesReportController.getDashboardData);
 
-// New routes for salary sheet
+// Salary sheet routes
 router.post("/salary-sheet", salesReportController.addSalarySheet);
 router.get("/salary-sheet", salesReportController.getSalarySheet);
 router.put("/salary-sheet/:id", salesReportController.updateSalarySheetEntry);
 router.delete("/salary-sheet/:id", salesReportController.deleteSalarySheetEntry);
 
 // Endpoint to get the number of new customers in the last 7 days
-router.get('/new-customers-last-day', async (req, res) => {
+router.get('/new-customers-last-7-days', async (req, res) => {
   try {
-    console.log("Received request for /new-customers-last-seven-days");
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate()-7); // Calculate the date 7 days ago
-    console.log("One day ago:", oneDayAgo);
+    console.log("Received request for /new-customers-last-7-days");
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    console.log("Seven days ago:", sevenDaysAgo);
 
     console.log("Querying User model for new customers...");
     const newCustomersCount = await User.countDocuments({
-      role: "Customers", // Adjust this based on the actual role value in your database
+      role: "Customer", // Adjusted to match likely role value
+      createdAt: { $gte: sevenDaysAgo },
     });
     console.log("New customers count:", newCustomersCount);
 
@@ -39,36 +39,36 @@ router.get('/new-customers-last-day', async (req, res) => {
   }
 });
 
-// New endpoint to get the total fuel cost for the last 7 days
+// Endpoint to get the total fuel cost for the last 7 days
 router.get('/total-fuel-cost-last-7-days', async (req, res) => {
-    try {
-      console.log("Received request for /total-fuel-cost-last-7-days");
-      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // Calculate 7 days ago in milliseconds
-      console.log("Seven days ago:", sevenDaysAgo);
-  
-      console.log("Querying FuelLog model for total fuel cost...");
-      const fuelLogs = await FuelLog.aggregate([
-        {
-          $match: {
-            date: { $gte: sevenDaysAgo },
-          },
+  try {
+    console.log("Received request for /total-fuel-cost-last-7-days");
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    console.log("Seven days ago:", sevenDaysAgo);
+
+    console.log("Querying FuelLog model for total fuel cost...");
+    const fuelLogs = await FuelLog.aggregate([
+      {
+        $match: {
+          date: { $gte: sevenDaysAgo },
         },
-        {
-          $group: {
-            _id: null,
-            totalCost: { $sum: "$cost" },
-          },
+      },
+      {
+        $group: {
+          _id: null,
+          totalCost: { $sum: "$cost" },
         },
-      ]);
-  
-      const totalFuelCost = fuelLogs.length > 0 ? fuelLogs[0].totalCost : 0;
-      console.log("Total fuel cost:", totalFuelCost);
-  
-      res.status(200).json({ totalFuelCost });
-    } catch (error) {
-      console.error('Error fetching total fuel cost:', error);
-      res.status(500).json({ error: 'Failed to fetch total fuel cost', details: error.message });
-    }
-  });
+      },
+    ]);
+
+    const totalFuelCost = fuelLogs.length > 0 ? fuelLogs[0].totalCost : 0;
+    console.log("Total fuel cost:", totalFuelCost);
+
+    res.status(200).json({ totalFuelCost });
+  } catch (error) {
+    console.error('Error fetching total fuel cost:', error);
+    res.status(500).json({ error: 'Failed to fetch total fuel cost', details: error.message });
+  }
+});
 
 module.exports = router;

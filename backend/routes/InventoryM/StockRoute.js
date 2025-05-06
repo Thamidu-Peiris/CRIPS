@@ -1,3 +1,4 @@
+// backend\routes\InventoryM\StockRoute.js
 const express = require('express');
 const router = express.Router();
 const Stock = require('../../models/InventoryM/Stock');

@@ -1,3 +1,4 @@
+// backend\models\GrowerHandler\Plant.js
 const mongoose = require('mongoose');
 
 const plantSchema = new mongoose.Schema({

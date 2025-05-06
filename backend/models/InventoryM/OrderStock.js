@@ -1,4 +1,4 @@
-// backend/models/InventoryM/Order.js
+// backend\models\InventoryM\OrderStock.js
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({

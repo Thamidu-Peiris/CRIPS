@@ -1,4 +1,4 @@
-// backend/controllers/SM/authController.js
+// backend\controllers\authController.js
 const SystemManager = require("../models/SM/SysManagerModel");
 const InventoryManager = require("../models/InventoryM/inventoryManagerModel");
 const User = require("../models/customer/User");

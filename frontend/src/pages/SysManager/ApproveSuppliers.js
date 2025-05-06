@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../dashboards/SM/sideBar'; // Adjust the path based on your project structure
+import Sidebar from '../../dashboards/SM/sideBar';
 import { FaSearch, FaArrowLeft, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from 'react-icons/fa';
 
 const ApproveSuppliers = () => {
@@ -148,19 +148,19 @@ const ApproveSuppliers = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 font-sans">
+    <div className="flex min-h-screen bg-teal-50 font-sans">
       <Sidebar />
       <div className="ml-64 flex-1 p-6">
         {/* Gradient Header */}
-        <div className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-6 rounded-xl shadow-lg mb-6">
+        <div className="bg-gradient-to-r from-teal-300 to-teal-500 text-white p-6 rounded-xl shadow-md mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight">System Manager Dashboard - Approve Suppliers</h1>
-              <p className="text-xl mt-2 font-light">Welcome, {managerName}!</p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-green-900">System Manager Dashboard - Approve Suppliers</h1>
+              <p className="text-xl mt-2 font-light text-gray-100">Welcome, {managerName}!</p>
             </div>
             <button
               onClick={() => navigate('/sm-dashboard')}
-              className="flex items-center bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white px-4 py-2 rounded-xl transition duration-300"
+              className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition duration-300"
             >
               <FaArrowLeft className="mr-2" /> Back to Dashboard
             </button>
@@ -175,45 +175,45 @@ const ApproveSuppliers = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, email, or company name..."
-              className="w-full p-3 pl-10 border border-gray-700 rounded-xl bg-gray-900/50 text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 transition duration-300"
+              className="w-full p-3 pl-10 border border-gray-300 rounded-xl bg-gray-100 text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
             />
-            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
           </div>
         </div>
 
         {/* Error and Success Messages */}
         {error && (
-          <div className="bg-red-500/20 border-l-4 border-red-500 text-red-300 p-4 mb-6 rounded-xl">
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
             <p>{error}</p>
           </div>
         )}
         {successMessage && (
-          <div className="bg-green-500/20 border-l-4 border-green-500 text-green-300 p-4 mb-6 rounded-xl">
+          <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-xl">
             <p>{successMessage}</p>
           </div>
         )}
 
         {/* Suppliers List */}
         {loading ? (
-          <p className="text-center text-gray-300">Loading suppliers...</p>
+          <p className="text-center text-gray-600">Loading suppliers...</p>
         ) : filteredSuppliers.length === 0 ? (
-          <p className="text-center text-gray-300">No pending supplier requests to review.</p>
+          <p className="text-center text-gray-600">No pending supplier requests to review.</p>
         ) : (
           <div className="space-y-6">
             {filteredSuppliers.map((supplier) => (
               <div
                 key={supplier._id}
-                className="bg-gray-800/80 backdrop-blur-lg rounded-xl shadow-lg hover:shadow-xl transition duration-300 p-6"
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-6"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-cyan-400">{supplier.name}</h3>
+                  <h3 className="text-xl font-semibold text-green-900">{supplier.name}</h3>
                   <span
                     className={`text-sm px-3 py-1 rounded-full ${
                       supplier.status.toLowerCase() === 'approved'
-                        ? 'bg-green-500/20 text-green-400'
+                        ? 'bg-green-100 text-green-700'
                         : supplier.status.toLowerCase() === 'pending'
-                        ? 'bg-yellow-500/20 text-yellow-400'
-                        : 'bg-red-500/20 text-red-400'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
                     } flex items-center`}
                   >
                     {supplier.status.toLowerCase() === 'approved' && <FaCheckCircle className="mr-1" />}
@@ -224,30 +224,30 @@ const ApproveSuppliers = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Supplier ID:</strong> {supplier.supplierId}
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Supplier ID:</strong> {supplier.supplierId}
                     </p>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Company Name:</strong> {supplier.companyName || 'N/A'}
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Company Name:</strong> {supplier.companyName || 'N/A'}
                     </p>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Username:</strong> {supplier.username}
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Username:</strong> {supplier.username}
                     </p>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Email:</strong> {supplier.email}
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Email:</strong> {supplier.email}
                     </p>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Contact Number:</strong> {supplier.contactNumber}
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Contact Number:</strong> {supplier.contactNumber}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Address:</strong> {supplier.address}
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Address:</strong> {supplier.address}
                     </p>
-                    <p className="text-gray-300">
-                      <strong className="text-white">Supplies:</strong>
+                    <p className="text-gray-600">
+                      <strong className="text-gray-800">Supplies:</strong>
                     </p>
-                    <ul className="list-disc pl-5 text-gray-300">
+                    <ul className="list-disc pl-5 text-gray-600">
                       {supplier.supplies.map((supply, index) => (
                         <li key={index} className="mb-2">
                           {supply.itemType} - {supply.quantity} {supply.unit}
@@ -267,21 +267,21 @@ const ApproveSuppliers = () => {
                   <div className="mt-4 flex space-x-4">
                     <button
                       onClick={() => handleAction(supplier._id, 'approved')}
-                      className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-2 rounded-xl hover:from-green-600 hover:to-teal-600 transition-colors duration-300 font-medium flex items-center"
+                      className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
                       <FaCheckCircle className="mr-2" /> {loading ? 'Processing...' : 'Approve'}
                     </button>
                     <button
                       onClick={() => handleAction(supplier._id, 'rejected')}
-                      className="bg-gradient-to-r from-pink-500 to-red-500 text-white px-6 py-2 rounded-xl hover:from-pink-600 hover:to-red-600 transition-colors duration-300 font-medium flex items-center"
+                      className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
                       <FaTimesCircle className="mr-2" /> {loading ? 'Processing...' : 'Reject'}
                     </button>
                   </div>
                 ) : (
-                  <p className="mt-4 text-gray-400">Action not available for status: {supplier.status}</p>
+                  <p className="mt-4 text-gray-500">Action not available for status: {supplier.status}</p>
                 )}
               </div>
             ))}

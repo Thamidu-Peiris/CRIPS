@@ -1,3 +1,4 @@
+// backend\routes\GrowerHandler\plantRoutes.js
 const express = require('express');
 const router = express.Router();
 const Plant = require('../../models/GrowerHandler/Plant');

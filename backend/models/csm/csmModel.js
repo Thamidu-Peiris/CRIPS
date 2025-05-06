@@ -1,4 +1,4 @@
-// CRIPS\backend\models\csm\csmModel.js
+// backend\models\csm\csmModel.js
 const mongoose = require("mongoose");
 
 const csmModelSchema = new mongoose.Schema({

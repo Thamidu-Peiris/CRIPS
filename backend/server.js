@@ -39,10 +39,12 @@ const transportDashboardRoutes = require('./routes/TransportManager/transportDas
 const supplierDashboardRoutes = require('./routes/SupplierM/supplierDashboardRoutes');
 const orderStockRoutes = require('./routes/SupplierM/orderStockRoutes');
 
-//const emailRoutes = require('./routes/SM/emailRoutes');
+const emailRoutes = require('./routes/SM/emailRoutes');
 const tmProfileRoutes = require('./routes/TransportManager/tmProfileRoutes');
 const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
+const vacancieRoutes = require('./routes/SM/vacancieRoutes');
+
 
 
 // Load environment variables
@@ -113,15 +115,17 @@ app.use('/api/visitor', visitorRoutes);
 app.use('/api/supplier-dashboard', supplierDashboardRoutes);
 app.use('/api/order-stock', orderStockRoutes);
 app.use('/api/inventory/plantstock', stockPlantRoute); //(T)
-app.use('/api/sales', salesReportRoutes);
+app.use('/api/sales-report', salesReportRoutes); //(T)
+
 
 app.use('/api/csm', couponRoutes); //(T)
 
 
 app.use('/api/transport-manager', tmProfileRoutes);
-//app.use('/api/email', emailRoutes);
+app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
+app.use('/api/vacancies', vacancieRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
