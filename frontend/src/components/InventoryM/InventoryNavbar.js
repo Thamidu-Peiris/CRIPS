@@ -91,19 +91,19 @@ const InventoryNavbar = () => {
             <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
               <ul className="py-2">
                 <li
-                  onClick={() => navigate("/inventory/profile-settings")}
+                  onClick={() => navigate("/inv-profile")}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiUser className="mr-2" /> Profile
                 </li>
                 <li
-                  onClick={() => navigate("/inventory/update-profile")}
+                  onClick={() => navigate("/inv-update-profile")}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiSettings className="mr-2" /> Update Profile
                 </li>
                 <li
-                  onClick={() => navigate("/inventory/change-password")}
+                  onClick={() => navigate("/inv-change-password")}
                   className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
                 >
                   <FiLock className="mr-2" /> Change Password

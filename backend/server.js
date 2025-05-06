@@ -45,7 +45,7 @@ const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
 const vacancieRoutes = require('./routes/SM/vacancieRoutes');
 const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
-
+const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRoutes');
 
 
 // Load environment variables
@@ -80,6 +80,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/orders', orderRoutes);
+app.use('/api/inventory-manager', inventoryManagerRoutes);
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
