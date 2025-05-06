@@ -43,6 +43,9 @@ const emailRoutes = require('./routes/SM/emailRoutes');
 const tmProfileRoutes = require('./routes/TransportManager/tmProfileRoutes');
 const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
+const vacancieRoutes = require('./routes/SM/vacancieRoutes');
+const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
+
 
 
 // Load environment variables
@@ -123,6 +126,8 @@ app.use('/api/transport-manager', tmProfileRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
+app.use('/api/vacancies', vacancieRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

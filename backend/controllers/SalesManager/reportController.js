@@ -214,7 +214,16 @@ const getDashboardData = async (req, res) => {
       revenueData: [],
       topSellingPlants: [],
       recentOrders: [],
-      summary: { last7DaysUnits: 0, lastMonthRevenue: 0 },
+      orderStatusDistribution: [],
+      topPlantsUnits: [],
+      summary: {
+        last7DaysUnits: 0,
+        lastMonthRevenue: 0,
+        totalOrders: 0,
+        avgOrderValue: 0,
+        pendingOrders: 0,
+        revenueGrowth: 0,
+      },
     };
 
     // Fetch recent orders from CustomerOrder
@@ -235,7 +244,202 @@ const getDashboardData = async (req, res) => {
     }));
     console.log("Recent orders:", responseData.recentOrders);
 
-    // Fetch revenue data for the bar chart (last 12 months) from CustomerOrder
+    // Fetch summary data
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+
+    // Last 7 days units
+    console.log("Aggregating last 7 days units...");
+    const salesLast7Days = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo },
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: null,
+          totalUnits: { $sum: "$items.quantity" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("Sales last 7 days aggregation error:", err.message);
+      return [{ totalUnits: 0 }];
+    });
+    responseData.summary.last7DaysUnits = salesLast7Days[0]?.totalUnits || 0;
+    console.log("Sales last 7 days:", responseData.summary.last7DaysUnits);
+
+    // Last 30 days revenue
+    console.log("Aggregating last month revenue from CustomerOrder...");
+    const revenueOrders = await CustomerOrder.find({
+      createdAt: { $gte: thirtyDaysAgo },
+      status: "Completed",
+    }).select('_id total createdAt status');
+    console.log("Found orders for lastMonthRevenue:", revenueOrders.length, revenueOrders);
+
+    const revenueLastMonth = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("CustomerOrder revenue aggregation error:", err.message);
+      return [{ totalRevenue: 0 }];
+    });
+    responseData.summary.lastMonthRevenue = revenueLastMonth[0]?.totalRevenue || 0;
+    console.log("Revenue last month:", responseData.summary.lastMonthRevenue);
+
+    // Total orders (last 30 days)
+    console.log("Aggregating total orders (last 30 days)...");
+    const totalOrders = await CustomerOrder.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo },
+      status: "Completed",
+    }).catch((err) => {
+      console.error("Total orders query error:", err.message);
+      return 0;
+    });
+    responseData.summary.totalOrders = totalOrders;
+    console.log("Total orders (last 30 days):", totalOrders);
+
+    // Average order value (last 30 days)
+    console.log("Aggregating average order value (last 30 days)...");
+    const avgOrderValue = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          avgValue: { $avg: "$total" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("Average order value aggregation error:", err.message);
+      return [{ avgValue: 0 }];
+    });
+    responseData.summary.avgOrderValue = avgOrderValue[0]?.avgValue || 0;
+    console.log("Average order value (last 30 days):", responseData.summary.avgOrderValue);
+
+    // Pending orders (last 30 days)
+    console.log("Aggregating pending orders (last 30 days)...");
+    const pendingOrders = await CustomerOrder.countDocuments({
+      createdAt: { $gte: thirtyDaysAgo },
+      status: "Pending",
+    }).catch((err) => {
+      console.error("Pending orders query error:", err.message);
+      return 0;
+    });
+    responseData.summary.pendingOrders = pendingOrders;
+    console.log("Pending orders (last 30 days):", pendingOrders);
+
+    // Revenue growth (last 30 days vs previous 30 days)
+    console.log("Aggregating revenue for previous 30 days...");
+    const prevRevenue = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total" },
+        },
+      },
+    ]).catch((err) => {
+      console.error("Previous revenue aggregation error:", err.message);
+      return [{ totalRevenue: 0 }];
+    });
+    const prevRevenueValue = prevRevenue[0]?.totalRevenue || 0;
+    const currentRevenue = responseData.summary.lastMonthRevenue;
+    responseData.summary.revenueGrowth = prevRevenueValue > 0
+      ? ((currentRevenue - prevRevenueValue) / prevRevenueValue) * 100
+      : currentRevenue > 0 ? 100 : 0;
+    console.log("Previous revenue:", prevRevenueValue, "Current revenue:", currentRevenue, "Revenue growth (%):", responseData.summary.revenueGrowth);
+
+    // Order status distribution (last 30 days) for Pie Chart
+    console.log("Aggregating order status distribution (last 30 days)...");
+    const orderStatusDistribution = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          name: "$_id",
+          value: "$count",
+          _id: 0,
+        },
+      },
+    ]).catch((err) => {
+      console.error("Order status distribution aggregation error:", err.message);
+      return [];
+    });
+    responseData.orderStatusDistribution = orderStatusDistribution;
+    console.log("Order status distribution:", orderStatusDistribution);
+
+    // Units sold by top plants (last 30 days) for Bar Chart
+    console.log("Aggregating units sold by top plants (last 30 days)...");
+    const topPlantsUnits = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: "Completed",
+        },
+      },
+      {
+        $unwind: "$items",
+      },
+      {
+        $group: {
+          _id: "$items.plantName",
+          unitsSold: { $sum: "$items.quantity" },
+        },
+      },
+      {
+        $sort: { unitsSold: -1 },
+      },
+      {
+        $limit: 5,
+      },
+      {
+        $project: {
+          name: "$_id",
+          unitsSold: 1,
+          _id: 0,
+        },
+      },
+    ]).catch((err) => {
+      console.error("Top plants units aggregation error:", err.message);
+      return [];
+    });
+    responseData.topPlantsUnits = topPlantsUnits;
+    console.log("Top plants units:", topPlantsUnits);
+
+    // Revenue data for the bar chart (last 12 months)
     console.log("Aggregating CustomerOrder data for revenue chart...");
     const ordersForChart = await CustomerOrder.find({
       createdAt: {
@@ -299,60 +503,6 @@ const getDashboardData = async (req, res) => {
       image: plant.image || "/default-plant.jpg",
     }));
     console.log("Top-selling plants:", responseData.topSellingPlants);
-
-    // Fetch summary data (last 7 days units, last month revenue)
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-    console.log("Aggregating last 7 days units...");
-    const salesLast7Days = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo },
-        },
-      },
-      {
-        $unwind: "$items",
-      },
-      {
-        $group: {
-          _id: null,
-          totalUnits: { $sum: "$items.quantity" },
-        },
-      },
-    ]).catch((err) => {
-      console.error("Sales last 7 days aggregation error:", err.message);
-      return [{ totalUnits: 0 }];
-    });
-    responseData.summary.last7DaysUnits = salesLast7Days[0]?.totalUnits || 0;
-    console.log("Sales last 7 days:", responseData.summary.last7DaysUnits);
-
-    console.log("Aggregating last month revenue from CustomerOrder...");
-    const revenueOrders = await CustomerOrder.find({
-      createdAt: { $gte: thirtyDaysAgo },
-      status: "Completed",
-    }).select('_id total createdAt status');
-    console.log("Found orders for lastMonthRevenue:", revenueOrders.length, revenueOrders);
-
-    const revenueLastMonth = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-          status: "Completed",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$total" },
-        },
-      },
-    ]).catch((err) => {
-      console.error("CustomerOrder revenue aggregation error:", err.message);
-      return [{ totalRevenue: 0 }];
-    });
-    responseData.summary.lastMonthRevenue = revenueLastMonth[0]?.totalRevenue || 0;
-    console.log("Revenue last month:", responseData.summary.lastMonthRevenue);
 
     console.log("Sending response:", responseData);
     res.status(200).json(responseData);
