@@ -6,10 +6,14 @@ import { FaGasPump } from 'react-icons/fa';
 export default function FuelTracker() {
   const [fuelLogs, setFuelLogs] = useState([]);
   const [summary, setSummary] = useState([]);
-  const [vehicles, setVehicles] = useState([]); // State for vehicles
+  const [vehicles, setVehicles] = useState([]);
   const [log, setLog] = useState({ vehicleId: '', liters: '', cost: '', distance: '' });
   const [editingLog, setEditingLog] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState(''); // For form validation errors inside the form
+  const [globalMessage, setGlobalMessage] = useState(null); // For success/error messages outside the form
+  const [globalMessageType, setGlobalMessageType] = useState(""); // Type: "success", "error", "confirm"
+  const [confirmAction, setConfirmAction] = useState(null); // Store the action to confirm (delete)
 
   useEffect(() => {
     fetchVehicles();
@@ -24,6 +28,8 @@ export default function FuelTracker() {
       setVehicles(res.data);
     } catch (error) {
       console.error('Failed to fetch vehicles:', error);
+      setGlobalMessage(error.response?.data?.error || 'Failed to fetch vehicles. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -36,6 +42,8 @@ export default function FuelTracker() {
       setFuelLogs(res.data);
     } catch (error) {
       console.error('Failed to fetch fuel logs:', error);
+      setGlobalMessage(error.response?.data?.error || 'Failed to fetch fuel logs. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -48,20 +56,58 @@ export default function FuelTracker() {
       setSummary(res.data);
     } catch (error) {
       console.error('Failed to fetch fuel summary:', error);
+      setGlobalMessage(error.response?.data?.error || 'Failed to fetch fuel summary. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const validateForm = () => {
+    if (!log.vehicleId) {
+      return "Vehicle ID is required.";
+    }
+    if (!log.liters) {
+      return "Liters is required.";
+    }
+    if (log.liters <= 0) {
+      return "Liters must be a positive number.";
+    }
+    if (!log.cost) {
+      return "Cost is required.";
+    }
+    if (log.cost <= 0) {
+      return "Cost must be a positive number.";
+    }
+    if (!log.distance) {
+      return "Distance is required.";
+    }
+    if (log.distance <= 0) {
+      return "Distance must be a positive number.";
+    }
+    return null;
+  };
+
   const handleAddLog = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
     setIsLoading(true);
+    setFormError('');
     try {
       await axios.post('http://localhost:5000/api/fuel', log);
       setLog({ vehicleId: '', liters: '', cost: '', distance: '' });
       fetchFuelLogs();
       fetchFuelSummary();
+      setGlobalMessage("Fuel log added successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to add fuel log:', error);
+      setGlobalMessage(error.response?.data?.error || 'Failed to add fuel log. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -79,31 +125,68 @@ export default function FuelTracker() {
 
   const handleUpdateLog = async () => {
     if (!editingLog) return;
+
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
     setIsLoading(true);
+    setFormError('');
     try {
       await axios.put(`http://localhost:5000/api/fuel/${editingLog._id}`, log);
       setEditingLog(null);
       setLog({ vehicleId: '', liters: '', cost: '', distance: '' });
       fetchFuelLogs();
       fetchFuelSummary();
+      setGlobalMessage("Fuel log updated successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to update fuel log:', error);
+      setGlobalMessage(error.response?.data?.error || 'Failed to update fuel log. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDeleteLog = async (id) => {
-    setIsLoading(true);
     try {
       await axios.delete(`http://localhost:5000/api/fuel/${id}`);
       fetchFuelLogs();
       fetchFuelSummary();
+      setGlobalMessage("Fuel log deleted successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to delete fuel log:', error);
+      setGlobalMessage(error.response?.data?.error || 'Failed to delete fuel log. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
+      setConfirmAction(null);
     }
+  };
+
+  // Function to show confirmation dialog
+  const showConfirmation = (action, id) => {
+    setConfirmAction({ action, id });
+    setGlobalMessage("Are you sure you want to delete this fuel log?");
+    setGlobalMessageType("confirm");
+  };
+
+  // Function to handle confirmation
+  const handleConfirm = () => {
+    if (confirmAction.action === 'delete') {
+      handleDeleteLog(confirmAction.id);
+    }
+  };
+
+  // Function to close the global message
+  const closeGlobalMessage = () => {
+    setGlobalMessage(null);
+    setGlobalMessageType("");
+    setConfirmAction(null);
   };
 
   return (
@@ -120,12 +203,56 @@ export default function FuelTracker() {
           </p>
         </header>
 
+        {/* Global Message Display (Success/Error/Confirmation) */}
+        {globalMessage && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div
+              className={`p-4 rounded-xl shadow-lg flex items-center justify-between max-w-md w-full transition-all duration-300 ${
+                globalMessageType === "success"
+                  ? "bg-green-100 border border-green-300 text-green-800"
+                  : globalMessageType === "error"
+                  ? "bg-red-100 border border-red-300 text-red-800"
+                  : "bg-gray-100 border border-gray-300 text-gray-800"
+              }`}
+            >
+              <span className="font-medium">{globalMessage}</span>
+              <div className="flex space-x-2">
+                {globalMessageType === "confirm" && (
+                  <>
+                    <button
+                      onClick={handleConfirm}
+                      className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-all duration-200"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={closeGlobalMessage}
+                      className="bg-gray-400 text-white px-3 py-1 rounded-lg hover:bg-gray-500 transition-all duration-200"
+                    >
+                      No
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={closeGlobalMessage}
+                  className="ml-4 text-xl font-bold hover:text-gray-600 focus:outline-none"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Add/Edit Fuel Log Form - Redesigned as a Card */}
         <div className="mb-8 bg-white p-6 rounded-xl shadow-md border border-gray-200">
           <h2 className="text-2xl font-semibold text-green-900 mb-4 flex items-center">
             <FaGasPump className="mr-2 text-green-500" />
             {editingLog ? 'Edit Fuel Log' : 'Add Fuel Log'}
           </h2>
+          {formError && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">{formError}</div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className="block text-gray-600 font-semibold mb-1">Vehicle ID *</label>
@@ -144,7 +271,7 @@ export default function FuelTracker() {
               </select>
             </div>
             <div>
-              <label className="block text-gray-600 font-semibold mb-1">Liters</label>
+              <label className="block text-gray-600 font-semibold mb-1">Liters *</label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 type="number"
@@ -154,7 +281,7 @@ export default function FuelTracker() {
               />
             </div>
             <div>
-              <label className="block text-gray-600 font-semibold mb-1">Cost</label>
+              <label className="block text-gray-600 font-semibold mb-1">Cost *</label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 type="number"
@@ -164,7 +291,7 @@ export default function FuelTracker() {
               />
             </div>
             <div>
-              <label className="block text-gray-600 font-semibold mb-1">Distance (km)</label>
+              <label className="block text-gray-600 font-semibold mb-1">Distance (km) *</label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
                 type="number"
@@ -187,6 +314,7 @@ export default function FuelTracker() {
                     onClick={() => {
                       setEditingLog(null);
                       setLog({ vehicleId: '', liters: '', cost: '', distance: '' });
+                      setFormError('');
                     }}
                     disabled={isLoading}
                     className="w-full bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition-all duration-300 disabled:opacity-50"
@@ -243,7 +371,7 @@ export default function FuelTracker() {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteLog(log._id)}
+                          onClick={() => showConfirmation('delete', log._id)}
                           className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
                         >
                           Delete
