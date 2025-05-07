@@ -11,6 +11,8 @@ const PlantDetails = () => {
   const [popularPlants, setPopularPlants] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [showPopup, setShowPopup] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [popularReviews, setPopularReviews] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,6 +20,8 @@ const PlantDetails = () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/inventory/plantstock/plant/${id}`);
         setPlant(response.data);
+        const reviewResponse = await axios.get(`http://localhost:5000/api/plants/${id}/reviews`);
+        setReviews(reviewResponse.data);
       } catch (error) {
         console.error("Failed to fetch plant details:", error);
       }
@@ -33,7 +37,7 @@ const PlantDetails = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Popular plants API response:", data); // Debug log
+        console.log("Popular plants API response:", data);
         const stocksData = data.stocks || [];
         if (!Array.isArray(stocksData)) {
           console.error("Expected an array for stocks, received:", stocksData);
@@ -45,6 +49,17 @@ const PlantDetails = () => {
           .sort((a, b) => (b.quantity || 0) - (a.quantity || 0))
           .slice(0, 4);
         setPopularPlants(sortedPlants);
+        const reviewsData = {};
+        for (const popularPlant of sortedPlants) {
+          try {
+            const reviewResponse = await axios.get(`http://localhost:5000/api/plants/${popularPlant._id}/reviews`);
+            reviewsData[popularPlant._id] = reviewResponse.data;
+          } catch (error) {
+            console.error(`Error fetching reviews for plant ${popularPlant._id}:`, error);
+            reviewsData[popularPlant._id] = [];
+          }
+        }
+        setPopularReviews(reviewsData);
       } catch (error) {
         console.error("Error fetching popular plants:", error);
         setPopularPlants([]);
@@ -74,6 +89,11 @@ const PlantDetails = () => {
     navigate("/wishlist");
   };
 
+  // Calculate average rating for the main plant
+  const averageRating = reviews.length > 0
+    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+    : 0;
+
   if (!plant) return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-green-50 to-white">
       <motion.div
@@ -88,7 +108,6 @@ const PlantDetails = () => {
 
   return (
     <div className="font-sans min-h-screen bg-gradient-to-b from-green-50 to-white">
-      {/* Navigation Bar */}
       <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <motion.img
           src="/logo.png"
@@ -122,7 +141,6 @@ const PlantDetails = () => {
         <CustomerHeader />
       </nav>
 
-      {/* Plant Details Content */}
       <div className="max-w-7xl mx-auto py-16 px-6">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -130,7 +148,6 @@ const PlantDetails = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-10 flex flex-col md:flex-row gap-12"
         >
-          {/* Left Side: Image */}
           <div className="md:w-1/2 relative">
             <img
               src={plant.plantImage || "http://localhost:5000/uploads/default-plant.jpg"}
@@ -146,7 +163,6 @@ const PlantDetails = () => {
             </motion.div>
           </div>
 
-          {/* Right Side: Details */}
           <div className="md:w-1/2 flex flex-col justify-between">
             <div>
               <h1 className="text-5xl font-bold text-green-900 mb-4 tracking-tight">{plant.plantName}</h1>
@@ -154,7 +170,7 @@ const PlantDetails = () => {
                 {[...Array(5)].map((_, i) => (
                   <motion.span
                     key={i}
-                    className="text-yellow-400 text-xl"
+                    className={`text-xl ${i < Math.round(averageRating) ? "text-yellow-400" : "text-gray-300"}`}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ delay: i * 0.1 }}
@@ -162,6 +178,7 @@ const PlantDetails = () => {
                     ★
                   </motion.span>
                 ))}
+                <span className="text-gray-600 text-sm ml-2">({reviews.length} reviews)</span>
               </div>
               <div className="space-y-5 text-gray-700 text-lg">
                 <p><strong className="text-green-900">Category:</strong> {plant.category || "N/A"}</p>
@@ -224,7 +241,6 @@ const PlantDetails = () => {
         </motion.div>
       </div>
 
-      {/* Popup */}
       {showPopup && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -270,7 +286,6 @@ const PlantDetails = () => {
         </motion.div>
       )}
 
-      {/* Popular Plants Section */}
       <section className="py-20 bg-gradient-to-b from-white to-green-50">
         <h2 className="text-4xl font-bold text-center text-green-900 mb-12 tracking-tight">Explore More Plants</h2>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
@@ -313,8 +328,20 @@ const PlantDetails = () => {
                   <h3 className="text-xl font-semibold text-green-900 truncate">{popularPlant.plantName}</h3>
                   <div className="flex gap-1 mt-2">
                     {[...Array(5)].map((_, i) => (
-                      <span key={i} className="text-yellow-400 text-base">★</span>
+                      <span
+                        key={i}
+                        className={`text-base ${
+                          i < Math.round(
+                            (popularReviews[popularPlant._id]?.length > 0
+                              ? popularReviews[popularPlant._id].reduce((sum, review) => sum + review.rating, 0) / popularReviews[popularPlant._id].length
+                              : 0).toFixed(1)
+                          ) ? "text-yellow-400" : "text-gray-300"
+                        }`}
+                      >
+                        ★
+                      </span>
                     ))}
+                    <span className="text-gray-600 text-sm ml-2">({popularReviews[popularPlant._id]?.length || 0})</span>
                   </div>
                   <p className="text-green-600 font-bold text-lg mt-3">${popularPlant.itemPrice.toFixed(2)}</p>
                 </div>
