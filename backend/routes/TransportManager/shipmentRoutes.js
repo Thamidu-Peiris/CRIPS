@@ -1,4 +1,3 @@
-// backend\routes\TransportManager\shipmentRoutes.js
 const express = require('express');
 const router = express.Router();
 const shipmentController = require('../../controllers/TransportManager/shipmentController');
@@ -9,8 +8,7 @@ router.put('/:id/status', shipmentController.updateShipmentStatus);
 router.delete('/:id', shipmentController.deleteShipment);
 router.get('/delivered', shipmentController.getDeliveredShipments);
 
-// ✅ New Route to move scheduler to shipment status
-router.post('/scheduler/:id/complete', shipmentController.moveToShipmentStatus);
+// ✅ Fixed: Changed moveToShipmentStatus to completeAndMoveSchedule to match the controller
+router.post('/scheduler/:id/complete', shipmentController.completeAndMoveSchedule);
 
 module.exports = router;
-
