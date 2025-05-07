@@ -68,7 +68,7 @@ const CustomerReport = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-200">
+    <div className="flex h-parent bg-gray-200">
       <SalesManagerSidebar />
       <main className="flex-1 p-6">
         <SalesManagerNavbar />

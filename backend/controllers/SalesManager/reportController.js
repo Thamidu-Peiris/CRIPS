@@ -1,4 +1,3 @@
-
 // backend\controllers\SalesManager\reportController.js
 /* eslint-disable */
 const Transaction = require("../../models/salesManager/FinancialModel");
@@ -14,6 +13,10 @@ const getFinancialReport = async (req, res) => {
 
     if (!startDate || !endDate) {
       return res.status(400).json({ error: "startDate and endDate are required" });
+    }
+
+    if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
+      return res.status(400).json({ error: "startDate and endDate must be valid dates" });
     }
 
     const transactions = await Transaction.find({
@@ -58,6 +61,9 @@ const getCustomerReport = async (req, res) => {
 
     let query = {};
     if (startDate && endDate) {
+      if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
+        return res.status(400).json({ error: "startDate and endDate must be valid dates" });
+      }
       query.lastPurchaseDate = {
         $gte: new Date(startDate),
         $lte: new Date(endDate),
@@ -116,16 +122,23 @@ const getPayrollReport = async (req, res) => {
       return res.status(400).json({ error: "month and year are required" });
     }
 
+    const parsedMonth = Number(month);
+    const parsedYear = Number(year);
+
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12 || parsedYear < 1900 || parsedYear > 2100) {
+      return res.status(400).json({ error: "month must be between 1 and 12, and year must be a valid year" });
+    }
+
     const payroll = await Payroll.find({
-      month: Number(month),
-      year: Number(year),
+      month: parsedMonth,
+      year: parsedYear,
     }).sort({ employeeName: 1 });
 
     const totalPayroll = await Payroll.aggregate([
       {
         $match: {
-          month: Number(month),
-          year: Number(year),
+          month: parsedMonth,
+          year: parsedYear,
         },
       },
       {
@@ -149,18 +162,24 @@ const getPayrollReport = async (req, res) => {
 // Product Performance Controller
 const getProductPerformanceReport = async (req, res) => {
   try {
-    const { category, startDate, endDate, sortBy = "revenue" } = req.query;
+    const { category, startDate: queryStartDate, endDate: queryEndDate, sortBy = "revenue" } = req.query;
+
+    // Set default date range to last 30 days if not provided
+    const endDate = queryEndDate || new Date().toISOString().split("T")[0];
+    const startDate = queryStartDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
+      return res.status(400).json({ error: "startDate and endDate must be valid dates" });
+    }
 
     let query = {};
     if (category) {
       query.category = category;
     }
-    if (startDate && endDate) {
-      query.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
-    }
+    query.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate),
+    };
 
     const products = await Product.find(query).sort({ [sortBy]: -1 });
 
@@ -187,12 +206,13 @@ const getProductPerformanceReport = async (req, res) => {
         },
       },
     ]);
+    const formattedSalesTrend = salesTrend.map((item) => ({ name: item._id, value: item.value }));
 
     res.status(200).json({
       products,
       topSelling,
       leastSelling,
-      salesTrend: salesTrend.map((item) => ({ name: item._id, value: item.value })),
+      salesTrend: formattedSalesTrend,
       aggregates: {
         totalRevenue: aggregates[0]?.totalRevenue || 0,
         totalUnitsSold: aggregates[0]?.totalUnitsSold || 0,
@@ -207,9 +227,23 @@ const getProductPerformanceReport = async (req, res) => {
 // Dashboard Data Controller (for SalesManagerDashboard.js)
 const getDashboardData = async (req, res) => {
   try {
-    console.log("Fetching dashboard data...");
+    const { startDate: queryStartDate, endDate: queryEndDate } = req.query;
 
-    // Initialize default response
+    // Validate query parameters
+    const endDate = queryEndDate || new Date().toISOString().split("T")[0];
+    const startDate = queryStartDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
+      return res.status(400).json({ error: "startDate and endDate must be valid dates" });
+    }
+
+    // Parse dates in UTC
+    const parsedStartDate = new Date(startDate + "T00:00:00Z");
+    const parsedEndDate = new Date(endDate + "T23:59:59.999Z");
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+
     const responseData = {
       revenueData: [],
       topSellingPlants: [],
@@ -227,234 +261,96 @@ const getDashboardData = async (req, res) => {
     };
 
     // Fetch recent orders from CustomerOrder
-    console.log("Fetching recent CustomerOrders...");
     const recentOrders = await CustomerOrder.find()
       .sort({ createdAt: -1 })
-      .limit(5)
-      .populate("userId", "firstName lastName")
-      .catch((err) => {
-        console.error("CustomerOrder query error:", err.message);
-        return [];
-      });
+      .limit(6)
+      .populate("userId", "firstName lastName");
     responseData.recentOrders = recentOrders.map((order) => ({
       id: order._id,
       customer: order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : "Unknown",
       amount: order.total || 0,
       status: order.status || "Unknown",
     }));
-    console.log("Recent orders:", responseData.recentOrders);
-
-    // Fetch summary data
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
 
     // Last 7 days units
-    console.log("Aggregating last 7 days units...");
     const salesLast7Days = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sevenDaysAgo },
-        },
-      },
-      {
-        $unwind: "$items",
-      },
-      {
-        $group: {
-          _id: null,
-          totalUnits: { $sum: "$items.quantity" },
-        },
-      },
-    ]).catch((err) => {
-      console.error("Sales last 7 days aggregation error:", err.message);
-      return [{ totalUnits: 0 }];
-    });
+      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      { $unwind: "$items" },
+      { $group: { _id: null, totalUnits: { $sum: "$items.quantity" } } },
+    ]);
     responseData.summary.last7DaysUnits = salesLast7Days[0]?.totalUnits || 0;
-    console.log("Sales last 7 days:", responseData.summary.last7DaysUnits);
 
     // Last 30 days revenue
-    console.log("Aggregating last month revenue from CustomerOrder...");
-    const revenueOrders = await CustomerOrder.find({
-      createdAt: { $gte: thirtyDaysAgo },
-      status: "Completed",
-    }).select('_id total createdAt status');
-    console.log("Found orders for lastMonthRevenue:", revenueOrders.length, revenueOrders);
-
     const revenueLastMonth = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-          status: "Completed",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$total" },
-        },
-      },
-    ]).catch((err) => {
-      console.error("CustomerOrder revenue aggregation error:", err.message);
-      return [{ totalRevenue: 0 }];
-    });
+      { $match: { createdAt: { $gte: thirtyDaysAgo }, status: "Completed" } },
+      { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
+    ]);
     responseData.summary.lastMonthRevenue = revenueLastMonth[0]?.totalRevenue || 0;
-    console.log("Revenue last month:", responseData.summary.lastMonthRevenue);
 
     // Total orders (last 30 days)
-    console.log("Aggregating total orders (last 30 days)...");
     const totalOrders = await CustomerOrder.countDocuments({
       createdAt: { $gte: thirtyDaysAgo },
       status: "Completed",
-    }).catch((err) => {
-      console.error("Total orders query error:", err.message);
-      return 0;
     });
     responseData.summary.totalOrders = totalOrders;
-    console.log("Total orders (last 30 days):", totalOrders);
 
     // Average order value (last 30 days)
-    console.log("Aggregating average order value (last 30 days)...");
     const avgOrderValue = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-          status: "Completed",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          avgValue: { $avg: "$total" },
-        },
-      },
-    ]).catch((err) => {
-      console.error("Average order value aggregation error:", err.message);
-      return [{ avgValue: 0 }];
-    });
+      { $match: { createdAt: { $gte: thirtyDaysAgo }, status: "Completed" } },
+      { $group: { _id: null, avgValue: { $avg: "$total" } } },
+    ]);
     responseData.summary.avgOrderValue = avgOrderValue[0]?.avgValue || 0;
-    console.log("Average order value (last 30 days):", responseData.summary.avgOrderValue);
 
     // Pending orders (last 30 days)
-    console.log("Aggregating pending orders (last 30 days)...");
     const pendingOrders = await CustomerOrder.countDocuments({
       createdAt: { $gte: thirtyDaysAgo },
       status: "Pending",
-    }).catch((err) => {
-      console.error("Pending orders query error:", err.message);
-      return 0;
     });
     responseData.summary.pendingOrders = pendingOrders;
-    console.log("Pending orders (last 30 days):", pendingOrders);
 
     // Revenue growth (last 30 days vs previous 30 days)
-    console.log("Aggregating revenue for previous 30 days...");
     const prevRevenue = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo },
-          status: "Completed",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$total" },
-        },
-      },
-    ]).catch((err) => {
-      console.error("Previous revenue aggregation error:", err.message);
-      return [{ totalRevenue: 0 }];
-    });
+      { $match: { createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }, status: "Completed" } },
+      { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
+    ]);
     const prevRevenueValue = prevRevenue[0]?.totalRevenue || 0;
     const currentRevenue = responseData.summary.lastMonthRevenue;
     responseData.summary.revenueGrowth = prevRevenueValue > 0
       ? ((currentRevenue - prevRevenueValue) / prevRevenueValue) * 100
       : currentRevenue > 0 ? 100 : 0;
-    console.log("Previous revenue:", prevRevenueValue, "Current revenue:", currentRevenue, "Revenue growth (%):", responseData.summary.revenueGrowth);
 
     // Order status distribution (last 30 days) for Pie Chart
-    console.log("Aggregating order status distribution (last 30 days)...");
     const orderStatusDistribution = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-        },
-      },
-      {
-        $group: {
-          _id: "$status",
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $project: {
-          name: "$_id",
-          value: "$count",
-          _id: 0,
-        },
-      },
-    ]).catch((err) => {
-      console.error("Order status distribution aggregation error:", err.message);
-      return [];
-    });
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+      { $project: { name: "$_id", value: "$count", _id: 0 } },
+    ]);
     responseData.orderStatusDistribution = orderStatusDistribution;
-    console.log("Order status distribution:", orderStatusDistribution);
 
-    // Units sold by top plants (last 30 days) for Bar Chart
-    console.log("Aggregating units sold by top plants (last 30 days)...");
-    const topPlantsUnits = await CustomerOrder.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: thirtyDaysAgo },
-          status: "Completed",
-        },
-      },
-      {
-        $unwind: "$items",
-      },
-      {
-        $group: {
-          _id: "$items.plantName",
-          unitsSold: { $sum: "$items.quantity" },
-        },
-      },
-      {
-        $sort: { unitsSold: -1 },
-      },
-      {
-        $limit: 5,
-      },
-      {
-        $project: {
-          name: "$_id",
-          unitsSold: 1,
-          _id: 0,
-        },
-      },
-    ]).catch((err) => {
-      console.error("Top plants units aggregation error:", err.message);
-      return [];
-    });
-    responseData.topPlantsUnits = topPlantsUnits;
-    console.log("Top plants units:", topPlantsUnits);
+    // Units sold by top plants for Bar Chart
+    const salesData = await CustomerOrder.aggregate([
+      { $match: { createdAt: { $gte: parsedStartDate, $lte: parsedEndDate }, status: "Completed" } },
+      { $unwind: "$items" },
+      { $group: { _id: "$items.plantName", unitsSold: { $sum: "$items.quantity" } } },
+    ]);
+
+    const topPlantsUnits = [];
+    for (const sale of salesData) {
+      const product = await Product.findOne({ name: { $regex: `^${sale._id}$`, $options: 'i' } }); // Case-insensitive match
+      const price = product ? product.price : 0;
+      topPlantsUnits.push({
+        name: sale._id,
+        unitsSold: sale.unitsSold,
+        totalRevenue: sale.unitsSold * price,
+      });
+    }
+    responseData.topPlantsUnits = topPlantsUnits.sort((a, b) => b.unitsSold - a.unitsSold);
 
     // Revenue data for the bar chart (last 12 months)
-    console.log("Aggregating CustomerOrder data for revenue chart...");
-    const ordersForChart = await CustomerOrder.find({
-      createdAt: {
-        $gte: new Date(new Date().setMonth(new Date().getMonth() - 12)),
-      },
-      status: "Completed",
-    }).select('_id total createdAt status');
-    console.log("Found orders for revenueData:", ordersForChart.length, ordersForChart);
-
     const revenueData = await CustomerOrder.aggregate([
       {
         $match: {
-          createdAt: {
-            $gte: new Date(new Date().setMonth(new Date().getMonth() - 12)),
-          },
+          createdAt: { $gte: new Date(new Date().setMonth(new Date().getMonth() - 12)) },
           status: "Completed",
         },
       },
@@ -479,32 +375,21 @@ const getDashboardData = async (req, res) => {
           _id: 0,
         },
       },
-    ]).catch((err) => {
-      console.error("CustomerOrder chart aggregation error:", err.message);
-      return [];
-    });
+    ]);
     responseData.revenueData = revenueData;
-    console.log("Revenue data:", revenueData);
 
     // Fetch top-selling plants
-    console.log("Fetching top-selling Products...");
     const topSellingPlants = await Product.find()
       .sort({ unitsSold: -1 })
       .limit(3)
-      .select("_id name image unitsSold")
-      .catch((err) => {
-        console.error("Product query error:", err.message);
-        return [];
-      });
+      .select("_id name image unitsSold");
     responseData.topSellingPlants = topSellingPlants.map((plant) => ({
       id: plant._id,
       name: plant.name,
       sold: plant.unitsSold,
       image: plant.image || "/default-plant.jpg",
     }));
-    console.log("Top-selling plants:", responseData.topSellingPlants);
 
-    console.log("Sending response:", responseData);
     res.status(200).json(responseData);
   } catch (error) {
     console.error("Error fetching dashboard data:", error.message);
@@ -521,10 +406,17 @@ const addSalarySheet = async (req, res) => {
       return res.status(400).json({ error: "Entries, month, and year are required" });
     }
 
+    const parsedMonth = Number(month);
+    const parsedYear = Number(year);
+
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12 || parsedYear < 1900 || parsedYear > 2100) {
+      return res.status(400).json({ error: "month must be between 1 and 12, and year must be a valid year" });
+    }
+
     const payrollEntries = entries.map((entry) => ({
       ...entry,
-      month: Number(month),
-      year: Number(year),
+      month: parsedMonth,
+      year: parsedYear,
     }));
 
     const savedEntries = await Payroll.insertMany(payrollEntries);
@@ -544,9 +436,16 @@ const getSalarySheet = async (req, res) => {
       return res.status(400).json({ error: "Month and year are required" });
     }
 
+    const parsedMonth = Number(month);
+    const parsedYear = Number(year);
+
+    if (isNaN(parsedMonth) || isNaN(parsedYear) || parsedMonth < 1 || parsedMonth > 12 || parsedYear < 1900 || parsedYear > 2100) {
+      return res.status(400).json({ error: "month must be between 1 and 12, and year must be a valid year" });
+    }
+
     const payrollEntries = await Payroll.find({
-      month: Number(month),
-      year: Number(year),
+      month: parsedMonth,
+      year: parsedYear,
     }).sort({ employeeName: 1 });
 
     res.status(200).json(payrollEntries);
@@ -566,15 +465,24 @@ const updateSalarySheetEntry = async (req, res) => {
       return res.status(400).json({ error: "All required fields must be provided" });
     }
 
+    const parsedBasicSalary = Number(basicSalary);
+    const parsedAllowances = Number(allowances) || 0;
+    const parsedDeductions = Number(deductions) || 0;
+    const parsedNetSalary = Number(netSalary);
+
+    if (isNaN(parsedBasicSalary) || isNaN(parsedAllowances) || isNaN(parsedDeductions) || isNaN(parsedNetSalary)) {
+      return res.status(400).json({ error: "Salary fields must be valid numbers" });
+    }
+
     const updatedEntry = await Payroll.findByIdAndUpdate(
       id,
       {
         employeeName,
         designation,
-        basicSalary: Number(basicSalary),
-        allowances: Number(allowances) || 0,
-        deductions: Number(deductions) || 0,
-        netSalary: Number(netSalary),
+        basicSalary: parsedBasicSalary,
+        allowances: parsedAllowances,
+        deductions: parsedDeductions,
+        netSalary: parsedNetSalary,
       },
       { new: true }
     );
@@ -583,7 +491,6 @@ const updateSalarySheetEntry = async (req, res) => {
       return res.status(404).json({ error: "Salary sheet entry not found" });
     }
 
-    console.log("Updated entry:", updatedEntry);
     res.status(200).json({ message: "Salary sheet entry updated successfully", entry: updatedEntry });
   } catch (error) {
     console.error("Error updating salary sheet entry:", error.message);
@@ -602,7 +509,6 @@ const deleteSalarySheetEntry = async (req, res) => {
       return res.status(404).json({ error: "Salary sheet entry not found" });
     }
 
-    console.log("Deleted entry:", deletedEntry);
     res.status(200).json({ message: "Salary sheet entry deleted successfully" });
   } catch (error) {
     console.error("Error deleting salary sheet entry:", error.message);
