@@ -102,6 +102,9 @@ import AddVacancies from "./pages/SysManager/AddVacancies.js";
 import CheckStatus from "./pages/CheckStatus.js";
 import Vehicle from "../src/dashboards/TransportManager/Vehicles.js";
 import TrackOrder from "./dashboards/CSM/TrackOrder.js";
+import SalesManagerChangePassword from "./dashboards/SalesReports/SrChangePassword";
+import SalesManagerUpdateProfile from "./dashboards/SalesReports/SrUpdateProfile";
+import SalesManagerProfileSettings from "./dashboards/SalesReports/SrProfileSettings";
 
 
 function App() {
@@ -208,6 +211,11 @@ function App() {
         <Route path="/inv-change-password" element={<InvChangePassword />} />
         <Route path="/csm/track-order" element={<TrackOrder />} />
         <Route path="/csm/reviews" element={<ReviewManagement />} />
+
+        {/* Sales Manager Routes */}
+        <Route path="/sales-manager-profile-settings" element={<SalesManagerProfileSettings />} />
+        <Route path="/sales-manager-update-profile" element={<SalesManagerUpdateProfile />} />
+        <Route path="/sales-manager-change-password" element={<SalesManagerChangePassword />} />
 
 
       </Routes>
