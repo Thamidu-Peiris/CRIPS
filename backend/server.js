@@ -50,6 +50,7 @@ const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRout
 const driverRoutes = require('./routes/TransportManager/driverRoutes');
 
 const salesManagerRoutes = require("./routes/SalesM/salesManagerRoutes");
+const growerHandlerRoutes = require("./routes/GrowerHandler/growerHandlerRoutes");
 
 
 // Load environment variables
@@ -86,6 +87,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/orders', orderRoutes);
 app.use('/api/inventory-manager', inventoryManagerRoutes);
 app.use("/api/salesM", salesManagerRoutes);
+app.use("/api/grower-handler" , growerHandlerRoutes);
 
 // Validate MongoDB URI
 if (!MONGO_URI) {

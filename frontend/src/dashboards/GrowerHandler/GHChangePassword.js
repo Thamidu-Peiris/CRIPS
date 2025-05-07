@@ -6,12 +6,15 @@ import GHNavbar from "../../components/GHNavbar";
 import GHSidebar from "../../components/GHSidebar";
 
 const GHChangePassword = () => {
-  const [passwordData, setPasswordData] = useState({ currentPassword: "", newPassword: "" });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
   const userId = localStorage.getItem("userId");
-  const token = localStorage.getItem("token");
 
   const handleChange = (e) => {
     setPasswordData({ ...passwordData, [e.target.name]: e.target.value });
@@ -19,83 +22,99 @@ const GHChangePassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { currentPassword, newPassword, confirmPassword } = passwordData;
+
+    // Client-side validation for confirm password
+    if (newPassword !== confirmPassword) {
+      setError("New password and confirm password do not match.");
+      setSuccess("");
+      return;
+    }
+
     try {
-      await axios.post(
-        `http://localhost:5000/api/jobs/profile/change-password/${userId}`,
-        passwordData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      await axios.post(`http://localhost:5000/api/grower-handler/profile/change-password/${userId}`, {
+        currentPassword,
+        newPassword,
+      });
       setSuccess("Password changed successfully!");
       setError("");
-      setPasswordData({ currentPassword: "", newPassword: "" });
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
       setTimeout(() => {
-        navigate("/grower-handler/change-password");
+        navigate("/grower-handler/profile-settings");
       }, 2000);
     } catch (error) {
-      setError("Failed to change password. Please try again.");
+      setError(error.response?.data?.message || "Failed to change password. Please try again.");
       setSuccess("");
       console.error(error);
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 font-sans">
       <GHSidebar />
-      <div className="flex-1 p-0">
+      <main className="flex-1 p-6">
         <GHNavbar />
-        <div className="max-w-2xl mx-auto py-12">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Change Password</h2>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            {error && <p className="text-red-600 text-center">{error}</p>}
-            {success && <p className="text-green-600 text-center">{success}</p>}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <label className="block">
-                <span className="font-semibold">Current Password:</span>
-                <input
-                  type="password"
-                  name="currentPassword"
-                  onChange={handleChange}
-                  value={passwordData.currentPassword}
-                  className="w-full border p-2 rounded-lg"
-                  required
-                />
-              </label>
-              <label className="block">
-                <span className="font-semibold">New Password:</span>
-                <input
-                  type="password"
-                  name="newPassword"
-                  onChange={handleChange}
-                  value={passwordData.newPassword}
-                  className="w-full border p-2 rounded-lg"
-                  required
-                />
-              </label>
-
-              <div className="flex justify-between mt-6">
-                <button
-                  type="button"
-                  onClick={() => navigate("/grower-handler-dashboard")}
-                  className="bg-gray-500 text-white px-4 py-2 rounded"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-                  Change Password
-                </button>
-              </div>
-            </form>
-          </div>
+        <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl mt-12 transition-all duration-300">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight">Change Password</h2>
+          {error && (
+            <p className="text-red-600 bg-red-100 p-4 rounded-lg text-center mb-6 animate-fade-in">{error}</p>
+          )}
+          {success && (
+            <p className="text-green-600 bg-green-100 p-4 rounded-lg text-center mb-6 animate-fade-in">{success}</p>
+          )}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+              <input
+                type="password"
+                name="currentPassword"
+                value={passwordData.currentPassword}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+              <input
+                type="password"
+                name="newPassword"
+                value={passwordData.newPassword}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={passwordData.confirmPassword}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                required
+              />
+            </div>
+            <div className="flex justify-between mt-6">
+              <button
+                type="button"
+                onClick={() => navigate("/grower-handler/profile-settings")}
+                className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Change Password
+              </button>
+            </div>
+          </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
