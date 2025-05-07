@@ -28,8 +28,8 @@ const SalesManagerSidebar = () => {
 
     // Automatically open Settings dropdown
     if (
-      currentPath === "/update-profile" ||
-      currentPath === "/change-password"
+      currentPath === "/sales-manager-update-profile" ||
+      currentPath === "/sales-manager-change-password"
     ) {
       setSettingsOpen(true);
     } else {
@@ -186,8 +186,8 @@ const SalesManagerSidebar = () => {
             onClick={() => handleItemClick("#settings")}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
               selectedItem === "#settings" ||
-              selectedItem === "/update-profile" ||
-              selectedItem === "/change-password"
+              selectedItem === "/sales-manager-update-profile" ||
+              selectedItem === "/sales-manager-change-password"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
@@ -203,13 +203,13 @@ const SalesManagerSidebar = () => {
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
-                  href="/update-profile"
+                  href="/sales-manager-update-profile"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/update-profile");
+                    handleItemClick("/sales-manager-update-profile");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/update-profile"
+                    selectedItem === "/sales-manager-update-profile"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
@@ -219,13 +219,13 @@ const SalesManagerSidebar = () => {
               </li>
               <li>
                 <a
-                  href="/change-password"
+                  href="/sales-manager-change-password"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/change-password");
+                    handleItemClick("/sales-manager-change-password");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/change-password"
+                    selectedItem === "/sales-manager-change-password"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}

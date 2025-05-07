@@ -152,8 +152,8 @@ const TrackOrder = () => {
         <CSMNavbar />
 
         {/* Track Order Content */}
-        <div className="max-w-5xl mx-auto py-12">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">Track Order</h2>
+        <div className="max-w-5xl mx-auto py-120">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8"></h2>
 
           {/* Rounded Rectangle Search Form */}
           <form onSubmit={handleSearch} className="mb-10 flex justify-center">

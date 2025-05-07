@@ -1,11 +1,10 @@
-// frontend\src\dashboards\CSM\ChangePassword.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import CSMNavbar from "../../components/CSMNavbar";
-import CSMSidebar from "../../components/CSMSidebar";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
-const ChangePassword = () => {
+const SrChangePassword = () => {
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
@@ -32,7 +31,7 @@ const ChangePassword = () => {
     }
 
     try {
-      await axios.post(`http://localhost:5000/api/csm/profile/change-password/${userId}`, {
+      await axios.post(`http://localhost:5000/api/salesM/profile/change-password/${userId}`, {
         currentPassword,
         newPassword,
       });
@@ -41,7 +40,7 @@ const ChangePassword = () => {
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
 
       setTimeout(() => {
-        navigate("/profile-settings");
+        navigate("/sales-manager-profile-settings");
       }, 2000);
     } catch (error) {
       setError(error.response?.data?.message || "Failed to change password. Please try again.");
@@ -52,11 +51,11 @@ const ChangePassword = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
-      <CSMSidebar />
+      <SalesManagerSidebar />
       <main className="flex-1 p-6">
-        <CSMNavbar />
+        <SalesManagerNavbar />
         <div className="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl mt-12 transition-all duration-300">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight"></h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight">Change Password</h2>
           {error && (
             <p className="text-red-600 bg-red-100 p-4 rounded-lg text-center mb-6 animate-fade-in">{error}</p>
           )}
@@ -100,7 +99,7 @@ const ChangePassword = () => {
             <div className="flex justify-between mt-6">
               <button
                 type="button"
-                onClick={() => navigate("/profile-settings")}
+                onClick={() => navigate("/sales-manager-profile-settings")}
                 className="bg-gray-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-600 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               >
                 Cancel
@@ -119,4 +118,4 @@ const ChangePassword = () => {
   );
 };
 
-export default ChangePassword;
+export default SrChangePassword;

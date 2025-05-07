@@ -3,7 +3,7 @@
 const CustomerOrder = require("../../models/customer/CustomerOrder");
 const Coupon = require("../../models/customer/Coupon");
 const Transaction = require("../../models/salesManager/FinancialModel");
-const CsmModel = require("../../models/csm/csmModel"); // Import CsmModel to check user role
+const CsmModel = require("../../models/csm/csmModel");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require('uuid');
 
@@ -22,7 +22,10 @@ const getOrderById = async (req, res) => {
 
     // Check if the user is a Customer Service Manager
     const user = await CsmModel.findById(userId);
-    if (!user || (user.role !== "Customer Service Manager" && order.userId.toString() !== userId)) {
+    const isCSM = user && user.role === "Customer Service Manager";
+    
+    // Allow access if the user is a CSM or the order's owner
+    if (!isCSM && order.userId._id.toString() !== userId) {
       return res.status(403).json({ message: "Unauthorized access" });
     }
 
@@ -237,13 +240,19 @@ const updateTrackingLocation = async (req, res) => {
 const addReview = async (req, res) => {
   const { rating, review } = req.body;
   try {
+    if (!rating || !review || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating (1-5) and review text are required" });
+    }
     const order = await CustomerOrder.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
-    order.reviews.push({ rating, review });
+    if (order.status !== 'Completed') return res.status(400).json({ message: "Reviews can only be added to completed orders" });
+    const newReview = { rating, review, status: 'pending' };
+    order.reviews.push(newReview);
     await order.save();
-    res.status(200).json(order);
+    console.log("Review saved:", newReview, "for order:", order._id);
+    res.status(201).json({ message: "Review submitted successfully", review: newReview });
   } catch (error) {
-    console.error("Error adding review:", error);
+    console.error("Error submitting review:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
