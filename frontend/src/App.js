@@ -53,7 +53,7 @@ import CreateCoupons from './dashboards/CSM/CreateCoupons';
 import InvProfile from "../src/components/InventoryM/InvProfile.js";
 import InvUpdateProfile from "../src/components/InventoryM/InvUpdateProfile.js";
 import InvChangePassword from "../src/components/InventoryM/InvChangePassword.js";
-
+import ReviewManagement from './dashboards/CSM/ReviewManagement';
 
 
 
@@ -207,6 +207,7 @@ function App() {
         <Route path="/inv-update-profile" element={<InvUpdateProfile />} />
         <Route path="/inv-change-password" element={<InvChangePassword />} />
         <Route path="/csm/track-order" element={<TrackOrder />} />
+        <Route path="/csm/reviews" element={<ReviewManagement />} />
 
 
       </Routes>

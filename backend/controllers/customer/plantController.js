@@ -1,6 +1,6 @@
 // E:\SLIIT\Y2 S2\CRIPS\backend\controllers\plantController.js
 const PlantModel = require("../../models/customer/PlantModel");
-
+const CustomerOrder = require('../../models/customer/CustomerOrder');
 // Get all plants
 exports.getPlants = async (req, res) => {
   try {
@@ -57,12 +57,25 @@ exports.deletePlant = async (req, res) => {
 // Get reviews for a specific plant (New function)
 exports.getPlantReviews = async (req, res) => {
   try {
-    const plant = await PlantModel.findById(req.params.id);
-    if (!plant) return res.status(404).json({ message: "Plant not found" });
-    console.log("Fetched reviews for plant:", plant.reviews); // Added logging
-    res.json(plant.reviews);
+    const orders = await CustomerOrder.find({
+      'items.plantId': req.params.id,
+      'reviews.status': 'approved',
+    }).lean();
+    const approvedReviews = orders.flatMap(order =>
+      order.reviews
+        .filter(review => review.status === 'approved')
+        .map(review => ({
+          rating: review.rating,
+          review: review.review,
+          createdAt: review.createdAt,
+          user: order.userId,
+          plantId: order.items.find(item => item.plantId.toString() === req.params.id).plantId,
+        }))
+    );
+    console.log("Fetched approved reviews for plant:", approvedReviews);
+    res.json(approvedReviews);
   } catch (error) {
-    console.error("Error fetching reviews:", error);
-    res.status(500).json({ message: "Error fetching reviews" });
+    console.error("Error fetching approved reviews:", error);
+    res.status(500).json({ message: "Error fetching approved reviews", error });
   }
 };

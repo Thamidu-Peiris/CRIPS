@@ -10,6 +10,10 @@ const OrdersPage = () => {
   const [review, setReview] = useState({ rating: 0, review: "" });
   const navigate = useNavigate();
 
+  const hasPendingOrApprovedReview = (order) => {
+    return order.reviews.some(review => review.status === 'pending' || review.status === 'approved');
+  };
+
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (!userInfo) {
@@ -20,7 +24,6 @@ const OrdersPage = () => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/orders/user/${userInfo.id}`);
-        // Sort orders by createdAt in descending order (latest first)
         const sortedOrders = response.data.sort((a, b) => 
           new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -36,18 +39,19 @@ const OrdersPage = () => {
     try {
       await axios.post(`http://localhost:5000/api/orders/${orderId}/review`, review);
       setOrders(orders.map((order) =>
-        order._id === orderId ? { ...order, reviews: [...order.reviews, review] } : order
+        order._id === orderId ? { ...order, reviews: [...order.reviews, { ...review, status: 'pending' }] } : order
       ));
       setShowReviewForm(null);
       setReview({ rating: 0, review: "" });
+      alert("Review submitted and is pending approval.");
     } catch (error) {
       console.error("Error submitting review:", error);
+      alert("Failed to submit review.");
     }
   };
 
   return (
     <div className="min-h-screen bg-green-50 pt-0">
-      {/* Navigation */}
       <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <motion.img
           src="/logo.png"
@@ -96,7 +100,6 @@ const OrdersPage = () => {
         <CustomerHeader />
       </nav>
 
-      {/* Content */}
       <div className="px-4 pb-12">
         <div className="bg-white shadow-sm p-4 mx-4 mt-4 rounded-lg">
           <div className="text-gray-500 text-sm">
@@ -152,7 +155,7 @@ const OrdersPage = () => {
                     <td className="p-4">{new Date(order.createdAt).toLocaleDateString()}</td>
                     <td className="p-4 flex gap-2">
                       <Link to={`/orders/${order._id}`} className="text-green-600 hover:text-green-700 font-medium">View</Link>
-                      {order.status === "Completed" && (
+                      {order.status === "Completed" && !hasPendingOrApprovedReview(order) && (
                         <button
                           onClick={() => setShowReviewForm(order._id)}
                           className="text-green-600 hover:text-green-700 font-medium"
