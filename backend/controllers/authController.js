@@ -90,7 +90,7 @@ exports.universalLogin = async (req, res) => {
 
     // supplier
     if (!user) {
-      console.log("Checking supplier..." , CSM.supplier.name);
+      console.log("Checking supplier..." , CSM.collection.name);
       user = await CSM.findOne({
         $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
       });
@@ -117,7 +117,7 @@ exports.universalLogin = async (req, res) => {
     if (!user) {
       console.log("check cutter...", Cutter.collection.name);
       user = await Cutter.findOne({
-        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],//
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }],
       });
   
       if (user) {
