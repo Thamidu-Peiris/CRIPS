@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
 import { FaLeaf, FaUsers, FaCog, FaChevronDown, FaFolder } from "react-icons/fa";
+import { FaFileAlt } from "react-icons/fa";
 
 const GHSidebar = () => {
   const location = useLocation();
@@ -200,6 +201,7 @@ const GHSidebar = () => {
             </ul>
           )}
         </li>
+
 
         {/* Settings */}
         <li>
