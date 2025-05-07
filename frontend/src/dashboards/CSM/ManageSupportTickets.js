@@ -15,7 +15,7 @@ const ManageSupportTickets = () => {
     fetchTickets();
   }, []);
 
-  // ✅ Fetch Tickets from API
+  // Fetch Tickets from API
   const fetchTickets = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/support");
@@ -28,7 +28,7 @@ const ManageSupportTickets = () => {
     }
   };
 
-  // ✅ Handle ticket status color
+  // Handle ticket status color
   const getStatusColor = (status) => {
     switch (status) {
       case "Pending":
@@ -42,7 +42,7 @@ const ManageSupportTickets = () => {
     }
   };
 
-  // ✅ Add delete function
+  // Add delete function
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this ticket?")) return;
 
@@ -56,7 +56,7 @@ const ManageSupportTickets = () => {
     }
   };
 
-  // ✅ Format date
+  // Format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -71,45 +71,46 @@ const ManageSupportTickets = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* ✅ Sidebar */}
+      {/* Sidebar */}
       <CSMSidebar />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* ✅ Navbar */}
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        {/* Navbar */}
         <CSMNavbar />
 
-        {/* ✅ Support Tickets Section */}
-        <div className="p-6 overflow-auto">
+        {/* Support Tickets Section */}
+        <div className="p-0 overflow-auto mt-120">
           <h2 className="text-3xl font-bold text-blue-700 text-center mb-6">
-            Manage Support Tickets
+            
           </h2>
 
-          {/* ✅ Loading State */}
+          {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
           )}
 
-          {/* ✅ Error State */}
+          {/* Error State */}
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
               {error}
             </div>
           )}
 
-          {/* ✅ Tickets Table */}
+          {/* Tickets Table */}
           {!loading && !error && (
             <table className="w-full border-collapse bg-white shadow-lg rounded-lg overflow-hidden">
               <thead>
-                <tr className="bg-gray-200">
-                  <th className="py-4 px-6 text-left">ID</th>
-                  <th className="py-4 px-6 text-left">Customer</th>
-                  <th className="py-4 px-6 text-left">Subject</th>
-                  <th className="py-4 px-6 text-left">Status</th>
-                  <th className="py-4 px-6 text-left">Created</th>
-                  <th className="py-4 px-6 text-left">Updated</th>
-                  <th className="py-4 px-6 text-left">Actions</th>
+                <tr className="bg-[#1CB04B]">
+                  <th className="py-4 px-6 text-left text-white">ID</th>
+                  <th className="py-4 px-6 text-left text-white">Customer</th>
+                  <th className="py-4 px-6 text-left text-white">Subject</th>
+                  <th className="py-4 px-6 text-left text-white">Status</th>
+                  <th className="py-4 px-6 text-left text-white">Created</th>
+                  <th className="py-4 px-6 text-left text-white">Updated</th>
+                  <th className="py-4 px-6 text-left text-white">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -137,7 +138,7 @@ const ManageSupportTickets = () => {
                       {formatDate(ticket.updatedAt)}
                     </td>
                     <td className="py-4 px-6 border-b flex gap-2">
-                      {/* ✅ View Button */}
+                      {/* View Button */}
                       <button
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
                         onClick={() =>
@@ -147,7 +148,7 @@ const ManageSupportTickets = () => {
                         View
                       </button>
 
-                      {/* ❌ Delete Button */}
+                      {/* Delete Button */}
                       <button
                         className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
                         onClick={() => handleDelete(ticket._id)}
@@ -161,7 +162,7 @@ const ManageSupportTickets = () => {
             </table>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 };

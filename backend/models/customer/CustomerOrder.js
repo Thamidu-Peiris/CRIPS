@@ -41,6 +41,7 @@ const customerOrderSchema = new mongoose.Schema({
     rating: { type: Number, min: 1, max: 5 },
     review: { type: String },
     createdAt: { type: Date, default: Date.now },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   }],
 }, { timestamps: true });
 

@@ -1,11 +1,10 @@
-// frontend\src\dashboards\CSM\UpdateProfile.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import CSMNavbar from "../../components/CSMNavbar";
-import CSMSidebar from "../../components/CSMSidebar";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
-const UpdateProfile = () => {
+const SrUpdateProfile = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,7 +21,7 @@ const UpdateProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/csm/profile/${userId}`);
+        const response = await axios.get(`http://localhost:5000/api/salesM/profile/${userId}`);
         setFormData({
           firstName: response.data.firstName || "",
           lastName: response.data.lastName || "",
@@ -68,7 +67,7 @@ const UpdateProfile = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/csm/profile/update/${userId}`,
+        `http://localhost:5000/api/salesM/profile/update/${userId}`,
         formDataToSend,
         {
           headers: {
@@ -90,7 +89,7 @@ const UpdateProfile = () => {
       localStorage.setItem("userInfo", JSON.stringify(updatedUser));
 
       setTimeout(() => {
-        navigate("/profile-settings");
+        navigate("/sales-manager-profile-settings");
       }, 2000);
     } catch (error) {
       setError("Failed to update profile. Please try again.");
@@ -101,11 +100,11 @@ const UpdateProfile = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
-      <CSMSidebar />
+      <SalesManagerSidebar />
       <main className="flex-1 p-6">
-        <CSMNavbar />
+        <SalesManagerNavbar />
         <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl mt-8 transition-all duration-300">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight"></h2>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight">Update Profile</h2>
           {error && (
             <p className="text-red-600 bg-red-100 p-4 rounded-lg text-center mb-6 animate-fade-in">{error}</p>
           )}
@@ -188,4 +187,4 @@ const UpdateProfile = () => {
   );
 };
 
-export default UpdateProfile;
+export default SrUpdateProfile;

@@ -1,12 +1,11 @@
-// frontend\src\dashboards\CSM\ProfileSettings.js
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import CSMNavbar from "../../components/CSMNavbar";
-import CSMSidebar from "../../components/CSMSidebar";
+import SalesManagerNavbar from "../../components/SalesManagerNavbar";
+import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
 
-const ProfileSettings = () => {
+const SrProfileSettings = () => {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -16,7 +15,7 @@ const ProfileSettings = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      console.log("[DEBUG] Starting CSM profile fetch...");
+      console.log("[DEBUG] Starting Sales Manager profile fetch...");
       console.log("[DEBUG] LocalStorage values:");
       console.log("  userId:", userId);
       console.log("  token:", token);
@@ -29,21 +28,21 @@ const ProfileSettings = () => {
         return;
       }
 
-      if (!role || role.toLowerCase() !== "customer service manager") {
-        setError("Access denied. This page is for CSMs only.");
+      if (!role || role.toLowerCase() !== "sales manager") {
+        setError("Access denied. This page is for Sales Managers only.");
         console.log("[DEBUG] Role mismatch, redirecting to shop");
         navigate("/shop");
         return;
       }
 
       try {
-        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/csm/profile/${userId}`);
+        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/salesM/profile/${userId}`);
         console.log("[DEBUG] Request headers:", {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         });
 
-        const response = await axios.get(`http://localhost:5000/api/csm/profile/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/api/salesM/profile/${userId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -73,13 +72,11 @@ const ProfileSettings = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 font-sans">
-      <CSMSidebar />
+      <SalesManagerSidebar />
       <main className="flex-1 p-4 lg:p-8">
-        <CSMNavbar />
+        <SalesManagerNavbar />
         <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-4xl font-extrabold text-gray-800 mb-8 tracking-tight">
-            
-          </h2>
+          <h2 className="text-4xl font-extrabold text-gray-800 mb-8 tracking-tight">Profile Settings</h2>
 
           {/* Error Message */}
           {error && (
@@ -100,7 +97,7 @@ const ProfileSettings = () => {
                 />
                 <div className="text-center sm:text-left">
                   <h3 className="text-3xl font-bold text-gray-900">{profile.firstName} {profile.lastName}</h3>
-                  <p className="text-gray-500 text-lg mt-1">{profile.role || "Customer Service Manager"}</p>
+                  <p className="text-gray-500 text-lg mt-1">{profile.role || "Sales Manager"}</p>
                 </div>
               </div>
 
@@ -140,13 +137,21 @@ const ProfileSettings = () => {
                 </div>
               </div>
 
-              {/* Update Button */}
-              <button
-                onClick={() => navigate("/update-profile")}
-                className="mt-8 w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out transform hover:scale-105"
-              >
-                Update Profile
-              </button>
+              {/* Action Buttons */}
+              <div className="mt-8 flex flex-col sm:flex-row sm:justify-between gap-4">
+                <button
+                  onClick={() => navigate("/sales-manager-update-profile")}
+                  className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Update Profile
+                </button>
+                <button
+                  onClick={() => navigate("/sales-manager-change-password")}
+                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Change Password
+                </button>
+              </div>
             </div>
           ) : (
             !error && (
@@ -164,4 +169,4 @@ const ProfileSettings = () => {
   );
 };
 
-export default ProfileSettings;
+export default SrProfileSettings;

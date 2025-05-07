@@ -84,7 +84,7 @@ const ManageOrders = () => {
       <main className="flex-1 p-6">
         <CSMNavbar />
         <div className="bg-white p-6 rounded-2xl shadow-md mt-6">
-          <h3 className="text-lg font-semibold mb-4">Manage Orders</h3>
+          <h3 className="text-lg font-semibold mb-4"></h3>
           <div className="overflow-x-auto rounded-3xl">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
