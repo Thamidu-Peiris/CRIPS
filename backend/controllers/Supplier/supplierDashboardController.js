@@ -1,7 +1,11 @@
+
 // backend\controllers\Supplier\supplierDashboardController.js
 const Order = require('../../models/InventoryM/OrderStock'); // Use the correct Order model
 
-// ✅ Get all orders for the supplier
+
+//const Order = require('../../controllers/Supplier/orderStockController');
+const Supplier = require('../../models/SupplierM/Supplier');
+// Get all orders for the supplier
 exports.getSupplierOrders = async (req, res) => {
   try {
     const orders = await Order.find({ supplierId: req.params.supplierId });
@@ -11,7 +15,7 @@ exports.getSupplierOrders = async (req, res) => {
   }
 };
 
-// ✅ Approve the order and log status history
+//  Approve the order and log status history
 exports.approveOrder = async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(
@@ -29,7 +33,7 @@ exports.approveOrder = async (req, res) => {
   }
 };
 
-// ✅ Ship the order and log status history
+// Ship the order and log status history
 exports.shipOrder = async (req, res) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(

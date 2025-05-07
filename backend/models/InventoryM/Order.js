@@ -27,6 +27,7 @@ const orderSchema = new mongoose.Schema({
     enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'], 
     default: 'Pending' 
   },
+  shipmentId: { type: String, default: null }, // Added to store the shipmentId
   couponDiscount: { type: Number, default: 0 },
   reviews: [{
     rating: { type: Number, min: 1, max: 5 },
