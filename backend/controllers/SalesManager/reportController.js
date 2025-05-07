@@ -1,10 +1,10 @@
 // backend\controllers\SalesManager\reportController.js
 /* eslint-disable */
 const Transaction = require("../../models/salesManager/FinancialModel");
-const Customer = require("../../models/salesManager/CustomerModel");
 const Payroll = require("../../models/salesManager/PayrollModel");
 const Product = require("../../models/salesManager/ProductModel");
 const CustomerOrder = require("../../models/customer/CustomerOrder");
+const User = require("../../models/customer/User"); 
 
 // Financial Report Controller
 const getFinancialReport = async (req, res) => {
@@ -59,52 +59,110 @@ const getCustomerReport = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    let query = {};
-    if (startDate && endDate) {
-      if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
-        return res.status(400).json({ error: "startDate and endDate must be valid dates" });
-      }
-      query.lastPurchaseDate = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: "startDate and endDate are required" });
     }
 
-    const topCustomers = await Customer.find(query)
-      .sort({ totalPurchases: -1 })
-      .limit(5);
+    if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
+      return res.status(400).json({ error: "startDate and endDate must be valid dates" });
+    }
 
-    const paymentMethods = await Customer.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: "$paymentMethod",
-          count: { $sum: 1 },
-        },
-      },
-    ]);
+    const parsedStartDate = new Date(startDate + "T00:00:00Z");
+    const parsedEndDate = new Date(endDate + "T23:59:59.999Z");
 
-    const total = paymentMethods.reduce((sum, method) => sum + method.count, 0);
-    const paymentMethodData = paymentMethods.map((method) => ({
-      name: method._id,
-      value: total > 0 ? (method.count / total) * 100 : 0,
-    }));
+    // Fetch completed orders for top customers and total purchases
+    const orders = await CustomerOrder.find({
+      createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
+      status: "Completed",
+    }).populate("userId", "firstName lastName");
 
-    const newCustomers = await Customer.countDocuments({
-      createdAt: { $gte: new Date(startDate), $lte: new Date(endDate) },
+    // Calculate top customers with orders above Rs. 100
+    const customerPurchases = {};
+    orders.forEach(order => {
+      if (order.total > 100) {
+        const customerId = order.userId?._id?.toString();
+        const customerName = order.userId ? `${order.userId.firstName} ${order.userId.lastName}` : "Unknown";
+        if (customerId) {
+          if (!customerPurchases[customerId]) {
+            customerPurchases[customerId] = { name: customerName, totalPurchases: 0 };
+          }
+          customerPurchases[customerId].totalPurchases += order.total;
+        }
+      }
     });
 
-    const totalPurchases = await Customer.aggregate([
-      { $match: query },
-      { $group: { _id: null, total: { $sum: "$totalPurchases" } } },
-    ]);
+    const topCustomers = Object.entries(customerPurchases)
+      .map(([id, info]) => ({
+        customerId: id,
+        name: info.name,
+        totalPurchases: info.totalPurchases,
+      }))
+      .sort((a, b) => b.totalPurchases - a.totalPurchases)
+      .slice(0, 5);
+
+    // Fetch new customers using the User model
+    const newCustomers = await User.countDocuments({
+      createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
+      status: "approved"
+    });
+
+    // Calculate total purchases
+    const totalPurchases = orders.reduce((sum, order) => sum + order.total, 0);
+
+    // Calculate order size distribution (send raw counts)
+const orderSizeDistributionRaw = await CustomerOrder.aggregate([
+  {
+    $match: {
+      createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
+      status: "Completed",
+    },
+  },
+  {
+    $group: {
+      _id: {
+        $cond: [
+          { $lt: ["$total", 1000] },
+          "Small",
+          {
+            $cond: [
+              { $lte: ["$total", 5000] },
+              "Medium",
+              "Large",
+            ],
+          },
+        ],
+      },
+      count: { $sum: 1 },
+    },
+  },
+]);
+
+// Ensure all buckets are represented, even if their counts are 0
+const buckets = [
+  { name: "Small", count: 0 },
+  { name: "Medium", count: 0 },
+  { name: "Large", count: 0 },
+];
+
+orderSizeDistributionRaw.forEach(bucket => {
+  const index = buckets.findIndex(b => b.name === bucket._id);
+  if (index !== -1) {
+    buckets[index].count = bucket.count;
+  }
+});
+
+const orderSizeDistribution = buckets.map(bucket => ({
+  name: bucket.name,
+  value: bucket.count, // Send raw counts
+}));
+console.log("Order Size Distribution sent to frontend:", orderSizeDistribution);
 
     res.status(200).json({
       topCustomers,
-      paymentMethods: paymentMethodData,
+      orderSizeDistribution,
       summary: {
         newCustomers,
-        totalPurchases: totalPurchases[0]?.total || 0,
+        totalPurchases,
       },
     });
   } catch (error) {
@@ -164,7 +222,6 @@ const getProductPerformanceReport = async (req, res) => {
   try {
     const { category, startDate: queryStartDate, endDate: queryEndDate, sortBy = "revenue" } = req.query;
 
-    // Set default date range to last 30 days if not provided
     const endDate = queryEndDate || new Date().toISOString().split("T")[0];
     const startDate = queryStartDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
@@ -229,14 +286,12 @@ const getDashboardData = async (req, res) => {
   try {
     const { startDate: queryStartDate, endDate: queryEndDate } = req.query;
 
-    // Validate query parameters
     const endDate = queryEndDate || new Date().toISOString().split("T")[0];
     const startDate = queryStartDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
     if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
       return res.status(400).json({ error: "startDate and endDate must be valid dates" });
     }
 
-    // Parse dates in UTC
     const parsedStartDate = new Date(startDate + "T00:00:00Z");
     const parsedEndDate = new Date(endDate + "T23:59:59.999Z");
 
@@ -260,7 +315,6 @@ const getDashboardData = async (req, res) => {
       },
     };
 
-    // Fetch recent orders from CustomerOrder
     const recentOrders = await CustomerOrder.find()
       .sort({ createdAt: -1 })
       .limit(6)
@@ -272,7 +326,6 @@ const getDashboardData = async (req, res) => {
       status: order.status || "Unknown",
     }));
 
-    // Last 7 days units
     const salesLast7Days = await CustomerOrder.aggregate([
       { $match: { createdAt: { $gte: sevenDaysAgo } } },
       { $unwind: "$items" },
@@ -280,35 +333,30 @@ const getDashboardData = async (req, res) => {
     ]);
     responseData.summary.last7DaysUnits = salesLast7Days[0]?.totalUnits || 0;
 
-    // Last 30 days revenue
     const revenueLastMonth = await CustomerOrder.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo }, status: "Completed" } },
       { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
     ]);
     responseData.summary.lastMonthRevenue = revenueLastMonth[0]?.totalRevenue || 0;
 
-    // Total orders (last 30 days)
     const totalOrders = await CustomerOrder.countDocuments({
       createdAt: { $gte: thirtyDaysAgo },
       status: "Completed",
     });
     responseData.summary.totalOrders = totalOrders;
 
-    // Average order value (last 30 days)
     const avgOrderValue = await CustomerOrder.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo }, status: "Completed" } },
       { $group: { _id: null, avgValue: { $avg: "$total" } } },
     ]);
     responseData.summary.avgOrderValue = avgOrderValue[0]?.avgValue || 0;
 
-    // Pending orders (last 30 days)
     const pendingOrders = await CustomerOrder.countDocuments({
       createdAt: { $gte: thirtyDaysAgo },
       status: "Pending",
     });
     responseData.summary.pendingOrders = pendingOrders;
 
-    // Revenue growth (last 30 days vs previous 30 days)
     const prevRevenue = await CustomerOrder.aggregate([
       { $match: { createdAt: { $gte: sixtyDaysAgo, $lt: thirtyDaysAgo }, status: "Completed" } },
       { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
@@ -319,7 +367,6 @@ const getDashboardData = async (req, res) => {
       ? ((currentRevenue - prevRevenueValue) / prevRevenueValue) * 100
       : currentRevenue > 0 ? 100 : 0;
 
-    // Order status distribution (last 30 days) for Pie Chart
     const orderStatusDistribution = await CustomerOrder.aggregate([
       { $match: { createdAt: { $gte: thirtyDaysAgo } } },
       { $group: { _id: "$status", count: { $sum: 1 } } },
@@ -327,7 +374,6 @@ const getDashboardData = async (req, res) => {
     ]);
     responseData.orderStatusDistribution = orderStatusDistribution;
 
-    // Units sold by top plants for Bar Chart
     const salesData = await CustomerOrder.aggregate([
       { $match: { createdAt: { $gte: parsedStartDate, $lte: parsedEndDate }, status: "Completed" } },
       { $unwind: "$items" },
@@ -336,7 +382,7 @@ const getDashboardData = async (req, res) => {
 
     const topPlantsUnits = [];
     for (const sale of salesData) {
-      const product = await Product.findOne({ name: { $regex: `^${sale._id}$`, $options: 'i' } }); // Case-insensitive match
+      const product = await Product.findOne({ name: { $regex: `^${sale._id}$`, $options: 'i' } });
       const price = product ? product.price : 0;
       topPlantsUnits.push({
         name: sale._id,
@@ -346,7 +392,6 @@ const getDashboardData = async (req, res) => {
     }
     responseData.topPlantsUnits = topPlantsUnits.sort((a, b) => b.unitsSold - a.unitsSold);
 
-    // Revenue data for the bar chart (last 12 months)
     const revenueData = await CustomerOrder.aggregate([
       {
         $match: {
@@ -378,7 +423,6 @@ const getDashboardData = async (req, res) => {
     ]);
     responseData.revenueData = revenueData;
 
-    // Fetch top-selling plants
     const topSellingPlants = await Product.find()
       .sort({ unitsSold: -1 })
       .limit(3)
