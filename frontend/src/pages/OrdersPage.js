@@ -20,7 +20,11 @@ const OrdersPage = () => {
     const fetchOrders = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/orders/user/${userInfo.id}`);
-        setOrders(response.data);
+        // Sort orders by createdAt in descending order (latest first)
+        const sortedOrders = response.data.sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setOrders(sortedOrders);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
