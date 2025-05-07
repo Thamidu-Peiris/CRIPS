@@ -20,12 +20,27 @@ const OrderStatusHistory = () => {
 
     const fetchOrder = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/orders/${orderId}?userId=${userInfo.id}`);
+        const response = await axios.get(`http://localhost:5000/api/orders/${orderId}`, {
+          params: { userId: userInfo.id },
+        });
         setOrder(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching order:", error);
-        setError("Failed to load order status history. Please try again.");
+        console.log("Error response:", error.response);
+        let errorMessage = "Failed to load order status history. Please try again later.";
+        if (error.response) {
+          if (error.response.status === 404) {
+            errorMessage = "Order not found. Please check the order ID.";
+          } else if (error.response.status === 403) {
+            errorMessage = "Unauthorized access. Please ensure you are logged in with the correct account.";
+          } else if (error.response.status === 400) {
+            errorMessage = "Invalid request. Please check the order ID or contact support.";
+          } else {
+            errorMessage = error.response.data?.message || errorMessage;
+          }
+        }
+        setError(errorMessage);
         setLoading(false);
       }
     };
@@ -33,20 +48,31 @@ const OrderStatusHistory = () => {
   }, [orderId, navigate]);
 
   if (loading) {
-    return <div className="bg-white rounded-lg p-6 text-gray-600 text-center animate-fade-in max-w-4xl mx-auto mt-8">Loading...</div>;
+    return (
+      <div className="bg-white rounded-lg p-6 text-gray-600 text-center animate-fade-in max-w-4xl mx-auto mt-8">
+        Loading...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="bg-red-100 text-red-800 p-6 rounded-lg text-center animate-fade-in max-w-4xl mx-auto mt-8">{error}</div>;
+    return (
+      <div className="bg-red-100 text-red-800 p-6 rounded-lg text-center animate-fade-in max-w-4xl mx-auto mt-8">
+        {error}
+      </div>
+    );
   }
 
   if (!order) {
-    return <div className="bg-white rounded-lg p-6 text-gray-600 text-center animate-fade-in max-w-4xl mx-auto mt-8">Order not found.</div>;
+    return (
+      <div className="bg-white rounded-lg p-6 text-gray-600 text-center animate-fade-in max-w-4xl mx-auto mt-8">
+        Order not found.
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-green-50 pt-0">
-      {/* Navigation */}
       <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <motion.img
           src="/logo.png"
@@ -95,7 +121,6 @@ const OrderStatusHistory = () => {
         <CustomerHeader />
       </nav>
 
-      {/* Content */}
       <div className="px-4 pb-12">
         <div className="bg-white shadow-sm p-4 mx-4 mt-4 rounded-lg">
           <div className="text-gray-500 text-sm">
@@ -142,7 +167,7 @@ const OrderStatusHistory = () => {
                       </button>
                     </td>
                     <td className="p-4">{new Date(history.updatedAt).toLocaleString()}</td>
-                    <td className="p-4">{history.updatedBy || "N/A"}</td>
+                    <td className="p-4">{history.updatedBy ? history.updatedBy.toString() : "N/A"}</td>
                   </motion.tr>
                 ))}
               </tbody>

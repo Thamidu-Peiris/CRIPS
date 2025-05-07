@@ -239,6 +239,41 @@ const PlantDetails = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Reviews Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+          className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl p-10 mt-12"
+        >
+          <h2 className="text-3xl font-bold text-green-900 mb-8 tracking-tight">Customer Reviews</h2>
+          {reviews.length > 0 ? (
+            <div className="space-y-6">
+              {reviews.map((review, index) => (
+                <div key={index} className="border-b border-gray-200 pb-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    {[...Array(5)].map((_, i) => (
+                      <span
+                        key={i}
+                        className={`text-base ${i < review.rating ? "text-yellow-400" : "text-gray-300"}`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                    <span className="text-gray-600 text-sm ml-2">
+                      {new Date(review.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 text-lg">{review.comment}</p>
+                  <p className="text-gray-500 text-sm mt-2">By {review.user || "Anonymous"}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-lg">No reviews yet for this plant.</p>
+          )}
+        </motion.div>
       </div>
 
       {showPopup && (
