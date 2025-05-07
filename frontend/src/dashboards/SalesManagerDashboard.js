@@ -109,7 +109,7 @@ const SalesManagerDashboard = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-200">
+    <div className="flex h-parent bg-gray-200">
       <SalesManagerSidebar />
       <main className="flex-1 p-6">
         <SalesManagerNavbar />
@@ -210,7 +210,7 @@ const SalesManagerDashboard = () => {
           </div>
         </div>
 
-        {/* Top Selling Plants
+        {/*Top Selling Plants*/}
         <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">Top Selling Plants</h2>
@@ -227,7 +227,7 @@ const SalesManagerDashboard = () => {
               </div>
             ))}
           </div>
-        </div> */}
+        </div> 
 
         {/* Recent Orders */}
         <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
