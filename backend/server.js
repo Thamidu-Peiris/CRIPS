@@ -47,6 +47,7 @@ const vacancieRoutes = require('./routes/SM/vacancieRoutes');
 const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
 const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRoutes');
 const salesManagerRoutes = require("./routes/SalesM/salesManagerRoutes");
+const growerHandlerRoutes = require("./routes/GrowerHandler/growerHandlerRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -82,6 +83,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/orders', orderRoutes);
 app.use('/api/inventory-manager', inventoryManagerRoutes);
 app.use("/api/salesM", salesManagerRoutes);
+app.use("/api/grower-handler" , growerHandlerRoutes);
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
