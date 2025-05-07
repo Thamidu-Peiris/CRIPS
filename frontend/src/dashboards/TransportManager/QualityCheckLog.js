@@ -10,7 +10,9 @@ export default function QualityCheckLog() {
   const [condition, setCondition] = useState('Intact');
   const [remarks, setRemarks] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [formError, setFormError] = useState(''); // For form validation errors inside the form
+  const [globalMessage, setGlobalMessage] = useState(null); // For success/error messages
+  const [globalMessageType, setGlobalMessageType] = useState(""); // Type: "success", "error"
 
   // Fetch Delivered Shipments
   useEffect(() => {
@@ -20,6 +22,8 @@ export default function QualityCheckLog() {
         setShipments(res.data);
       } catch (err) {
         console.error('Failed to fetch delivered shipments:', err);
+        setGlobalMessage(err.response?.data?.error || 'Failed to fetch delivered shipments. Please try again.');
+        setGlobalMessageType("error");
       }
     };
     fetchDeliveredShipments();
@@ -28,7 +32,7 @@ export default function QualityCheckLog() {
   useEffect(() => {
     if (!shipmentId) {
       setLogs([]);
-      setError('Shipment ID is required to fetch quality logs. Please select a shipment.');
+      setFormError('Shipment ID is required to fetch quality logs. Please select a shipment.');
       return;
     }
     fetchLogs();
@@ -36,25 +40,37 @@ export default function QualityCheckLog() {
 
   const fetchLogs = async () => {
     setIsLoading(true);
-    setError(null);
+    setFormError('');
     try {
       const res = await axios.get(`http://localhost:5000/api/quality/${shipmentId}`);
       setLogs(res.data);
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to fetch quality logs. Please try again later.');
+      setFormError(error.response?.data?.error || 'Failed to fetch quality logs. Please try again later.');
       console.error('Failed to fetch quality logs:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleLogQuality = async () => {
+  const validateForm = () => {
     if (!shipmentId) {
-      setError('Shipment ID is required to log a quality check. Please select a shipment.');
+      return "Shipment ID is required to log a quality check. Please select a shipment.";
+    }
+    if (!condition) {
+      return "Condition is required.";
+    }
+    return null;
+  };
+
+  const handleLogQuality = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
       return;
     }
+
     setIsLoading(true);
-    setError(null);
+    setFormError('');
     try {
       await axios.post('http://localhost:5000/api/quality', {
         shipmentId,
@@ -64,12 +80,20 @@ export default function QualityCheckLog() {
       setCondition('Intact');
       setRemarks('');
       fetchLogs();
+      setGlobalMessage("Quality check logged successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
-      setError(error.response?.data?.error || 'Failed to log quality check. Please try again.');
+      setFormError(error.response?.data?.error || 'Failed to log quality check. Please try again.');
       console.error('Failed to log quality check:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to close the global message
+  const closeGlobalMessage = () => {
+    setGlobalMessage(null);
+    setGlobalMessageType("");
   };
 
   return (
@@ -85,6 +109,27 @@ export default function QualityCheckLog() {
             Log and review quality checks for delivered shipments
           </p>
         </header>
+
+        {/* Global Message Display (Success/Error) */}
+        {globalMessage && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div
+              className={`p-4 rounded-xl shadow-lg flex items-center justify-between max-w-md w-full transition-all duration-300 ${
+                globalMessageType === "success"
+                  ? "bg-green-100 border border-green-300 text-green-800"
+                  : "bg-red-100 border border-red-300 text-red-800"
+              }`}
+            >
+              <span className="font-medium">{globalMessage}</span>
+              <button
+                onClick={closeGlobalMessage}
+                className="ml-4 text-xl font-bold hover:text-gray-600 focus:outline-none"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
           {/* Shipment Selector */}
@@ -104,18 +149,15 @@ export default function QualityCheckLog() {
             </select>
           </div>
 
-          {error && (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
-              <p>{error}</p>
-            </div>
-          )}
-
           {/* Quality Check Form - Redesigned as a Card */}
           <div className="mb-8 bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200">
             <h2 className="text-lg font-semibold text-green-900 mb-4 flex items-center">
               <FaClipboardCheck className="mr-2 text-green-500" />
               Log Quality Check
             </h2>
+            {formError && (
+              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">{formError}</div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-gray-600 font-semibold mb-1">Condition</label>

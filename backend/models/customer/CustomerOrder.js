@@ -29,6 +29,7 @@ const customerOrderSchema = new mongoose.Schema({
     enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'], 
     default: 'Pending' 
   },
+  shipmentId: { type: String, default: null },
   trackingNumber: { type: String }, // New field for tracking number
   trackingLocation: { type: String }, // New field for current location
   statusHistory: [{

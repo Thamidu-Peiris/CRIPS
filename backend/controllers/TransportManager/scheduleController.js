@@ -1,5 +1,8 @@
 const Schedule = require('../../models/TransportManager/Schedule');
-const axios = require('axios');
+const Shipment = require('../../models/TransportManager/Shipment');
+const CustomerOrder = require('../../models/customer/CustomerOrder');
+const Driver = require('../../models/TransportManager/drivers');
+const Vehicle = require('../../models/TransportManager/Vehicle');
 
 // Helper function to generate a unique shipmentId
 const generateShipmentId = async () => {
@@ -13,22 +16,14 @@ const generateShipmentId = async () => {
   return `${prefix}${String(newIdNumber).padStart(3, '0')}`; // e.g., "SHP001"
 };
 
-// Simulated drivers (for consistency with frontend)
-const simulatedDrivers = [
-  { _id: 'DRV001', name: 'John Doe', status: 'Available' },
-  { _id: 'DRV002', name: 'Jane Smith', status: 'Available' },
-];
-
 // Create a new schedule
 exports.createSchedule = async (req, res) => {
   let schedule = null;
   try {
     const { orderIds, vehicleId, driverId, departureDate, expectedArrivalDate, location } = req.body;
 
-    // Log the incoming request body for debugging
     console.log('Create Schedule Request Body:', req.body);
 
-    // Validate required fields
     if (!orderIds || orderIds.length === 0) {
       console.log('Validation failed: Missing orderIds');
       return res.status(400).json({ error: 'At least one order must be selected' });
@@ -54,30 +49,81 @@ exports.createSchedule = async (req, res) => {
       return res.status(400).json({ error: 'Initial location is required' });
     }
 
-    // Validate driverId
-    const driverExists = simulatedDrivers.some((driver) => driver._id === driverId);
-    if (!driverExists) {
+    // Validate driver availability based on departureDate
+    const driver = await Driver.findOne({ driverId });
+    if (!driver) {
       console.log('Validation failed: Invalid driverId:', driverId);
       return res.status(400).json({ error: `Invalid driverId: ${driverId}` });
     }
 
-    // Validate orderIds: Ensure they exist and are in "Confirmed" status
-    const ordersResponse = await axios.get('http://localhost:5000/api/orders', {
-      params: { status: 'Confirmed', ids: orderIds.join(',') },
+    const departureDateObj = new Date(departureDate);
+    const activeDriverShipment = await Shipment.findOne({
+      driverId,
+      status: { $in: ['In Transit', 'Delayed'] },
     });
-    const validOrders = ordersResponse.data;
-    console.log('Valid orders for scheduling:', validOrders);
 
-    if (validOrders.length !== orderIds.length) {
-      const invalidOrderIds = orderIds.filter(id => !validOrders.some(order => order._id === id));
-      console.log('Validation failed: Some orderIds are invalid or not in Confirmed status:', invalidOrderIds);
-      return res.status(400).json({ error: `Invalid orderIds or not in Confirmed status: ${invalidOrderIds.join(', ')}` });
+    if (activeDriverShipment) {
+      const expectedArrivalDateObj = new Date(activeDriverShipment.expectedArrivalDate);
+      if (departureDateObj <= expectedArrivalDateObj) {
+        console.log('Validation failed: Driver is not available until after current shipment:', driverId);
+        return res.status(400).json({
+          error: `Driver ${driverId} is not available until after their current shipment ends on ${expectedArrivalDateObj.toISOString().split('T')[0]}`,
+        });
+      }
+    } else if (driver.status !== 'Available') {
+      console.log('Validation failed: Driver is not available:', driverId);
+      return res.status(400).json({ error: `Driver ${driverId} is not available` });
     }
 
-    // Generate a unique shipmentId
+    // Validate vehicle availability based on departureDate
+    const vehicle = await Vehicle.findOne({ vehicleId });
+    if (!vehicle) {
+      console.log('Validation failed: Invalid vehicleId:', vehicleId);
+      return res.status(400).json({ error: `Invalid vehicleId: ${vehicleId}` });
+    }
+    if (vehicle.status !== 'Active') {
+      console.log('Validation failed: Vehicle is not active:', vehicleId);
+      return res.status(400).json({ error: `Vehicle ${vehicleId} is not active` });
+    }
+
+    const activeVehicleShipment = await Shipment.findOne({
+      vehicleId,
+      status: { $in: ['In Transit', 'Delayed'] },
+    });
+
+    if (activeVehicleShipment) {
+      const expectedArrivalDateObj = new Date(activeVehicleShipment.expectedArrivalDate);
+      if (departureDateObj <= expectedArrivalDateObj) {
+        console.log('Validation failed: Vehicle is not available until after current shipment:', vehicleId);
+        return res.status(400).json({
+          error: `Vehicle ${vehicleId} is not available until after its current shipment ends on ${expectedArrivalDateObj.toISOString().split('T')[0]}`,
+        });
+      }
+    }
+
+    const orders = await CustomerOrder.find({ 
+      _id: { $in: orderIds }, 
+      status: { $regex: '^Confirmed$', $options: 'i' }
+    });
+    console.log('Valid orders for scheduling:', orders);
+
+    if (orders.length !== orderIds.length) {
+      const validOrderIds = orders.map(order => order._id.toString());
+      const invalidOrderIds = orderIds.filter(id => !validOrderIds.includes(id.toString()));
+      console.log('Validation failed: Some orderIds are invalid or not in Confirmed status:', invalidOrderIds);
+      const existingOrders = await CustomerOrder.find({ _id: { $in: invalidOrderIds } });
+      const detailedErrors = invalidOrderIds.map(id => {
+        const order = existingOrders.find(o => o._id.toString() === id.toString());
+        return order ? `Order ${id} has status ${order.status}` : `Order ${id} does not exist`;
+      });
+      return res.status(400).json({ 
+        error: `Invalid orderIds or not in Confirmed status: ${invalidOrderIds.join(', ')}`,
+        details: detailedErrors.join('; ')
+      });
+    }
+
     const shipmentId = await generateShipmentId();
 
-    // Create the schedule
     schedule = await Schedule.create({
       shipmentId,
       orderIds,
@@ -89,35 +135,43 @@ exports.createSchedule = async (req, res) => {
       status: 'Scheduled',
     });
 
-    // Log the created schedule
     console.log('Schedule created successfully:', schedule);
 
-    // Update associated orders to "Shipped" status and add shipmentId (via Order API)
     for (const orderId of orderIds) {
       try {
         console.log(`Updating order ${orderId} to Shipped with shipmentId ${shipmentId}`);
-        const response = await axios.put(`http://localhost:5000/api/orders/${orderId}`, {
-          status: 'Shipped',
-          shipmentId: shipmentId,
-        });
-        console.log(`Order ${orderId} updated successfully:`, response.data);
+        const updatedOrder = await CustomerOrder.findByIdAndUpdate(
+          orderId,
+          { status: 'Shipped', shipmentId },
+          { new: true }
+        );
+        if (!updatedOrder) {
+          console.error(`Order ${orderId} not found during update`);
+          throw new Error(`Order ${orderId} not found during update`);
+        }
+        console.log(`Order ${orderId} updated successfully:`, updatedOrder);
       } catch (error) {
-        console.error(`Failed to update order ${orderId}:`, error.response?.data || error.message);
-        // Rollback: Delete the schedule if any order update fails
+        console.error(`Failed to update order ${orderId}:`, error.message);
         if (schedule) {
           await Schedule.findByIdAndDelete(schedule._id);
           console.log('Rolled back schedule creation due to order update failure:', schedule._id);
         }
         return res.status(500).json({
-          error: `Failed to update order ${orderId}: ${error.response?.data?.error || error.message}`,
+          error: `Failed to update order ${orderId}: ${error.message}`,
         });
       }
     }
 
+    // Update driver status to "On Duty"
+    await Driver.findOneAndUpdate(
+      { driverId },
+      { status: 'On Duty' },
+      { new: true }
+    );
+
     res.status(201).json(schedule);
   } catch (error) {
     console.error('Error creating schedule:', error.message);
-    // Ensure rollback if an unexpected error occurs
     if (schedule) {
       await Schedule.findByIdAndDelete(schedule._id);
       console.log('Rolled back schedule creation due to unexpected error:', schedule._id);
@@ -131,7 +185,6 @@ exports.getAllSchedules = async (req, res) => {
   try {
     const schedules = await Schedule.find().sort({ departureDate: 1 });
 
-    // Fetch order details for each schedule
     const schedulesWithOrders = await Promise.all(
       schedules.map(async (schedule) => {
         try {
@@ -139,19 +192,21 @@ exports.getAllSchedules = async (req, res) => {
           const orders = [];
           for (const orderId of schedule.orderIds) {
             try {
-              const response = await axios.get(`http://localhost:5000/api/orders/${orderId}`);
-              console.log(`Fetched order ${orderId} for schedule ${schedule.shipmentId}:`, response.data);
-              if (response.data) {
-                orders.push(response.data);
+              const order = await CustomerOrder.findById(orderId);
+              console.log(`Fetched order ${orderId} for schedule ${schedule.shipmentId}:`, order);
+              if (order) {
+                orders.push(order);
+              } else {
+                console.warn(`Order ${orderId} not found for schedule ${schedule.shipmentId}`);
               }
             } catch (error) {
-              console.error(`Failed to fetch order ${orderId} for schedule ${schedule.shipmentId}:`, error.response?.data || error.message);
+              console.error(`Failed to fetch order ${orderId} for schedule ${schedule.shipmentId}:`, error.message);
             }
           }
           console.log(`Orders for schedule ${schedule.shipmentId}:`, orders);
           return { ...schedule._doc, orders };
         } catch (error) {
-          console.error(`Failed to fetch orders for schedule ${schedule.shipmentId}:`, error.response?.data || error.message);
+          console.error(`Failed to fetch orders for schedule ${schedule.shipmentId}:`, error.message);
           return { ...schedule._doc, orders: [] };
         }
       })
@@ -176,17 +231,6 @@ exports.updateSchedule = async (req, res) => {
       return res.status(404).json({ error: 'Schedule not found' });
     }
 
-    // If status is "In Progress", move the schedule to Shipment Status Tracking
-    if (status === 'In Progress') {
-      console.log(`Moving schedule ${id} to Shipment Status with status "In Transit"`);
-      const response = await axios.post(`http://localhost:5000/api/schedules/${id}/complete`, {
-        expectedArrivalDate: schedule.expectedArrivalDate,
-      });
-      console.log(`Schedule ${id} moved to Shipment Status:`, response.data);
-      return res.status(200).json(response.data);
-    }
-
-    // Otherwise, update the schedule status and location
     const updateData = {};
     if (status) updateData.status = status;
     if (location) updateData.location = location;
@@ -201,21 +245,25 @@ exports.updateSchedule = async (req, res) => {
       return res.status(404).json({ error: 'Schedule not found' });
     }
 
-    // Sync the updated status and location with associated orders
     const newStatus = status || updatedSchedule.status;
     const newLocation = location || updatedSchedule.location;
     for (const orderId of updatedSchedule.orderIds) {
       try {
         const orderStatus = newStatus === 'Completed' ? 'Delivered' : newStatus === 'Delayed' ? 'Shipped' : 'Shipped';
         console.log(`Updating order ${orderId} to ${orderStatus} with location ${newLocation}`);
-        const response = await axios.put(`http://localhost:5000/api/orders/${orderId}`, {
-          status: orderStatus,
-          location: newLocation,
-        });
-        console.log(`Order ${orderId} updated successfully:`, response.data);
+        const updatedOrder = await CustomerOrder.findByIdAndUpdate(
+          orderId,
+          { status: orderStatus, trackingLocation: newLocation },
+          { new: true }
+        );
+        if (!updatedOrder) {
+          console.error(`Order ${orderId} not found during update`);
+          throw new Error(`Order ${orderId} not found during update`);
+        }
+        console.log(`Order ${orderId} updated successfully:`, updatedOrder);
       } catch (error) {
-        console.error(`Failed to update order ${orderId}:`, error.response?.data || error.message);
-        return res.status(500).json({ error: `Failed to update order ${orderId}: ${error.response?.data?.error || error.message}` });
+        console.error(`Failed to update order ${orderId}:`, error.message);
+        return res.status(500).json({ error: `Failed to update order ${orderId}: ${error.message}` });
       }
     }
 
@@ -236,20 +284,31 @@ exports.deleteSchedule = async (req, res) => {
       return res.status(404).json({ error: 'Schedule not found' });
     }
 
-    // Update associated orders to remove shipmentId and revert status
     for (const orderId of schedule.orderIds) {
       try {
         console.log(`Reverting order ${orderId} to Confirmed status`);
-        const response = await axios.put(`http://localhost:5000/api/orders/${orderId}`, {
-          status: 'Confirmed',
-          shipmentId: null,
-        });
-        console.log(`Order ${orderId} updated successfully:`, response.data);
+        const updatedOrder = await CustomerOrder.findByIdAndUpdate(
+          orderId,
+          { status: 'Confirmed', shipmentId: null, trackingLocation: null },
+          { new: true }
+        );
+        if (!updatedOrder) {
+          console.error(`Order ${orderId} not found during update`);
+          throw new Error(`Order ${orderId} not found during update`);
+        }
+        console.log(`Order ${orderId} updated successfully:`, updatedOrder);
       } catch (error) {
-        console.error(`Failed to update order ${orderId}:`, error.response?.data || error.message);
-        return res.status(500).json({ error: `Failed to update order ${orderId}: ${error.response?.data?.error || error.message}` });
+        console.error(`Failed to update order ${orderId}:`, error.message);
+        return res.status(500).json({ error: `Failed to update order ${orderId}: ${error.message}` });
       }
     }
+
+    // Revert driver status to "Available"
+    await Driver.findOneAndUpdate(
+      { driverId: schedule.driverId },
+      { status: 'Available' },
+      { new: true }
+    );
 
     console.log(`Schedule ${schedule.shipmentId} deleted successfully`);
     res.status(200).json({ message: 'Schedule deleted' });
@@ -262,23 +321,124 @@ exports.deleteSchedule = async (req, res) => {
 // Get "Ready to Ship" orders (Confirmed orders)
 exports.getReadyToShipOrders = async (req, res) => {
   try {
-    const response = await axios.get('http://localhost:5000/api/orders', {
-      params: { status: 'Confirmed' },
-    });
-    console.log('Ready-to-ship orders fetched:', response.data);
-    res.status(200).json(response.data || []);
+    const orders = await CustomerOrder.find({ status: { $regex: '^Confirmed$', $options: 'i' } });
+    console.log('Ready-to-ship orders fetched:', orders);
+    res.status(200).json(orders || []);
   } catch (error) {
-    console.error('Error fetching ready-to-ship orders:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to fetch ready-to-ship orders: ' + (error.response?.data?.error || error.message) });
+    console.error('Error fetching ready-to-ship orders:', error.message);
+    res.status(500).json({ error: 'Failed to fetch ready-to-ship orders: ' + error.message });
   }
 };
 
-// Get drivers (simulated for now)
+// Get available drivers
 exports.getDrivers = async (req, res) => {
   try {
-    res.status(200).json(simulatedDrivers);
+    const { departureDate } = req.query;
+    console.log('Fetching drivers with departureDate:', departureDate);
+
+    if (!departureDate) {
+      console.log('Validation failed: Missing departureDate query parameter');
+      return res.status(400).json({ error: 'departureDate query parameter is required' });
+    }
+
+    const departureDateObj = new Date(departureDate);
+    if (isNaN(departureDateObj)) {
+      console.log('Validation failed: Invalid departureDate format');
+      return res.status(400).json({ error: 'Invalid departureDate format. Use ISO format (e.g., YYYY-MM-DD)' });
+    }
+
+    const allDrivers = await Driver.find();
+    console.log('All drivers in database:', allDrivers);
+
+    const availableDrivers = [];
+    for (const driver of allDrivers) {
+      const activeShipment = await Shipment.findOne({
+        driverId: driver.driverId,
+        status: { $in: ['In Transit', 'Delayed'] },
+      });
+
+      if (!activeShipment) {
+        // Driver is available if not assigned to any active shipment and status is "Available"
+        if (driver.status === 'Available') {
+          availableDrivers.push(driver);
+        }
+        continue;
+      }
+
+      // If assigned to an active shipment, check if the new departureDate is after the expectedArrivalDate
+      const expectedArrivalDateObj = new Date(activeShipment.expectedArrivalDate);
+      if (departureDateObj > expectedArrivalDateObj) {
+        availableDrivers.push(driver);
+      }
+    }
+
+    console.log('Available drivers for departureDate:', availableDrivers);
+    if (availableDrivers.length === 0) {
+      console.warn('No drivers available for the given departureDate.');
+    }
+
+    res.status(200).json(availableDrivers);
   } catch (error) {
     console.error('Error fetching drivers:', error.message);
     res.status(500).json({ error: 'Failed to fetch drivers: ' + error.message });
+  }
+};
+
+// Get available vehicles
+exports.getAvailableVehicles = async (req, res) => {
+  try {
+    const { departureDate } = req.query;
+    console.log('Fetching vehicles with departureDate:', departureDate);
+
+    if (!departureDate) {
+      console.log('Validation failed: Missing departureDate query parameter');
+      return res.status(400).json({ error: 'departureDate query parameter is required' });
+    }
+
+    const departureDateObj = new Date(departureDate);
+    if (isNaN(departureDateObj)) {
+      console.log('Validation failed: Invalid departureDate format');
+      return res.status(400).json({ error: 'Invalid departureDate format. Use ISO format (e.g., YYYY-MM-DD)' });
+    }
+
+    const allVehicles = await Vehicle.find();
+    console.log('All vehicles in database:', allVehicles);
+
+    const activeVehicles = await Vehicle.find({ status: 'Active' });
+    console.log('Vehicles with status "Active":', activeVehicles);
+
+    if (activeVehicles.length === 0) {
+      console.warn('No vehicles with status "Active" found in the database.');
+    }
+
+    const availableVehicles = [];
+    for (const vehicle of activeVehicles) {
+      const activeShipment = await Shipment.findOne({
+        vehicleId: vehicle.vehicleId,
+        status: { $in: ['In Transit', 'Delayed'] },
+      });
+
+      if (!activeShipment) {
+        // Vehicle is available if not assigned to any active shipment
+        availableVehicles.push(vehicle);
+        continue;
+      }
+
+      // If assigned to an active shipment, check if the new departureDate is after the expectedArrivalDate
+      const expectedArrivalDateObj = new Date(activeShipment.expectedArrivalDate);
+      if (departureDateObj > expectedArrivalDateObj) {
+        availableVehicles.push(vehicle);
+      }
+    }
+
+    console.log('Available vehicles for departureDate:', availableVehicles);
+    if (availableVehicles.length === 0) {
+      console.warn('No available vehicles after filtering for active shipments and departureDate.');
+    }
+
+    res.status(200).json(availableVehicles);
+  } catch (error) {
+    console.error('Error fetching available vehicles:', error.message);
+    res.status(500).json({ error: 'Failed to fetch available vehicles: ' + error.message });
   }
 };
