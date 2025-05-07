@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 import { FaTruck, FaMapMarkerAlt, FaCalendarAlt, FaCar, FaUser, FaList, FaEdit, FaTrash } from 'react-icons/fa';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ShipmentScheduler() {
   const [schedules, setSchedules] = useState([]);
@@ -21,7 +21,10 @@ export default function ShipmentScheduler() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [formError, setFormError] = useState(''); // For form validation errors inside modal
+  const [globalMessage, setGlobalMessage] = useState(null); // For success/error messages outside modal
+  const [globalMessageType, setGlobalMessageType] = useState(""); // Type: "success", "error", "confirm"
+  const [confirmAction, setConfirmAction] = useState(null); // Store the action to confirm (status update/delete)
 
   useEffect(() => {
     fetchSchedules();
@@ -30,16 +33,34 @@ export default function ShipmentScheduler() {
     fetchDrivers();
   }, []);
 
+  // Re-fetch drivers and vehicles whenever departureDate changes
+  useEffect(() => {
+    if (isModalOpen && newSchedule.departureDate) {
+      fetchVehicles();
+      fetchDrivers();
+    }
+  }, [newSchedule.departureDate, isModalOpen]);
+
+  // Automatically clear global message after 3 seconds if it's a success or error
+  useEffect(() => {
+    if (globalMessage && (globalMessageType === "success" || globalMessageType === "error")) {
+      const timer = setTimeout(() => {
+        setGlobalMessage(null);
+        setGlobalMessageType("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [globalMessage, globalMessageType]);
+
   const fetchSchedules = async () => {
     setIsLoading(true);
     try {
       const response = await axios.get('http://localhost:5000/api/schedules');
-      console.log('Schedules fetched:', response.data);
       setSchedules(response.data);
-      setErrorMessage(''); // Clear any previous error messages
     } catch (error) {
-      console.error('Failed to fetch schedules:', error);
-      setErrorMessage('Failed to fetch schedules. Please try again.');
+      console.error('Failed to fetch schedules:', error.response?.data || error.message);
+      setGlobalMessage(error.response?.data?.error || 'Failed to fetch schedules. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
     }
@@ -48,47 +69,103 @@ export default function ShipmentScheduler() {
   const fetchOrders = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/schedules/orders/ready');
-      setOrders(response.data);
-      console.log('Orders fetched:', response.data);
+      const confirmedOrders = response.data.filter(order => order.status.toLowerCase() === 'confirmed');
+      setOrders(confirmedOrders);
+      setNewSchedule((prev) => ({
+        ...prev,
+        orderIds: [],
+      }));
     } catch (error) {
-      console.error('Failed to fetch orders:', error);
-      setErrorMessage('Failed to fetch orders. Please try again.');
+      console.error('Failed to fetch orders:', error.response?.data || error.message);
+      setGlobalMessage(error.response?.data?.error || 'Failed to fetch orders. Please try again.');
+      setGlobalMessageType("error");
     }
   };
 
   const fetchVehicles = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/vehicles');
+      const params = newSchedule.departureDate ? { departureDate: newSchedule.departureDate } : {};
+      const response = await axios.get('http://localhost:5000/api/schedules/vehicles/available', { params });
       setVehicles(response.data);
-      console.log('Vehicles fetched:', response.data);
+      if (!response.data || response.data.length === 0) {
+        setFormError('No available vehicles found for the selected departure date.');
+      } else {
+        setFormError('');
+      }
     } catch (error) {
       console.error('Failed to fetch vehicles:', error);
-      setErrorMessage('Failed to fetch vehicles. Please try again.');
+      setFormError(error.response?.data?.error || 'Failed to fetch vehicles. Please try again.');
     }
   };
 
   const fetchDrivers = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/schedules/drivers');
+      const params = newSchedule.departureDate ? { departureDate: newSchedule.departureDate } : {};
+      const response = await axios.get('http://localhost:5000/api/schedules/drivers-available', { params });
       setDrivers(response.data);
-      console.log('Drivers fetched:', response.data);
+      if (!response.data || response.data.length === 0) {
+        setFormError('No available drivers found for the selected departure date.');
+      } else if (vehicles.length > 0) {
+        setFormError('');
+      }
     } catch (error) {
       console.error('Failed to fetch drivers:', error);
-      setErrorMessage('Failed to fetch drivers. Using simulated data.');
-      setDrivers([
-        { _id: 'DRV001', name: 'John Doe', status: 'Available' },
-        { _id: 'DRV002', name: 'Jane Smith', status: 'Available' },
-      ]);
+      setFormError(error.response?.data?.error || 'Failed to fetch drivers. Please try again.');
     }
   };
 
+  const validateForm = () => {
+    const currentDate = new Date('2025-05-07'); // Current date as of May 07, 2025
+    const departureDate = new Date(newSchedule.departureDate);
+    const arrivalDate = new Date(newSchedule.expectedArrivalDate);
+
+    if (newSchedule.orderIds.length === 0) {
+      return "At least one order must be selected.";
+    }
+    if (!newSchedule.vehicleId) {
+      return "Vehicle is required.";
+    }
+    if (!newSchedule.driverId) {
+      return "Driver is required.";
+    }
+    if (!newSchedule.departureDate) {
+      return "Departure date is required.";
+    }
+    if (departureDate < currentDate) {
+      return "Departure date cannot be in the past.";
+    }
+    if (!newSchedule.expectedArrivalDate) {
+      return "Expected arrival date is required.";
+    }
+    if (arrivalDate <= departureDate) {
+      return "Expected arrival date must be after departure date.";
+    }
+    if (!newSchedule.location.trim()) {
+      return "Initial location is required.";
+    }
+    return null;
+  };
+
   const handleAddSchedule = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
     setIsLoading(true);
-    setErrorMessage('');
+    setFormError('');
     try {
-      console.log('Creating schedule with data:', newSchedule);
-      const response = await axios.post('http://localhost:5000/api/schedules', newSchedule);
-      console.log('Schedule created successfully:', response.data);
+      const validOrderIds = newSchedule.orderIds.filter(id => {
+        const order = orders.find(order => order._id === id);
+        return order && order.status.toLowerCase() === 'confirmed';
+      });
+      if (validOrderIds.length !== newSchedule.orderIds.length) {
+        const invalidOrderIds = newSchedule.orderIds.filter(id => !validOrderIds.includes(id));
+        throw new Error(`The following order IDs are invalid or no longer confirmed: ${invalidOrderIds.join(', ')}`);
+      }
+
+      const response = await axios.post('http://localhost:5000/api/schedules', { ...newSchedule, orderIds: validOrderIds });
       setNewSchedule({
         orderIds: [],
         vehicleId: '',
@@ -98,10 +175,17 @@ export default function ShipmentScheduler() {
         location: '',
       });
       setIsModalOpen(false);
-      await fetchSchedules(); // Ensure schedules are refreshed after creation
+      await fetchSchedules();
+      await fetchOrders();
+      await fetchVehicles();
+      await fetchDrivers();
+      setGlobalMessage("Schedule created successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to create schedule:', error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.error || 'Failed to create schedule. Please check the console for details.');
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to create schedule.';
+      const errorDetails = error.response?.data?.details || '';
+      setFormError(`${errorMsg} ${errorDetails}`);
     } finally {
       setIsLoading(false);
     }
@@ -119,14 +203,19 @@ export default function ShipmentScheduler() {
     });
     setIsEditing(true);
     setIsModalOpen(true);
-    setErrorMessage('');
+    setFormError('');
   };
 
   const handleUpdateSchedule = async () => {
+    const validationError = validateForm();
+    if (validationError) {
+      setFormError(validationError);
+      return;
+    }
+
     setIsLoading(true);
-    setErrorMessage('');
+    setFormError('');
     try {
-      console.log('Updating schedule with data:', newSchedule);
       await axios.put(`http://localhost:5000/api/schedules/${editingSchedule._id}/update`, {
         status: editingSchedule.status,
         location: newSchedule.location,
@@ -147,42 +236,84 @@ export default function ShipmentScheduler() {
         location: '',
       });
       await fetchSchedules();
+      await fetchVehicles();
+      await fetchDrivers();
+      setGlobalMessage("Schedule updated successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to update schedule:', error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.error || 'Failed to update schedule. Please try again.');
+      setFormError(error.response?.data?.error || 'Failed to update schedule. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleStatusUpdate = async (id, status, delayReason = '') => {
-    setIsLoading(true);
-    setErrorMessage('');
     try {
-      console.log(`Updating schedule ${id} status to ${status}`);
       await axios.put(`http://localhost:5000/api/schedules/${id}/update`, { status, delayReason });
+      if (status === 'In Progress') {
+        await axios.post(`http://localhost:5000/api/shipments/scheduler/${id}/complete`);
+      }
       await fetchSchedules();
+      await fetchOrders();
+      await fetchVehicles();
+      await fetchDrivers();
+      setGlobalMessage("Schedule status updated successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to update status:', error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.error || 'Failed to update status. Please try again.');
+      setGlobalMessage(error.response?.data?.error || 'Failed to update status. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
+      setConfirmAction(null);
     }
   };
 
   const handleDeleteSchedule = async (id) => {
-    setIsLoading(true);
-    setErrorMessage('');
     try {
-      console.log(`Deleting schedule ${id}`);
       await axios.delete(`http://localhost:5000/api/schedules/${id}`);
       await fetchSchedules();
+      await fetchOrders();
+      await fetchVehicles();
+      await fetchDrivers();
+      setGlobalMessage("Schedule deleted successfully!");
+      setGlobalMessageType("success");
     } catch (error) {
       console.error('Failed to delete schedule:', error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.error || 'Failed to delete schedule. Please try again.');
+      setGlobalMessage(error.response?.data?.error || 'Failed to delete schedule. Please try again.');
+      setGlobalMessageType("error");
     } finally {
       setIsLoading(false);
+      setConfirmAction(null);
     }
+  };
+
+  // Function to show confirmation dialog
+  const showConfirmation = (action, id, status = '', delayReason = '') => {
+    setConfirmAction({ action, id, status, delayReason });
+    setGlobalMessage(
+      action === 'delete'
+        ? "Are you sure you want to delete this schedule?"
+        : `Are you sure you want to ${status === 'In Progress' ? 'start' : 'delay'} this schedule?`
+    );
+    setGlobalMessageType("confirm");
+  };
+
+  // Function to handle confirmation
+  const handleConfirm = () => {
+    if (confirmAction.action === 'delete') {
+      handleDeleteSchedule(confirmAction.id);
+    } else if (confirmAction.action === 'statusUpdate') {
+      handleStatusUpdate(confirmAction.id, confirmAction.status, confirmAction.delayReason);
+    }
+  };
+
+  // Function to close the global message
+  const closeGlobalMessage = () => {
+    setGlobalMessage(null);
+    setGlobalMessageType("");
+    setConfirmAction(null);
   };
 
   const toggleOrderSelection = (orderId) => {
@@ -191,7 +322,6 @@ export default function ShipmentScheduler() {
       const updatedOrderIds = isSelected
         ? prev.orderIds.filter((id) => id !== orderId)
         : [...prev.orderIds, orderId];
-      console.log('Updated selected orderIds:', updatedOrderIds);
       return { ...prev, orderIds: updatedOrderIds };
     });
   };
@@ -201,7 +331,6 @@ export default function ShipmentScheduler() {
       <Sidebar />
 
       <div className="flex-1 ml-64 p-6">
-        {/* Header */}
         <motion.header
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -214,8 +343,52 @@ export default function ShipmentScheduler() {
           </p>
         </motion.header>
 
+        {/* Global Message Display (Success/Error/Confirmation) */}
+        <AnimatePresence>
+          {globalMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 p-4 rounded-xl shadow-lg flex items-center justify-between max-w-md w-full ${
+                globalMessageType === "success"
+                  ? "bg-green-100 border border-green-300 text-green-800"
+                  : globalMessageType === "error"
+                  ? "bg-red-100 border border-red-300 text-red-800"
+                  : "bg-gray-100 border border-gray-300 text-gray-800"
+              }`}
+            >
+              <span className="font-medium">{globalMessage}</span>
+              <div className="flex space-x-2">
+                {globalMessageType === "confirm" && (
+                  <>
+                    <button
+                      onClick={handleConfirm}
+                      className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-all duration-200"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      onClick={closeGlobalMessage}
+                      className="bg-gray-400 text-white px-3 py-1 rounded-lg hover:bg-gray-500 transition-all duration-200"
+                    >
+                      No
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={closeGlobalMessage}
+                  className="ml-4 text-xl font-bold hover:text-gray-600 focus:outline-none"
+                >
+                  ×
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-          {/* Add/Edit Schedule Button */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -234,7 +407,7 @@ export default function ShipmentScheduler() {
                   location: '',
                 });
                 setIsModalOpen(true);
-                setErrorMessage('');
+                setFormError('');
               }}
               className="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition duration-300 shadow-md"
             >
@@ -242,19 +415,6 @@ export default function ShipmentScheduler() {
             </button>
           </motion.div>
 
-          {/* Error Message */}
-          {errorMessage && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg"
-            >
-              {errorMessage}
-            </motion.div>
-          )}
-
-          {/* Schedule Table */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -296,7 +456,7 @@ export default function ShipmentScheduler() {
                             <ul className="list-disc list-inside">
                               {schedule.orders.map((order) => (
                                 <li key={order._id} className="text-sm">
-                                  {order.orderId} ({order.shippingInfo.city}, {order.shippingInfo.country})
+                                  {order._id} ({order.shippingInfo.city}, {order.shippingInfo.country})
                                 </li>
                               ))}
                             </ul>
@@ -333,24 +493,22 @@ export default function ShipmentScheduler() {
                           </button>
                           {schedule.status === 'Scheduled' && (
                             <button
-                              onClick={() => handleStatusUpdate(schedule._id, 'In Progress')}
+                              onClick={() => showConfirmation('statusUpdate', schedule._id, 'In Progress')}
                               className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 transition-all duration-200"
                             >
                               Start
                             </button>
                           )}
                           {schedule.status === 'In Progress' && (
-                            <>
-                              <button
-                                onClick={() => handleStatusUpdate(schedule._id, 'Delayed', 'Traffic delay')}
-                                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
-                              >
-                                Delay
-                              </button>
-                            </>
+                            <button
+                              onClick={() => showConfirmation('statusUpdate', schedule._id, 'Delayed', 'Traffic delay')}
+                              className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
+                            >
+                              Delay
+                            </button>
                           )}
                           <button
-                            onClick={() => handleDeleteSchedule(schedule._id)}
+                            onClick={() => showConfirmation('delete', schedule._id)}
                             className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
                           >
                             <FaTrash />
@@ -364,7 +522,6 @@ export default function ShipmentScheduler() {
             )}
           </motion.div>
 
-          {/* Modal for Adding/Editing Schedule */}
           {isModalOpen && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <motion.div
@@ -377,16 +534,15 @@ export default function ShipmentScheduler() {
                   <FaTruck className="mr-2 text-green-500" />
                   {isEditing ? 'Edit Schedule' : 'Add New Schedule'}
                 </h2>
-                {errorMessage && (
-                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">{errorMessage}</div>
+                {formError && (
+                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">{formError}</div>
                 )}
                 <div className="space-y-4">
-                  {/* Order Selection */}
                   <div>
-                    <label className="block text-gray-600 font-semibold mb-1">Select Orders *</label>
+                    <label className="block text-gray-600 font-semibold mb-1">Select Confirmed Orders *</label>
                     <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
                       {orders.length === 0 ? (
-                        <p className="text-gray-600">No orders available to schedule.</p>
+                        <p className="text-gray-600">No confirmed orders available to schedule.</p>
                       ) : (
                         orders.map((order) => (
                           <div key={order._id} className="flex items-center space-x-2 py-1">
@@ -398,7 +554,10 @@ export default function ShipmentScheduler() {
                               disabled={isEditing}
                             />
                             <span className="text-gray-800">
-                              {order.orderId} ({order.shippingInfo.city}, {order.shippingInfo.country})
+                              {order._id} ({order.shippingInfo.city}, {order.shippingInfo.country}) - Total: ${order.total}
+                              <span className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                {order.status}
+                              </span>
                             </span>
                           </div>
                         ))
@@ -406,43 +565,6 @@ export default function ShipmentScheduler() {
                     </div>
                   </div>
 
-                  {/* Vehicle Selection */}
-                  <div>
-                    <label className="block text-gray-600 font-semibold mb-1">Vehicle *</label>
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      value={newSchedule.vehicleId}
-                      onChange={(e) => setNewSchedule({ ...newSchedule, vehicleId: e.target.value })}
-                      required
-                    >
-                      <option value="">Select Vehicle</option>
-                      {vehicles.map((vehicle) => (
-                        <option key={vehicle._id} value={vehicle.vehicleId}>
-                          {vehicle.vehicleId} ({vehicle.type})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Driver Selection */}
-                  <div>
-                    <label className="block text-gray-600 font-semibold mb-1">Driver *</label>
-                    <select
-                      className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      value={newSchedule.driverId}
-                      onChange={(e) => setNewSchedule({ ...newSchedule, driverId: e.target.value })}
-                      required
-                    >
-                      <option value="">Select Driver</option>
-                      {drivers.map((driver) => (
-                        <option key={driver._id} value={driver._id}>
-                          {driver.name} ({driver.status})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Departure Date */}
                   <div>
                     <label className="block text-gray-600 font-semibold mb-1">Departure Date *</label>
                     <div className="relative">
@@ -457,7 +579,48 @@ export default function ShipmentScheduler() {
                     </div>
                   </div>
 
-                  {/* Expected Arrival Date */}
+                  <div>
+                    <label className="block text-gray-600 font-semibold mb-1">Vehicle *</label>
+                    {vehicles.length === 0 ? (
+                      <p className="text-gray-600">No available vehicles for the selected departure date.</p>
+                    ) : (
+                      <select
+                        className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        value={newSchedule.vehicleId}
+                        onChange={(e) => setNewSchedule({ ...newSchedule, vehicleId: e.target.value })}
+                        required
+                      >
+                        <option value="">Select Vehicle</option>
+                        {vehicles.map((vehicle) => (
+                          <option key={vehicle._id} value={vehicle.vehicleId}>
+                            {vehicle.vehicleId} ({vehicle.type})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-600 font-semibold mb-1">Driver *</label>
+                    {drivers.length === 0 ? (
+                      <p className="text-gray-600">No available drivers for the selected departure date.</p>
+                    ) : (
+                      <select
+                        className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        value={newSchedule.driverId}
+                        onChange={(e) => setNewSchedule({ ...newSchedule, driverId: e.target.value })}
+                        required
+                      >
+                        <option value="">Select Driver</option>
+                        {drivers.map((driver) => (
+                          <option key={driver._id} value={driver.driverId}>
+                            {driver.driverId} - {driver.name} ({driver.status})
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+
                   <div>
                     <label className="block text-gray-600 font-semibold mb-1">Expected Arrival Date *</label>
                     <div className="relative">
@@ -472,7 +635,6 @@ export default function ShipmentScheduler() {
                     </div>
                   </div>
 
-                  {/* Initial Location */}
                   <div>
                     <label className="block text-gray-600 font-semibold mb-1">Initial Location *</label>
                     <div className="relative">
@@ -500,7 +662,7 @@ export default function ShipmentScheduler() {
                   <button
                     onClick={() => {
                       setIsModalOpen(false);
-                      setErrorMessage('');
+                      setFormError('');
                     }}
                     className="flex-1 bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition-all duration-300"
                   >

@@ -102,7 +102,7 @@ import AddVacancies from "./pages/SysManager/AddVacancies.js";
 import CheckStatus from "./pages/CheckStatus.js";
 import Vehicle from "../src/dashboards/TransportManager/Vehicles.js";
 import TrackOrder from "./dashboards/CSM/TrackOrder.js";
-
+import Drivers from "./dashboards/TransportManager/DriversUI.js";
 
 function App() {
   return (
@@ -207,6 +207,7 @@ function App() {
         <Route path="/inv-update-profile" element={<InvUpdateProfile />} />
         <Route path="/inv-change-password" element={<InvChangePassword />} />
         <Route path="/csm/track-order" element={<TrackOrder />} />
+        <Route path="/drivers" element={<Drivers />} />
 
 
       </Routes>

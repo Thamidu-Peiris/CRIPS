@@ -46,6 +46,7 @@ const cusRoutes = require('./routes/SM/cusRouter');
 const vacancieRoutes = require('./routes/SM/vacancieRoutes');
 const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
 const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRoutes');
+const driverRoutes = require('./routes/TransportManager/driverRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -128,7 +129,7 @@ app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
 app.use('/api/vacancies', vacancieRoutes);
 app.use('/api/vehicles', vehicleRoutes);
-
+app.use('/api/drivers', driverRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
