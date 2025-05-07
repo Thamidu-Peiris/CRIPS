@@ -47,7 +47,6 @@ const vacancieRoutes = require('./routes/SM/vacancieRoutes');
 const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
 const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRoutes');
 
-
 // Load environment variables
 dotenv.config();
 

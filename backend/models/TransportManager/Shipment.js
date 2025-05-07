@@ -1,22 +1,29 @@
-// backend\models\TransportManager\Shipment.js
+// backend/models/TransportManager/Shipment.js
 const mongoose = require('mongoose');
 
 const shipmentSchema = new mongoose.Schema({
-  shipmentId: { type: String, required: true, unique: true }, // Unique shipment code
-  vehicleId: String,            // Vehicle used
-  driverId: String,             // Driver assigned
+  shipmentId: { type: String, required: true, unique: true }, // Unique shipment code, e.g., "SHP001"
+  orderIds: [{ type: String, required: true }], // List of orderIds in this shipment, e.g., ["ORD001", "ORD002"]
+  vehicleId: { type: String, required: true }, // Vehicle used, e.g., "V001"
+  driverId: { type: String, required: true }, // Driver assigned, e.g., "DRV001"
   status: { 
     type: String, 
     enum: ["Scheduled", "In Transit", "Delivered", "Delayed"], 
     default: "Scheduled" 
   }, // Status of the shipment
-  departureDate: Date,          // When it leaves
-  arrivalDate: Date,            // Actual Arrival Date
-  expectedArrivalDate: Date,    // 🚀 For On-Time Delivery calculation
-  lastUpdated: { type: Date, default: Date.now },
+  location: { type: String, default: null }, // Current location of the shipment, e.g., "Colombo"
+  departureDate: { type: Date, required: true }, // When the shipment leaves
+  arrivalDate: { type: Date }, // Actual arrival date
+  expectedArrivalDate: { type: Date, required: true }, // For on-time delivery calculation
+  createdAt: { type: Date, default: Date.now }, // When the shipment was created
+  lastUpdated: { type: Date, default: Date.now }, // When the shipment was last updated
+  delayReason: { type: String }, // Reason for delay, if any
+});
 
-  // Optional: Add delayReason if you want to track
-  delayReason: String
+// Update lastUpdated field before saving
+shipmentSchema.pre('save', function (next) {
+  this.lastUpdated = Date.now();
+  next();
 });
 
 module.exports = mongoose.model('Shipment', shipmentSchema);
