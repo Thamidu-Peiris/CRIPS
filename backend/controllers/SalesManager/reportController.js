@@ -5,6 +5,7 @@ const Payroll = require("../../models/salesManager/PayrollModel");
 const Product = require("../../models/salesManager/ProductModel");
 const CustomerOrder = require("../../models/customer/CustomerOrder");
 const User = require("../../models/customer/User"); 
+const StockOrder = require("../../models/InventoryM/OrderStock");
 
 // Financial Report Controller
 const getFinancialReport = async (req, res) => {
@@ -19,33 +20,91 @@ const getFinancialReport = async (req, res) => {
       return res.status(400).json({ error: "startDate and endDate must be valid dates" });
     }
 
-    const transactions = await Transaction.find({
-      date: { $gte: new Date(startDate), $lte: new Date(endDate) },
-    }).sort({ date: 1 });
+    const parsedStartDate = new Date(startDate + "T00:00:00Z");
+    const parsedEndDate = new Date(endDate + "T23:59:59.999Z");
 
-    const aggregates = await Transaction.aggregate([
-      {
-        $match: {
-          date: { $gte: new Date(startDate), $lte: new Date(endDate) },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalIncome: { $sum: "$income" },
-          totalExpense: { $sum: "$expense" },
-        },
-      },
-    ]);
+    // Fetch customer orders to calculate income
+    const customerOrders = await CustomerOrder.find({
+      createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
+      status: "Completed",
+    });
 
-    const finalBalance = transactions.length > 0 ? transactions[transactions.length - 1].balance : 0;
+    // Calculate total income from customer orders
+    const totalIncome = customerOrders.reduce((sum, order) => sum + (order.total || 0), 0);
 
+    // Fetch stock orders to calculate expenses
+    const stockOrders = await StockOrder.find({
+      deliveryDate: { $gte: parsedStartDate, $lte: parsedEndDate },
+      status: "delivered",
+    }).populate("supplierId", "name");
+
+    // Calculate expenses from stock orders (quantity * unit, converting unit to number)
+    let runningBalance = 0;
+    const transactions = [];
+    let totalExpense = 0;
+
+    // Add initial balance (assume 0 if starting fresh)
+    transactions.push({
+      date: parsedStartDate.toISOString().split("T")[0],
+      description: "Balance B/F",
+      income: 0,
+      expense: 0,
+      balance: runningBalance,
+    });
+
+    // Process customer orders as income
+    for (const order of customerOrders) {
+      const income = order.total || 0;
+      runningBalance += income;
+      transactions.push({
+        date: order.createdAt.toISOString().split("T")[0],
+        description: `Order ${order._id}`,
+        income,
+        expense: 0,
+        balance: runningBalance,
+      });
+    }
+
+    // Process stock orders as expenses
+    for (const stockOrder of stockOrders) {
+      const unitPrice = parseFloat(stockOrder.unit) || 0; // Convert 'unit' string to number
+      const expense = (stockOrder.quantity || 0) * unitPrice;
+      totalExpense += expense;
+      runningBalance -= expense;
+      transactions.push({
+        date: stockOrder.deliveryDate.toISOString().split("T")[0],
+        description: `Stock Order from ${stockOrder.supplierId?.name || "Unknown"}`,
+        income: 0,
+        expense,
+        balance: runningBalance,
+      });
+    }
+
+    // Add final balance
+    transactions.push({
+      date: parsedEndDate.toISOString().split("T")[0],
+      description: "Balance C/D",
+      income: 0,
+      expense: 0,
+      balance: runningBalance,
+    });
+
+    // Calculate tax (15% of profit)
+    const profit = totalIncome - totalExpense;
+    const totalTaxPayable = profit > 0 ? profit * 0.15 : 0; // 15% of profit
+
+    // Calculate net profit (after tax)
+    const netProfit = profit - totalTaxPayable;
+
+    // Ensure netProfit is included in the response
     res.status(200).json({
-      transactions,
+      transactions: transactions.sort((a, b) => new Date(a.date) - new Date(b.date)),
       aggregates: {
-        totalIncome: aggregates[0]?.totalIncome || 0,
-        totalExpense: aggregates[0]?.totalExpense || 0,
-        finalBalance,
+        totalIncome: totalIncome || 0,
+        totalExpense: totalExpense || 0,
+        totalTaxPayable: totalTaxPayable || 0,
+        netProfit: netProfit || 0, // Explicitly include netProfit
+        finalBalance: runningBalance || 0,
       },
     });
   } catch (error) {
@@ -110,52 +169,51 @@ const getCustomerReport = async (req, res) => {
     const totalPurchases = orders.reduce((sum, order) => sum + order.total, 0);
 
     // Calculate order size distribution (send raw counts)
-const orderSizeDistributionRaw = await CustomerOrder.aggregate([
-  {
-    $match: {
-      createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
-      status: "Completed",
-    },
-  },
-  {
-    $group: {
-      _id: {
-        $cond: [
-          { $lt: ["$total", 1000] },
-          "Small",
-          {
+    const orderSizeDistributionRaw = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
+          status: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: {
             $cond: [
-              { $lte: ["$total", 5000] },
-              "Medium",
-              "Large",
+              { $lt: ["$total", 1000] },
+              "Small",
+              {
+                $cond: [
+                  { $lte: ["$total", 5000] },
+                  "Medium",
+                  "Large",
+                ],
+              },
             ],
           },
-        ],
+          count: { $sum: 1 },
+        },
       },
-      count: { $sum: 1 },
-    },
-  },
-]);
+    ]);
 
-// Ensure all buckets are represented, even if their counts are 0
-const buckets = [
-  { name: "Small", count: 0 },
-  { name: "Medium", count: 0 },
-  { name: "Large", count: 0 },
-];
+    // Ensure all buckets are represented, even if their counts are 0
+    const buckets = [
+      { name: "Small", count: 0 },
+      { name: "Medium", count: 0 },
+      { name: "Large", count: 0 },
+    ];
 
-orderSizeDistributionRaw.forEach(bucket => {
-  const index = buckets.findIndex(b => b.name === bucket._id);
-  if (index !== -1) {
-    buckets[index].count = bucket.count;
-  }
-});
+    orderSizeDistributionRaw.forEach(bucket => {
+      const index = buckets.findIndex(b => b.name === bucket._id);
+      if (index !== -1) {
+        buckets[index].count = bucket.count;
+      }
+    });
 
-const orderSizeDistribution = buckets.map(bucket => ({
-  name: bucket.name,
-  value: bucket.count, // Send raw counts
-}));
-console.log("Order Size Distribution sent to frontend:", orderSizeDistribution);
+    const orderSizeDistribution = buckets.map(bucket => ({
+      name: bucket.name,
+      value: bucket.count, // Send raw counts
+    }));
 
     res.status(200).json({
       topCustomers,
