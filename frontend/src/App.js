@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Careers from "./pages/Careers"; 
@@ -191,7 +192,6 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/inventory-orders" element={<InventoryOrders />} />
         <Route path="/shipments" element={<Shipments />} />
-        <Route path="/profile" element={<SupplierProfile />} />
         <Route path="/supplier-profile" element={<SupplierProfile />} />
 
 

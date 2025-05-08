@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Sidebar from './Sidebar';
-import { useNavigate } from 'react-router-dom';
 
 const SupplierProfile = () => {
   const [profile, setProfile] = useState({
@@ -14,19 +13,14 @@ const SupplierProfile = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const supplierId = localStorage.getItem('supplierId'); // Fetch supplierId from localStorage
-  const navigate = useNavigate();
+  const [successMessage, setSuccessMessage] = useState('');
+  const supplierId = localStorage.getItem('supplierId') || 'default-supplier-id'; // Fallback for testing
 
   useEffect(() => {
-    // Redirect to sign-in if not authenticated
-    if (!supplierId) {
-      navigate('/sign-in');
-      return;
-    }
-
     const fetchProfile = async () => {
       try {
         const response = await axios.get(`http://localhost:5000/api/supplier-dashboard/profile/${supplierId}`);
+        console.log('Fetched profile:', response.data); // Debug log
         setProfile(response.data);
         setErrorMessage('');
       } catch (error) {
@@ -35,7 +29,7 @@ const SupplierProfile = () => {
       }
     };
     fetchProfile();
-  }, [supplierId, navigate]);
+  }, [supplierId]);
 
   const handleTextChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -60,6 +54,8 @@ const SupplierProfile = () => {
         setProfile(response.data.updatedProfile);
         setIsEditing(false);
         setErrorMessage('');
+        setSuccessMessage('Profile updated successfully!');
+        setTimeout(() => setSuccessMessage(''), 3000); // Clear success message after 3 seconds
       } else {
         setErrorMessage('No updated profile data returned from the server.');
       }
@@ -73,85 +69,90 @@ const SupplierProfile = () => {
     <div className="flex min-h-screen bg-green-50">
       <Sidebar />
       <div className="flex-1 p-10">
-        <h1 className="text-3xl font-bold text-green-900 mb-6">Supplier Profile</h1>
-        <div className="bg-white shadow p-6 rounded-lg">
+        <h1 className="text-4xl font-bold text-green-900 mb-8">Supplier Profile</h1>
+        <div className="bg-white shadow-lg p-8 rounded-lg">
           {errorMessage && (
-            <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg shadow">
               {errorMessage}
             </div>
           )}
+          {successMessage && (
+            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg shadow">
+              {successMessage}
+            </div>
+          )}
           {isEditing ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-green-800">Supplier Name *</label>
+                <label className="block text-sm font-medium text-green-800 mb-1">Supplier Name *</label>
                 <input
                   type="text"
                   name="supplierName"
                   value={profile.supplierName}
                   onChange={handleTextChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-green-800">Supplier Company *</label>
+                <label className="block text-sm font-medium text-green-800 mb-1">Supplier Company *</label>
                 <input
                   type="text"
                   name="supplierCompany"
                   value={profile.supplierCompany}
                   onChange={handleTextChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-green-800">Contact No *</label>
+                <label className="block text-sm font-medium text-green-800 mb-1">Contact No *</label>
                 <input
                   type="text"
                   name="contactNo"
                   value={profile.contactNo}
                   onChange={handleTextChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-green-800">Email *</label>
+                <label className="block text-sm font-medium text-green-800 mb-1">Email *</label>
                 <input
                   type="email"
                   name="email"
                   value={profile.email}
                   onChange={handleTextChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-green-800">Company Address</label>
+                <label className="block text-sm font-medium text-green-800 mb-1">Company Address</label>
                 <textarea
                   name="shipmentAddress"
                   value={profile.shipmentAddress}
                   onChange={handleTextChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                   rows="3"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-green-800">Bank Details</label>
+                <label className="block text-sm font-medium text-green-800 mb-1">Bank Details</label>
                 <textarea
                   name="bankDetails"
                   value={profile.bankDetails}
                   onChange={handleTextChange}
-                  className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full p-3 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
                   rows="3"
                 />
               </div>
               <div className="flex space-x-4">
                 <button
                   onClick={handleSave}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition duration-300 shadow"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                  className="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition duration-300 shadow"
                 >
                   Cancel
                 </button>
@@ -159,15 +160,29 @@ const SupplierProfile = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              <p><strong>Supplier Name:</strong> {profile.supplierName || 'Not set'}</p>
-              <p><strong>Supplier Company:</strong> {profile.supplierCompany || 'Not set'}</p>
-              <p><strong>Contact No:</strong> {profile.contactNo || 'Not set'}</p>
-              <p><strong>Email:</strong> {profile.email || 'Not set'}</p>
-              <p><strong>Company Address:</strong> {profile.shipmentAddress || 'Not set'}</p>
-              <p><strong>Bank Details:</strong> {profile.bankDetails || 'Not set'}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p className="text-green-800">
+                  <strong>Supplier Name:</strong> {profile.supplierName || 'Not set'}
+                </p>
+                <p className="text-green-800">
+                  <strong>Supplier Company:</strong> {profile.supplierCompany || 'Not set'}
+                </p>
+                <p className="text-green-800">
+                  <strong>Contact No:</strong> {profile.contactNo || 'Not set'}
+                </p>
+                <p className="text-green-800">
+                  <strong>Email:</strong> {profile.email || 'Not set'}
+                </p>
+                <p className="text-green-800">
+                  <strong>Company Address:</strong> {profile.shipmentAddress || 'Not set'}
+                </p>
+                <p className="text-green-800">
+                  <strong>Bank Details:</strong> {profile.bankDetails || 'Not set'}
+                </p>
+              </div>
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-300 shadow"
               >
                 Edit Profile
               </button>
