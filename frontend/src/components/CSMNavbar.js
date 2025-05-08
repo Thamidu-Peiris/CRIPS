@@ -70,7 +70,6 @@ const Navbar = () => {
       console.log("Non-pending tickets (failed status filter):", nonPendingTickets);
 
       // Filter pending tickets (check multiple status variations)
-      // Customize this list based on your backend's status values
       const pendingTickets = ticketsResponse.data.filter(
         (ticket) => ticket.status && ["pending", "open", "new", "unresolved", "active", "waiting", "in_progress", "on_hold", "created"].includes(ticket.status.toLowerCase())
       );
@@ -144,8 +143,8 @@ const Navbar = () => {
     if (isDashboard) {
       initialCheckTimeout = setTimeout(() => {
         checkForNewItems();
-        // Start polling every 30 seconds after initial check (adjust to 60000 for 60 seconds if needed)
-        const pollInterval = setInterval(checkForNewItems, 30000);
+        // Start polling every 22 seconds after initial check
+        const pollInterval = setInterval(checkForNewItems, 22000);
         return () => clearInterval(pollInterval);
       }, 5000);
     }
@@ -272,7 +271,8 @@ const Navbar = () => {
 
   return (
     <motion.div
-      className="flex justify-between items-center p-4 shadow-md rounded-2xl"
+      className="flex justify-between items-center p-4 shadow-md border-4 border-transparent"
+      style={{ borderRadius: "9999px" }} // Fully rounded rectangle
       variants={navbarVariants}
       animate={currentAlert && isDashboard ? "alert" : "normal"}
     >
@@ -287,7 +287,7 @@ const Navbar = () => {
             className="flex items-center justify-center w-full relative"
           >
             <motion.h1
-              className="text-2xl font-bold font-sans"
+              className={`text-2xl font-bold font-sans ${isLoading && title === "Checking for updates..." ? "animate-rainbow-text" : ""}`}
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
