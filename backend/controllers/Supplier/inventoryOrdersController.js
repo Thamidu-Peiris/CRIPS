@@ -1,34 +1,36 @@
 const mongoose = require('mongoose');
-const OrderStock = require('../../models/InventoryM/OrderStock');
-const Shipment = require('../../models/SupplierM/Shipment');
+const Order = require('../../models/InventoryM/OrderStock');
 const SupplierProfile = require('../../models/SupplierM/SupplierProfile');
+const Supplier = require('../../models/SupplierM/Supplier');
+const Shipment = require('../../models/SupplierM/Shipment');
 
-// Get all orders for the supplier (for InventoryOrders.js)
+// Get all orders for the supplier
 exports.getSupplierOrders = async (req, res) => {
   try {
     const supplierId = req.params.supplierId;
+    // Validate supplierId as an ObjectId
     if (!mongoose.Types.ObjectId.isValid(supplierId)) {
       return res.status(400).json({ message: 'Invalid supplier ID' });
     }
-    const orders = await OrderStock.find({ supplierId }).populate('inventoryManagerId');
+    const orders = await Order.find({ supplierId }).populate('supplierId inventoryManagerId');
     res.status(200).json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-// Approve the order (Accept action for InventoryOrders.js)
-exports.approveOrder = async (req, res) => {
+// Approve the order (Accept action)
+exports.acceptOrder = async (req, res) => {
   try {
-    const updatedOrder = await OrderStock.findByIdAndUpdate(
+    const updatedOrder = await Order.findByIdAndUpdate(
       req.params.orderId,
       {
-        status: 'accepted',
+        status: 'confirmed',
         approvedDate: new Date(),
-        $push: { statusHistory: { status: 'accepted', updatedAt: new Date() } }
+        $push: { statusHistory: { status: 'confirmed', updatedAt: new Date() } }
       },
       { new: true }
-    ).populate('inventoryManagerId');
+    ).populate('supplierId inventoryManagerId');
     if (!updatedOrder) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -38,39 +40,40 @@ exports.approveOrder = async (req, res) => {
   }
 };
 
-// Ship the order (Add Supply action for InventoryOrders.js)
-exports.shipOrder = async (req, res) => {
+// Create a shipment (Add Supply action)
+exports.createShipment = async (req, res) => {
   try {
-    const { shipmentAddress, name, companyName, contactNumber, email } = req.body;
+    const { orderId, shipmentAddress } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(req.params.orderId)) {
+    // Validate orderId and shipmentAddress
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
       return res.status(400).json({ message: 'Invalid order ID' });
     }
     if (!shipmentAddress) {
       return res.status(400).json({ message: 'Shipment address is required' });
     }
-    if (!name || !contactNumber || !email) {
-      return res.status(400).json({ message: 'Supplier name, contact number, and email are required' });
-    }
 
-    const order = await OrderStock.findById(req.params.orderId);
+    // Fetch the order
+    const order = await Order.findById(orderId).populate('supplierId');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
+    // Update order status to 'shipped'
     order.status = 'shipped';
     order.shippedDate = new Date();
     order.statusHistory.push({ status: 'shipped', updatedAt: new Date() });
     await order.save();
 
+    // Create a new shipment record
     const shipment = new Shipment({
       orderId: order._id,
-      supplierId: order.supplierId,
+      supplierId: order.supplierId._id,
       supplierDetails: {
-        name,
-        companyName,
-        contactNumber,
-        email,
+        name: order.supplierId.name,
+        companyName: order.supplierId.companyName,
+        contactNumber: order.supplierId.contactNumber,
+        email: order.supplierId.email,
       },
       orderDetails: {
         itemType: order.itemType,
@@ -84,8 +87,9 @@ exports.shipOrder = async (req, res) => {
 
     await shipment.save();
 
-    const updatedOrder = await OrderStock.findById(req.params.orderId).populate('inventoryManagerId');
-    res.status(200).json({ message: 'Order Shipped and Added to Shipment List', updatedOrder });
+    // Populate the updated order for the response
+    const updatedOrder = await Order.findById(orderId).populate('supplierId inventoryManagerId');
+    res.status(200).json({ message: 'Shipment created successfully', updatedOrder });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -95,10 +99,11 @@ exports.shipOrder = async (req, res) => {
 exports.getSupplierProfile = async (req, res) => {
   try {
     const supplierId = req.params.supplierId;
+    // Validate supplierId as an ObjectId
     if (!mongoose.Types.ObjectId.isValid(supplierId)) {
       return res.status(400).json({ message: 'Invalid supplier ID' });
     }
-    const supplierProfile = await SupplierProfile.findOne({ supplierId });
+    const supplierProfile = await SupplierProfile.findOne({ supplierId }).populate('supplierId');
     if (!supplierProfile) {
       return res.status(404).json({ message: 'Supplier profile not found' });
     }
@@ -112,30 +117,25 @@ exports.getSupplierProfile = async (req, res) => {
 exports.updateSupplierProfile = async (req, res) => {
   try {
     const supplierId = req.params.supplierId;
+    // Validate supplierId as an ObjectId
     if (!mongoose.Types.ObjectId.isValid(supplierId)) {
       return res.status(400).json({ message: 'Invalid supplier ID' });
     }
-
-    const { supplierName, supplierCompany, contactNo, email, shipmentAddress, bankDetails } = req.body;
-
+    const { supplierName, supplierCompany, contactNo, shipmentAddress, bankDetails } = req.body;
     const updatedProfile = await SupplierProfile.findOneAndUpdate(
       { supplierId },
       {
         supplierName,
         supplierCompany,
         contactNo,
-        email,
         shipmentAddress,
         bankDetails,
         updatedAt: new Date(),
       },
       { new: true, upsert: true }
-    );
-
-    console.log('Updated profile in backend:', updatedProfile);
+    ).populate('supplierId');
     res.status(200).json({ message: 'Profile updated successfully', updatedProfile });
   } catch (err) {
-    console.error('Error updating profile:', err);
     res.status(500).json({ message: err.message });
   }
 };

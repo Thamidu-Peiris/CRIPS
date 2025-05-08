@@ -1,4 +1,3 @@
-// backend\routes\SupplierM\orderStockRoutes.js
 const express = require('express');
 const router = express.Router();
 const orderStockController = require('../../controllers/Supplier/orderStockController');

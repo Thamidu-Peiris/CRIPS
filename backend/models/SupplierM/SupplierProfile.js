@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const supplierProfileSchema = new mongoose.Schema({
   supplierId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Supplier',
     required: true,
     unique: true,
   },
@@ -18,13 +19,19 @@ const supplierProfileSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  shipmentAddress: {
+  email: {
     type: String,
     required: true,
   },
+  shipmentAddress: {
+    type: String,
+    required: false, // Not required during registration
+    default: '',
+  },
   bankDetails: {
     type: String,
-    required: true,
+    required: false, // Not required during registration
+    default: '',
   },
   createdAt: {
     type: Date,

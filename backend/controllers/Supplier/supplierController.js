@@ -1,4 +1,3 @@
-// backend\controllers\Supplier\supplierController.js
 const Supplier = require('../../models/SupplierM/Supplier');
 const path = require('path');
 const bcrypt = require('bcryptjs'); // ✅ Add bcrypt for password hashing

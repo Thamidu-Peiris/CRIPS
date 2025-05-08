@@ -1,18 +1,24 @@
 const mongoose = require('mongoose');
 
-const orderSchema = new mongoose.Schema({
-  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
-  plantName: { type: String, required: true },
+const orderStockSchema = new mongoose.Schema({
+  itemType: { type: String, required: true },
   quantity: { type: Number, required: true },
-  status: { type: String, default: 'pending' },
+  unit: { type: String, required: true },
+  deliveryDate: { type: Date, required: true },
+  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
+  inventoryManagerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  plantId: { type: String },
+  status: { 
+    type: String, 
+    enum: ['pending', 'accepted', 'rejected', 'shipped', 'delivered', 'cancelled'], 
+    default: 'pending' 
+  },
   approvedDate: { type: Date },
   shippedDate: { type: Date },
-  statusHistory: [
-    {
-      status: { type: String },
-      updatedAt: { type: Date, default: Date.now }
-    }
-  ]
+  statusHistory: [{
+    status: String,
+    updatedAt: { type: Date, default: Date.now }
+  }]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model('OrderStock', orderStockSchema);

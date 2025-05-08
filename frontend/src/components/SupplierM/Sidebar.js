@@ -13,7 +13,7 @@ const Sidebar = () => {
         <Link to="/shipments" className="flex items-center gap-2 hover:bg-green-700 px-4 py-2 rounded">
           <FaShippingFast /> Shipments
         </Link>
-        <Link to="/profile" className="flex items-center gap-2 hover:bg-green-700 px-4 py-2 rounded">
+        <Link to="/supplier-profile" className="flex items-center gap-2 hover:bg-green-700 px-4 py-2 rounded">
           <FaUser /> Profile
         </Link>
         <Link to="/logout" className="flex items-center gap-2 mt-auto hover:bg-green-700 px-4 py-2 rounded">
