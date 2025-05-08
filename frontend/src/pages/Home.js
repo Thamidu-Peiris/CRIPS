@@ -224,7 +224,7 @@ const Home = () => {
     if (userInfo) {
       navigate("/shop");
     } else {
-      navigate("/login");
+      navigate("/shop");
     }
   };
 
