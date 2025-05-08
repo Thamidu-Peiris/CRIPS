@@ -141,7 +141,7 @@ const AdminApplications = () => {
           status: status.toLowerCase(),
           rejectionReason: status === "rejected" ? rejectionReason : null,
           username: app.username,
-          password: app.password
+          password: app.plaintextPassword || "Password not available", // Use plaintextPassword
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });

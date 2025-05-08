@@ -1,4 +1,3 @@
-// backend\models\JobApplication.js
 const mongoose = require("mongoose");
 
 const jobApplicationSchema = new mongoose.Schema({
@@ -10,13 +9,13 @@ const jobApplicationSchema = new mongoose.Schema({
   phoneNumber: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }, // Hashed password
+  plaintextPassword: { type: String }, // Temporary plaintext password
   startDate: { type: Date, required: true },
   coverLetter: { type: String },
   resume: { type: String, required: true },
   termsAccepted: { type: Boolean, required: true },
   status: { type: String, default: "pending" }, // "pending", "approved", "rejected"
   rejectionReason: { type: String }, // Reason for rejection (if applicable)
-
   createdAt: { type: Date, default: Date.now },
 });
 

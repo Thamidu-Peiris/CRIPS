@@ -8,14 +8,14 @@ const TransportManager = require("../models/TransportManager/TransportManagerMod
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 
-// Map job titles to models
+// Map job titles to models (updated to match jobTitle values from Careers.js)
 const roleModelMap = {
   "Customer Service Manager": CustomerServiceManager,
   "Grower Handler": GrowerHandler,
   "Cutters": Cutters,
   "Inventory Manager": InventoryManager,
   "Sales Manager": SalesManager,
-  "TransportManager": TransportManager,
+  "Transport Manager": TransportManager, // Updated key to match "Transport Manager" (with space)
 };
 
 // Email validation regex
@@ -182,6 +182,7 @@ exports.submitJobApplication = async (req, res) => {
       phoneNumber,
       email,
       password: hashedPassword,
+      plaintextPassword: password, // Store the plaintext password temporarily
       role: jobTitle,
       startDate: selectedStartDate,
       coverLetter: req.files.coverLetter ? req.files.coverLetter[0].path : null,
@@ -245,6 +246,9 @@ exports.updateApplicationStatus = async (req, res) => {
       updateData.rejectionReason = reason;
     } else {
       updateData.rejectionReason = null;
+    }
+    if (normalizedStatus === "approved") {
+      updateData.plaintextPassword = undefined; // Clear plaintextPassword after approval
     }
 
     const application = await JobApplication.findByIdAndUpdate(
