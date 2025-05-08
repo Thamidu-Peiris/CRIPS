@@ -7,7 +7,7 @@ import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiCh
 const CSMSidebar = () => {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false);
   const [customerManagementOpen, setCustomerManagementOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false); // New state for Settings dropdown
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState("/csm/dashboard");
   const location = useLocation();
   const navigate = useNavigate();
@@ -114,6 +114,22 @@ const CSMSidebar = () => {
             }`}
           >
             <FiTruck className="mr-3" /> Shipment Tracking
+          </a>
+        </li>
+        <li>
+          <a
+            href="/csm/reviews"
+            onClick={(e) => {
+              e.preventDefault();
+              handleItemClick("/csm/reviews");
+            }}
+            className={`flex items-center p-3 rounded-lg ${
+              selectedItem === "/csm/reviews"
+                ? "bg-green-200 text-gray-800"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <FiTag className="mr-3" /> Reviews Manage
           </a>
         </li>
 
@@ -271,13 +287,13 @@ const CSMSidebar = () => {
             <ul className="ml-8 mt-2 space-y-2">
               <li>
                 <a
-                  href="/update-profile"
+                  href="/csm/update-profile"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/update-profile");
+                    handleItemClick("/csm/update-profile");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/update-profile"
+                    selectedItem === "/csm/update-profile"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}
@@ -287,13 +303,13 @@ const CSMSidebar = () => {
               </li>
               <li>
                 <a
-                  href="/change-password"
+                  href="/csm/change-password"
                   onClick={(e) => {
                     e.preventDefault();
-                    handleItemClick("/change-password");
+                    handleItemClick("/csm/change-password");
                   }}
                   className={`block p-2 rounded-lg ${
-                    selectedItem === "/change-password"
+                    selectedItem === "/csm/change-password"
                       ? "bg-green-200 text-gray-800"
                       : "text-gray-600 hover:text-green-600 hover:bg-gray-100"
                   }`}

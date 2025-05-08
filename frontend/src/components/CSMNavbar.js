@@ -117,7 +117,7 @@ const Navbar = () => {
         particleCount: 100,
         spread: 70,
         origin: { y: 0.2 },
-        colors: ["#4CAF50", "#2196F3", "#FFC107", "#ff718d", "#a864fd" ],
+        colors: ["#4CAF50", "#2196F3", "#FFC107", "#ff718d", "#a864fd"],
       });
       hasPlayedConfetti.current = true; // Mark confetti as played
     }
@@ -212,6 +212,7 @@ const Navbar = () => {
   const isCustomersList = location.pathname === "/csm/customers-list";
   const isCustomerRequests = location.pathname === "/csm/customer-requests";
   const isCoupons = location.pathname === "/csm/coupons";
+  const isReviews = location.pathname === "/csm/reviews";
   const isProfileSettings = location.pathname === "/profile-settings";
   const isUpdateProfile = location.pathname === "/update-profile";
   const isChangePassword = location.pathname === "/change-password";
@@ -231,6 +232,8 @@ const Navbar = () => {
     ? "Customer Approval Requests"
     : isCoupons
     ? "Manage Coupons"
+    : isReviews
+    ? "Pending Reviews"
     : isProfileSettings
     ? "CSM Profile"
     : isUpdateProfile
@@ -314,7 +317,7 @@ const Navbar = () => {
         `}
       </style>
       <AnimatePresence>
-        {isDashboard || isManageOrders || isTrackOrder || isKnowledgeBase || isSupportTickets || isCustomersList || isCustomerRequests || isCoupons || isProfileSettings || isUpdateProfile || isChangePassword || isConversation || isCustomerDetails ? (
+        {isDashboard || isManageOrders || isTrackOrder || isKnowledgeBase || isSupportTickets || isCustomersList || isCustomerRequests || isCoupons || isReviews || isProfileSettings || isUpdateProfile || isChangePassword || isConversation || isCustomerDetails ? (
           <motion.div
             key="special-route"
             initial={{ scale: 0.8, opacity: 0, y: 20 }}
