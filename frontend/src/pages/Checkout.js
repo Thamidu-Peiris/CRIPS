@@ -272,7 +272,7 @@ const Checkout = () => {
               height={window.innerHeight}
               recycle={false}
               numberOfPieces={200}
-              tweenDuration={10000}
+              tweenDuration={1000}
             />
             <motion.div
               className="bg-white rounded-3xl shadow-2xl p-10 text-center max-w-md w-full backdrop-blur-sm"

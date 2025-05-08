@@ -15,7 +15,8 @@ const Navbar = () => {
   const [profileImage, setProfileImage] = useState("/default-profile.png");
   const [alertQueue, setAlertQueue] = useState([]); // Queue for alert messages
   const [currentAlert, setCurrentAlert] = useState(null); // Current alert message
-  const [isLoading, setIsLoading] = useState(false); // Loading state for data fetch
+  const [isLoading, setIsLoading] = useState(false); // Loading state for "Checking for updates..."
+  const [isFetching, setIsFetching] = useState(false); // Track API fetch state
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === "/csm/dashboard";
@@ -41,9 +42,9 @@ const Navbar = () => {
 
   // Poll for new pending items (orders, customers, tickets)
   const checkForNewItems = async () => {
-    if (!isDashboard) return; // Only check on dashboard
     try {
-      setIsLoading(true);
+      setIsLoading(true); // Show "Checking for updates..."
+      setIsFetching(true); // Track API fetch
       console.log("Checking for new pending items...");
       // Fetch all APIs concurrently
       const [ordersResponse, customersResponse, ticketsResponse] = await Promise.all([
@@ -105,7 +106,7 @@ const Navbar = () => {
     } catch (error) {
       console.error("Error checking for new items:", error);
     } finally {
-      setIsLoading(false);
+      setIsFetching(false); // API fetch complete
     }
   };
 
@@ -115,15 +116,14 @@ const Navbar = () => {
       confetti({
         particleCount: 100,
         spread: 70,
-        origin: { y: 0.1 },
-        colors: ["#4CAF50", "#2196F3", "#FFC107"],
+        origin: { y: 0.2 },
+        colors: ["#4CAF50", "#2196F3", "#FFC107", "#ff718d", "#a864fd" ],
       });
       hasPlayedConfetti.current = true; // Mark confetti as played
     }
     if (!isDashboard) {
       hasPlayedConfetti.current = false; // Reset for next dashboard visit
-      setAlertQueue([]); // Clear alerts when leaving dashboard
-      setCurrentAlert(null); // Clear current alert
+      setIsLoading(false); // Reset loading state to avoid stuck "Checking for updates..."
     }
   }, [isDashboard]);
 
@@ -138,27 +138,37 @@ const Navbar = () => {
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("userInfoChanged", handleStorageChange);
 
-    // Delay initial alert check by 5 seconds on dashboard load
-    let initialCheckTimeout;
-    if (isDashboard) {
-      initialCheckTimeout = setTimeout(() => {
-        checkForNewItems();
-        // Start polling every 22 seconds after initial check
-        const pollInterval = setInterval(checkForNewItems, 22000);
-        return () => clearInterval(pollInterval);
-      }, 5000);
-    }
+    // Delay initial alert check by 5 seconds
+    const initialCheckTimeout = setTimeout(() => {
+      checkForNewItems();
+      // Start polling every 22 seconds after initial check
+      const pollInterval = setInterval(checkForNewItems, 22000);
+      return () => clearInterval(pollInterval);
+    }, 5000);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("userInfoChanged", handleStorageChange);
-      if (initialCheckTimeout) clearTimeout(initialCheckTimeout);
+      clearTimeout(initialCheckTimeout);
     };
-  }, [isDashboard]);
+  }, []);
+
+  // Control "Checking for updates..." display for exactly 4 seconds
+  useEffect(() => {
+    let loadingTimeout;
+    if (isLoading) {
+      loadingTimeout = setTimeout(() => {
+        setIsLoading(false); // Hide "Checking for updates..." after 4 seconds
+      }, 4000);
+    }
+    return () => {
+      if (loadingTimeout) clearTimeout(loadingTimeout);
+    };
+  }, [isLoading]);
 
   // Handle alert display, cycling, and hiding
   useEffect(() => {
-    if (alertQueue.length > 0 && !currentAlert) {
+    if (alertQueue.length > 0 && !currentAlert && !isLoading) {
       console.log("Displaying alert:", alertQueue[0]);
       setCurrentAlert(alertQueue[0]);
       setAlertQueue((prev) => prev.slice(1));
@@ -180,7 +190,7 @@ const Navbar = () => {
         alertTimeoutRef.current = null;
       }
     };
-  }, [alertQueue, currentAlert]);
+  }, [alertQueue, currentAlert, isLoading]);
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
@@ -207,9 +217,7 @@ const Navbar = () => {
   const isChangePassword = location.pathname === "/change-password";
   const isConversation = location.pathname.startsWith("/dashboard/conversation/");
   const isCustomerDetails = location.pathname.startsWith("/customer/");
-  const title = isDashboard
-    ? currentAlert || (isLoading ? "Checking for updates..." : "Welcome, CS Manager")
-    : isManageOrders
+  const defaultTitle = isManageOrders
     ? "Manage Orders"
     : isTrackOrder
     ? "Track Order"
@@ -234,6 +242,7 @@ const Navbar = () => {
     : isCustomerDetails
     ? "Customer Details"
     : "Welcome, CS Manager";
+  const title = currentAlert || (isLoading ? "Checking for updates..." : defaultTitle);
 
   // Animation variants for navbar background and text color
   const navbarVariants = {
@@ -274,8 +283,36 @@ const Navbar = () => {
       className="flex justify-between items-center p-4 shadow-md border-4 border-transparent"
       style={{ borderRadius: "9999px" }} // Fully rounded rectangle
       variants={navbarVariants}
-      animate={currentAlert && isDashboard ? "alert" : "normal"}
+      animate={currentAlert ? "alert" : "normal"}
     >
+      <style>
+        {`
+          .animate-rainbow-text {
+            background: linear-gradient(
+              to right,
+              #ff0000,
+              #ff9900,
+              #33cc33,
+              #3399ff,
+              #cc33cc,
+              #ff0000
+            );
+            background-size: 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: rainbowMove 3s linear infinite;
+          }
+          @keyframes rainbowMove {
+            0% {
+              background-position: 0%;
+            }
+            100% {
+              background-position: 200%;
+            }
+          }
+        `}
+      </style>
       <AnimatePresence>
         {isDashboard || isManageOrders || isTrackOrder || isKnowledgeBase || isSupportTickets || isCustomersList || isCustomerRequests || isCoupons || isProfileSettings || isUpdateProfile || isChangePassword || isConversation || isCustomerDetails ? (
           <motion.div
@@ -304,11 +341,11 @@ const Navbar = () => {
               <button className="relative">
                 <motion.div
                   variants={bellVariants}
-                  animate={currentAlert && isDashboard ? "shake" : "idle"}
+                  animate={currentAlert ? "shake" : "idle"}
                 >
                   <MdNotificationsNone
                     className="text-3xl"
-                    style={{ color: currentAlert && isDashboard ? "#ffffff" : "#1f2937" }}
+                    style={{ color: currentAlert ? "#ffffff" : "#1f2937" }}
                   />
                 </motion.div>
               </button>
@@ -331,7 +368,7 @@ const Navbar = () => {
                 </button>
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
-                    <ul className={`py-2 ${currentAlert && isDashboard ? "text-white bg-gray-800" : "text-black"}`}>
+                    <ul className={`py-2 ${currentAlert ? "text-white bg-gray-800" : "text-black"}`}>
                       <li
                         onClick={() => navigate("/profile-settings")}
                         className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
@@ -371,15 +408,23 @@ const Navbar = () => {
             transition={{ duration: 0.3 }}
             className="flex justify-between items-center w-full"
           >
-            <h1 className="text-2xl font-bold text-green-600 font-sans">
-              Welcome, CS Manager
+            <h1 className="text-2xl font-bold font-sans">
+              {title}
             </h1>
 
             {/* Right Section (Notification + Profile) */}
             <div className="flex items-center space-x-6">
               {/* Notification Icon */}
               <button className="relative">
-                <MdNotificationsNone className="text-gray-800 text-3xl" />
+                <motion.div
+                  variants={bellVariants}
+                  animate={currentAlert ? "shake" : "idle"}
+                >
+                  <MdNotificationsNone
+                    className="text-3xl"
+                    style={{ color: currentAlert ? "#ffffff" : "#1f2937" }}
+                  />
+                </motion.div>
               </button>
 
               {/* Profile Dropdown */}
