@@ -14,6 +14,7 @@ import {
   FaBoxOpen,
   FaTruck,
   FaAngleDown,
+  FaStar,
 } from "react-icons/fa";
 
 const Home = () => {
@@ -60,6 +61,10 @@ const Home = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const categorySliderRef = useRef(null);
+
+  // State for dynamic reviews
+  const [reviews, setReviews] = useState([]);
+  const [reviewsError, setReviewsError] = useState("");
 
   // Handle scroll to toggle border
   useEffect(() => {
@@ -123,12 +128,16 @@ const Home = () => {
 
   // Auto-rotation for Reviews Carousel
   useEffect(() => {
+    // Only set up the interval if there are reviews
+    if (reviews.length === 0) return;
+
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setCurrentReviewIndex((prevIndex) => (prevIndex + 1) % reviews.length);
     }, 4000);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [reviews]); // Depend on reviews array, not just reviews.length
 
   // Reset transition state after animation completes
   useEffect(() => {
@@ -196,6 +205,20 @@ const Home = () => {
     fetchFeaturedPlants();
   }, []);
 
+  // Fetch approved reviews for the homepage
+  useEffect(() => {
+    const fetchApprovedReviews = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/user-feed/approved");
+        setReviews(response.data.data);
+      } catch (error) {
+        console.error("Error fetching approved reviews:", error);
+        setReviewsError("Failed to load reviews.");
+      }
+    };
+    fetchApprovedReviews();
+  }, []);
+
   const handlePlantClick = () => {
     const userInfo = localStorage.getItem("userInfo");
     if (userInfo) {
@@ -229,23 +252,20 @@ const Home = () => {
     setDropdownOpen((prev) => !prev);
   };
 
-  const reviews = [
-    { name: "Emily Thompson", review: "I love the quality of plants I received! Will order again.", img: "/user1.jpg" },
-    { name: "James Anderson", review: "Fast delivery and excellent service. Highly recommend!", img: "/user2.jpg" },
-    { name: "Sophia Martinez", review: "Vibrant plants, exceeded expectations.", img: "/user3.jpg" },
-    { name: "Liam Davis", review: "Amazing variety and healthy plants!", img: "/user2.jpg" },
-    { name: "Olivia Wilson", review: "Great customer support and quick shipping.", img: "/user1.jpg" },
-  ];
-
   const handleBackToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const getVisibleReviews = () => {
     const visible = [];
+    const uniqueReviews = new Set(); // To prevent duplicates
     for (let i = 0; i < 3; i++) {
       const index = (currentReviewIndex + i) % reviews.length;
-      visible.push(reviews[index]);
+      const review = reviews[index];
+      if (review && !uniqueReviews.has(review._id)) {
+        visible.push(review);
+        uniqueReviews.add(review._id);
+      }
     }
     return visible;
   };
@@ -668,42 +688,57 @@ const Home = () => {
           Hear from Our Awesome Users!
         </h2>
         <div className="max-w-7xl mx-auto px-4">
-          <div
-            className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 ease-in-out ${
-              isTransitioning ? "opacity-70 scale-95" : "opacity-100 scale-100"
-            }`}
-            style={{
-              transform: `translateX(${isTransitioning ? "-10%" : "0"})`,
-            }}
-          >
-            {getVisibleReviews().map((review) => (
+          {reviewsError ? (
+            <p className="text-center text-red-600">{reviewsError}</p>
+          ) : reviews.length === 0 ? (
+            <p className="text-center text-gray-600">No reviews available yet.</p>
+          ) : (
+            <>
               <div
-                key={review.name}
-                className="bg-white rounded-2xl shadow-lg p-6 border border-green-100 flex flex-col items-center transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1"
-              >
-                <img
-                  src={review.img}
-                  alt={review.name}
-                  className="w-16 h-16 rounded-full mb-4 object-cover border-2 border-green-200"
-                  onError={(e) => (e.target.src = "/default-user.jpg")}
-                />
-                <h3 className="text-lg font-semibold text-[#4D8100] mb-2">{review.name}</h3>
-                <p className="text-yellow-500 mb-2">★★★★★</p>
-                <p className="text-gray-600 text-center text-sm">{review.review}</p>
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-center gap-3 mt-6">
-            {Array.from({ length: dotCount }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleDotClick(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  Math.floor(currentReviewIndex / 3) === index ? "bg-[#87de04] scale-125" : "bg-gray-400"
+                className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 ease-in-out ${
+                  isTransitioning ? "opacity-70 scale-95" : "opacity-100 scale-100"
                 }`}
-              />
-            ))}
-          </div>
+                style={{
+                  transform: `translateX(${isTransitioning ? "-10%" : "0"})`,
+                }}
+              >
+                {getVisibleReviews().map((review) => (
+                  <div
+                    key={review._id}
+                    className="bg-white rounded-2xl shadow-lg p-6 border border-green-100 flex flex-col items-center transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1"
+                  >
+                    <img
+                      src={review.profileImage ? `http://localhost:5000${review.profileImage}` : "/default-user.jpg"}
+                      alt={review.firstName}
+                      className="w-16 h-16 rounded-full mb-4 object-cover border-2 border-green-200"
+                      onError={(e) => (e.target.src = "/default-user.jpg")}
+                    />
+                    <h3 className="text-lg font-semibold text-[#4D8100] mb-2">{review.firstName}</h3>
+                    <div className="flex mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <FaStar
+                          key={i}
+                          className={`text-sm ${i < review.rating ? "text-yellow-500" : "text-gray-300"}`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-gray-600 text-center text-sm">{review.review}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center gap-3 mt-6">
+                {Array.from({ length: dotCount }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      Math.floor(currentReviewIndex / 3) === index ? "bg-[#87de04] scale-125" : "bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -714,65 +749,69 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white p-10 text-center border-t-4 border-[#7ccc04]">
-  <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
-    <div>
-      <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-      <Link to="/privacy" className="hover:text-green-400 transition">
-        Privacy Policy
-      </Link>
-      <p></p>
-      <Link to="/terms" className="hover:text-green-400 transition">
-        Terms of Use
-      </Link>
-      <p className="hover:text-green-400 transition">FAQs</p>
-      <p className="hover:text-green-400 transition">Shipping Policy</p>
-    </div>
-    <div>
-      <h3 className="text-lg font-bold mb-4">Contact Us</h3>
-      <p>
-        📧{" "}
-        <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">
-          support@aquaplants.com
-        </a>
-      </p>
-      <p>📞 (555) 123-4567</p>
-    </div>
-    <div>
-      <h3 className="text-lg font-bold mb-4">Follow Us</h3>
-      <div className="flex space-x-4">
-        <a href="#" className="hover:scale-110 transition transform">
-          <img src="/facebook-icon.png" alt="Facebook" className="h-6" />
-        </a>
-        <a href="#" className="hover:scale-110 transition transform">
-          <img src="/instagram-icon.png" alt="Instagram" className="h-6" />
-        </a>
-        <a href="#" className="hover:scale-110 transition transform">
-          <img src="/twitter-icon.png" alt="Twitter" className="h-6" />
-        </a>
-      </div>
-    </div>
-    <div>
-      <h3 className="text-lg font-bold mb-4">Newsletter</h3>
-      <div className="flex">
-        <input
-          type="email"
-          placeholder="Your email"
-          className="p-2 rounded-l bg-gray-800 text-white w-full focus:outline-none"
-        />
-        <button className="bg-red-600 px-4 py-2 rounded-r text-white hover:bg-red-700 transition">
-          Subscribe
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
+          <div>
+            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
+            <Link to="/privacy" className="hover:text-green-400 transition">
+              Privacy Policy
+            </Link>
+            <p></p>
+            <Link to="/terms" className="hover:text-green-400 transition">
+              Terms of Use
+            </Link>
+            <p className="hover:text-green-400 transition">FAQs</p>
+            <p className="hover:text-green-400 transition">Shipping Policy</p>
+            <p></p>
+            <Link to="/user-feed" className="hover:text-green-400 transition">
+              Share Your Feedback About Our Website
+            </Link>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-4">Contact Us</h3>
+            <p>
+              📧{" "}
+              <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">
+                support@aquaplants.com
+              </a>
+            </p>
+            <p>📞 (555) 123-4567</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-4">Follow Us</h3>
+            <div className="flex space-x-4">
+              <a href="#" className="hover:scale-110 transition transform">
+                <img src="/facebook-icon.png" alt="Facebook" className="h-6" />
+              </a>
+              <a href="#" className="hover:scale-110 transition transform">
+                <img src="/instagram-icon.png" alt="Instagram" className="h-6" />
+              </a>
+              <a href="#" className="hover:scale-110 transition transform">
+                <img src="/twitter-icon.png" alt="Twitter" className="h-6" />
+              </a>
+            </div>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold mb-4">Newsletter</h3>
+            <div className="flex">
+              <input
+                type="email"
+                placeholder="Your email"
+                className="p-2 rounded-l bg-gray-800 text-white w-full focus:outline-none"
+              />
+              <button className="bg-red-600 px-4 py-2 rounded-r text-white hover:bg-red-700 transition">
+                Subscribe
+              </button>
+            </div>
+          </div>
+        </div>
+        <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
+        <button
+          onClick={handleBackToTop}
+          className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-[#589101] transition transform hover:scale-105"
+        >
+          <FaChevronUp />
         </button>
-      </div>
-    </div>
-  </div>
-  <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
-  <button
-    onClick={handleBackToTop}
-    className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-[#589101] transition transform hover:scale-105"
-  >
-    <FaChevronUp />
-  </button>
-</footer>
+      </footer>
     </>
   );
 };

@@ -126,22 +126,9 @@ const Sidebar = () => {
         </li>
         <li>
           <Link
-            to="/messages"
+            to="/admin-feed"
             className={`flex items-center p-3 rounded-xl transition duration-300 ${
-              location.pathname === "/messages"
-                ? "bg-green-200 text-green-900"
-                : "hover:bg-green-50 text-gray-600 hover:text-green-900"
-            }`}
-          >
-            <FaEnvelope className="mr-3 text-lg" />
-            Messages
-          </Link>
-        </li>
-        <li>
-          <Link
-            to="/feedback"
-            className={`flex items-center p-3 rounded-xl transition duration-300 ${
-              location.pathname === "/feedback"
+              location.pathname === "/admin-feed"
                 ? "bg-green-200 text-green-900"
                 : "hover:bg-green-50 text-gray-600 hover:text-green-900"
             }`}

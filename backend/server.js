@@ -52,6 +52,7 @@ const driverRoutes = require('./routes/TransportManager/driverRoutes');
 const salesManagerRoutes = require("./routes/SalesM/salesManagerRoutes");
 const growerHandlerRoutes = require("./routes/GrowerHandler/growerHandlerRoutes");
 const customizeRoutes = require("./routes/SM/customizeRoutes");
+const userFeedRoutes = require("./routes/SM/userFeedRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -138,6 +139,7 @@ app.use('/api/vacancies', vacancieRoutes);
 app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/customize', customizeRoutes);
+app.use("/api/user-feed", userFeedRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
