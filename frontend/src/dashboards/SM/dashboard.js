@@ -73,6 +73,8 @@ const Dashboard = () => {
     }
   };
   
+  
+
   const handleQuickAction = (path) => {
     navigate(path);
   };
@@ -81,12 +83,12 @@ const Dashboard = () => {
     <div className="flex min-h-screen bg-teal-50 font-sans">
       <Sidebar />
       <div className="ml-64 flex-1 p-6">
-        {/* Updated Header */}
-        <div className="bg-white p-6 rounded-xl shadow-md mb-6 border border-gray-200">
+        {/* Gradient Header */}
+        <div className="bg-gradient-to-r from-teal-300 to-teal-500 text-white p-6 rounded-xl shadow-md mb-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-4xl font-extrabold tracking-tight text-green-900">System Manager Dashboard</h1>
-              <p className="text-xl mt-2 font-light text-gray-600">Welcome, {managerName}!</p>
+              <p className="text-xl mt-2 font-light text-gray-100">Welcome, {managerName}!</p>
             </div>
           </div>
         </div>

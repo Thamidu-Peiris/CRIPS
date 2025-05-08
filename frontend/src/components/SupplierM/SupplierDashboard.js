@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
 const SupplierDashboard = () => {
@@ -16,6 +17,9 @@ const SupplierDashboard = () => {
           <h2 className="text-2xl font-semibold text-green-800 mb-4">📦 Inventory Orders</h2>
           <div className="bg-white shadow p-6 rounded-lg">
             <p>Here you can view and manage plant supply orders from the inventory team.</p>
+            <Link to="/inventory-orders" className="text-blue-500 hover:underline mt-2 inline-block">
+              Go to Inventory Orders
+            </Link>
           </div>
         </section>
 
@@ -24,14 +28,20 @@ const SupplierDashboard = () => {
           <h2 className="text-2xl font-semibold text-green-800 mb-4">🚚 Shipments</h2>
           <div className="bg-white shadow p-6 rounded-lg">
             <p>Track shipment approvals, packing status, and delivery schedules.</p>
+            <Link to="/shipments" className="text-blue-500 hover:underline mt-2 inline-block">
+              Go to Shipments
+            </Link>
           </div>
         </section>
 
-        {/* Profile Section */}
+        {/* Supplier Profile Section */}
         <section id="profile">
           <h2 className="text-2xl font-semibold text-green-800 mb-4">👤 Supplier Profile</h2>
           <div className="bg-white shadow p-6 rounded-lg">
             <p>Manage your company info, contact details, and bank details for payment.</p>
+            <Link to="/supplier-profile" className="text-blue-500 hover:underline mt-2 inline-block">
+              Go to Supplier Profile
+            </Link>
           </div>
         </section>
       </main>

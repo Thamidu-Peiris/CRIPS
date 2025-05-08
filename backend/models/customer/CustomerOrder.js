@@ -29,7 +29,6 @@ const customerOrderSchema = new mongoose.Schema({
     enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Completed'], 
     default: 'Pending' 
   },
-  shipmentId: { type: String, default: null },
   trackingNumber: { type: String }, // New field for tracking number
   trackingLocation: { type: String }, // New field for current location
   statusHistory: [{
@@ -41,7 +40,6 @@ const customerOrderSchema = new mongoose.Schema({
     rating: { type: Number, min: 1, max: 5 },
     review: { type: String },
     createdAt: { type: Date, default: Date.now },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   }],
 }, { timestamps: true });
 

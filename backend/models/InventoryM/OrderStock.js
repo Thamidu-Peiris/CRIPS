@@ -1,4 +1,3 @@
-// backend\models\InventoryM\OrderStock.js
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
@@ -11,7 +10,7 @@ const orderSchema = new mongoose.Schema({
   plantId: { type: String },
   status: { 
     type: String, 
-    enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'], 
+    enum: ['pending', 'accepted', 'rejected', 'shipped', 'delivered', 'cancelled'], 
     default: 'pending' 
   },
   approvedDate: { type: Date },
@@ -22,4 +21,4 @@ const orderSchema = new mongoose.Schema({
   }]
 }, { timestamps: true });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model('SupplierOrder', orderSchema);

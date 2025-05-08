@@ -1,3 +1,4 @@
+// backend\controllers\jobController.js
 const JobApplication = require("../models/JobApplication");
 const CustomerServiceManager = require("../models/csm/csmModel");
 const GrowerHandler = require("../models/GrowerHandler/growerHandlerModel");
@@ -6,16 +7,15 @@ const InventoryManager = require("../models/InventoryM/inventoryManagerModel");
 const SalesManager = require("../models/salesManager/salesManagerModel");
 const TransportManager = require("../models/TransportManager/TransportManagerModel");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 
-// Map job titles to models (updated to match jobTitle values from Careers.js)
+// Map job titles to models
 const roleModelMap = {
   "Customer Service Manager": CustomerServiceManager,
   "Grower Handler": GrowerHandler,
   "Cutters": Cutters,
   "Inventory Manager": InventoryManager,
   "Sales Manager": SalesManager,
-  "Transport Manager": TransportManager, // Updated key to match "Transport Manager" (with space)
+  "TransportManager": TransportManager,
 };
 
 // Email validation regex
@@ -24,52 +24,8 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Phone number validation regex (basic example, adjust as needed)
 const phoneRegex = /^\+?[1-9]\d{1,14}$/;
 
-// Function to send email
-const sendThankYouEmail = async (to, firstName, jobTitle) => {
-  try {
-    console.log("Setting up transporter for thank you email...");
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: "cripsaquaplants@gmail.com",
-        pass: "yoogriibsdyqtdzu",
-      },
-      tls: {
-        rejectUnauthorized: false,
-      },
-    });
-
-    console.log("Verifying transporter connection...");
-    await transporter.verify();
-    console.log("Transporter is ready to send thank you email!");
-
-    const subject = "Thank You for Applying at CRIPS!";
-    const html = `
-      <h3>Hello ${firstName},</h3>
-      <p>Thank you for applying for the position of <b>${jobTitle}</b> at CRIPS Aqua Plant Export System.</p>
-      <p>We have successfully received your application. Our team will review your submission, and we will inform you shortly regarding the next steps.</p>
-      <p>In the meantime, you can check your application status at any time by visiting: <a href="http://localhost:3000/check-status">Check Application Status</a>.</p>
-      <br/>
-      <p>Best Regards,<br/>CRIPS System Manager</p>
-    `;
-
-    console.log("Preparing thank you email options...");
-    const mailOptions = {
-      from: '"CRIPS Aqua Plant Export" <cripsaquaplants@gmail.com>',
-      to,
-      subject,
-      html,
-    };
-    console.log("Thank you email options prepared:", mailOptions);
-
-    console.log("Attempting to send thank you email...");
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Thank you email sent successfully! Message ID:", info.messageId);
-  } catch (error) {
-    console.error("Error sending thank you email:", error);
-    throw new Error("Failed to send thank you email");
-  }
-};
+// Password validation (minimum 8 characters, at least one letter and one number)
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
 // Submit a job application
 exports.submitJobApplication = async (req, res) => {
@@ -96,11 +52,12 @@ exports.submitJobApplication = async (req, res) => {
       termsAccepted,
     } = req.body;
 
-    // Validate required fields (excluding username and password since they are generated)
+    // Validate required fields
     const requiredFields = [
       "jobTitle",
       "firstName",
       "lastName",
+      "username",
       "addressLine1",
       "city",
       "state",
@@ -108,6 +65,7 @@ exports.submitJobApplication = async (req, res) => {
       "country",
       "phoneNumber",
       "email",
+      "password",
       "startDate",
       "termsAccepted",
     ];
@@ -116,12 +74,6 @@ exports.submitJobApplication = async (req, res) => {
         console.log(`Validation failed: Missing or empty required field: ${field}`);
         return res.status(400).json({ success: false, message: `Missing or empty required field: ${field}` });
       }
-    }
-
-    // Ensure username and password are provided by the frontend
-    if (!username || !password) {
-      console.log("Validation failed: Username or password not provided by frontend");
-      return res.status(400).json({ success: false, message: "Username and password must be generated and provided" });
     }
 
     // Validate email format
@@ -134,6 +86,15 @@ exports.submitJobApplication = async (req, res) => {
     if (!phoneRegex.test(phoneNumber)) {
       console.log(`Validation failed: Invalid phone number format - Phone: ${phoneNumber}`);
       return res.status(400).json({ success: false, message: "Invalid phone number format (e.g., +1234567890)" });
+    }
+
+    // Validate password strength
+    if (!passwordRegex.test(password)) {
+      console.log(`Validation failed: Password must be at least 8 characters long and contain at least one letter and one number - Password: ${password}`);
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long and contain at least one letter and one number",
+      });
     }
 
     // Validate startDate (must be in the future)
@@ -182,8 +143,7 @@ exports.submitJobApplication = async (req, res) => {
       phoneNumber,
       email,
       password: hashedPassword,
-      plaintextPassword: password, // Store the plaintext password temporarily
-      role: jobTitle,
+      role: jobTitle, // Set the role field to the jobTitle
       startDate: selectedStartDate,
       coverLetter: req.files.coverLetter ? req.files.coverLetter[0].path : null,
       resume: req.files.resume[0].path,
@@ -193,15 +153,7 @@ exports.submitJobApplication = async (req, res) => {
     await application.save();
     console.log("Application saved to jobapplications collection:", application);
 
-    // Send thank you email
-    try {
-      await sendThankYouEmail(email, firstName, jobTitle);
-      console.log("Thank you email sent successfully to:", email);
-    } catch (emailError) {
-      console.error("Failed to send thank you email, but application saved:", emailError);
-      // Note: We don't fail the request if the email fails; the application is already saved
-    }
-
+    // Do not save to the role-specific collection here
     console.log(`Application for ${jobTitle} will be saved to role-specific collection only after approval`);
 
     res.status(201).json({ success: true, message: "Application submitted successfully. Awaiting admin approval." });
@@ -213,12 +165,12 @@ exports.submitJobApplication = async (req, res) => {
 
 exports.getAllApplications = async (req, res) => {
   try {
-    console.log("Fetching job applications for user:", req.user);
+    console.log("Fetching job applications for user:", req.user); // Add logging
     const applications = await JobApplication.find();
-    console.log("Fetched applications:", applications);
+    console.log("Fetched applications:", applications); // Add logging
     res.status(200).json({ success: true, data: applications });
   } catch (error) {
-    console.error("Error fetching applications:", error);
+    console.error("Error fetching applications:", error); // Add detailed error logging
     res.status(500).json({ success: false, message: "Error fetching applications", error: error.message });
   }
 };
@@ -228,27 +180,27 @@ exports.updateApplicationStatus = async (req, res) => {
     const { id } = req.params;
     const { status, reason } = req.body;
 
+    // Normalize status to lowercase for validation
     const normalizedStatus = typeof status === "string" ? status.trim().toLowerCase() : status;
-    console.log("Received status update request:", { id, status, normalizedStatus });
+    console.log("Received status update request:", { id, status, normalizedStatus }); // Add logging
 
+    // Validate status (use lowercase values)
     if (!["pending", "approved", "rejected"].includes(normalizedStatus)) {
       console.log("Validation failed - Invalid status:", status, "Normalized:", normalizedStatus, "Expected: ['pending', 'approved', 'rejected']");
       return res.status(400).json({ success: false, message: "Invalid status. Must be pending, approved, or rejected" });
     }
 
+    // If status is Rejected, ensure a reason is provided
     if (normalizedStatus === "rejected" && !reason) {
       console.log("Validation failed: Rejection reason is required");
       return res.status(400).json({ success: false, message: "Rejection reason is required" });
     }
 
-    const updateData = { status: normalizedStatus };
+    const updateData = { status: normalizedStatus }; // Store the normalized status
     if (normalizedStatus === "rejected") {
       updateData.rejectionReason = reason;
     } else {
-      updateData.rejectionReason = null;
-    }
-    if (normalizedStatus === "approved") {
-      updateData.plaintextPassword = undefined; // Clear plaintextPassword after approval
+      updateData.rejectionReason = null; // Clear rejection reason if not rejected
     }
 
     const application = await JobApplication.findByIdAndUpdate(
@@ -262,6 +214,7 @@ exports.updateApplicationStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: "Application not found" });
     }
 
+    // If the application is approved, add the applicant to the role-specific collection
     if (normalizedStatus === "approved") {
       const RoleModel = roleModelMap[application.jobTitle];
       if (RoleModel) {
@@ -305,24 +258,5 @@ exports.checkApplicationStatus = async (req, res) => {
     res.status(200).json({ success: true, data: { status: application.status || "Pending" } });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error checking status" });
-  }
-};
-
-// Delete a job application
-exports.deleteApplication = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const application = await JobApplication.findByIdAndDelete(id);
-    if (!application) {
-      console.log("Application not found for ID:", id);
-      return res.status(404).json({ success: false, message: "Application not found" });
-    }
-
-    console.log("Application deleted:", application);
-    res.status(200).json({ success: true, message: "Application deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting application:", error);
-    res.status(500).json({ success: false, message: "Error deleting application", error: error.message });
   }
 };

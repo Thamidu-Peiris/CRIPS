@@ -9,7 +9,6 @@ const CreateCoupons = () => {
     code: "",
     discountPercentage: "",
   });
-  const [editCouponId, setEditCouponId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
@@ -37,7 +36,7 @@ const CreateCoupons = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Handle form submission to create or update coupon
+  // Handle form submission to create a new coupon
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -53,62 +52,23 @@ const CreateCoupons = () => {
         return;
       }
 
-      if (editCouponId) {
-        // Update existing coupon
-        const res = await axios.put(`http://localhost:5000/api/csm/coupons/${editCouponId}`, {
-          code: code.toUpperCase(),
-          discountPercentage: parseFloat(discountPercentage),
-        });
+      // Make API call to create coupon
+      const res = await axios.post("http://localhost:5000/api/csm/coupons", {
+        code: code.toUpperCase(),
+        discountPercentage: parseFloat(discountPercentage),
+      });
 
-        setCoupons(coupons.map(coupon => 
-          coupon._id === editCouponId ? res.data : coupon
-        ));
-        setSuccessMessage("Coupon updated successfully!");
-      } else {
-        // Create new coupon
-        const res = await axios.post("http://localhost:5000/api/csm/coupons", {
-          code: code.toUpperCase(),
-          discountPercentage: parseFloat(discountPercentage),
-        });
-
-        setCoupons([...coupons, res.data]);
-        setSuccessMessage("Coupon created successfully!");
-      }
-
+      // Update state with new coupon
+      setCoupons([...coupons, res.data]);
       setFormData({ code: "", discountPercentage: "" });
-      setEditCouponId(null);
+      setSuccessMessage("Coupon created successfully!");
       setError(null);
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
-      console.error("Failed to process coupon", err);
-      setError(`Failed to ${editCouponId ? 'update' : 'create'} coupon. Please try again.`);
-    }
-  };
-
-  // Handle edit coupon
-  const handleEdit = (coupon) => {
-    setFormData({
-      code: coupon.code,
-      discountPercentage: coupon.discountPercentage,
-    });
-    setEditCouponId(coupon._id);
-  };
-
-  // Handle delete coupon
-  const handleDelete = async (couponId) => {
-    if (window.confirm("Are you sure you want to delete this coupon?")) {
-      try {
-        await axios.delete(`http://localhost:5000/api/csm/coupons/${couponId}`);
-        setCoupons(coupons.filter(coupon => coupon._id !== couponId));
-        setSuccessMessage("Coupon deleted successfully!");
-        setError(null);
-        setTimeout(() => setSuccessMessage(null), 3000);
-      } catch (err) {
-        console.error("Failed to delete coupon", err);
-        setError("Failed to delete coupon. Please try again.");
-      }
+      console.error("Failed to create coupon", err);
+      setError("Failed to create coupon. Please try again.");
     }
   };
 
@@ -124,13 +84,13 @@ const CreateCoupons = () => {
 
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-            
+            Manage Coupons
           </h2>
 
-          {/* Coupon Creation/Update Form */}
+          {/* Coupon Creation Form */}
           <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
             <h3 className="text-xl font-semibold text-gray-700 mb-4">
-              {editCouponId ? "Update Coupon" : "Create New Coupon"}
+              Create New Coupon
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -169,26 +129,12 @@ const CreateCoupons = () => {
                   max="100"
                 />
               </div>
-              <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-                >
-                  {editCouponId ? "Update Coupon" : "Create Coupon"}
-                </button>
-                {editCouponId && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData({ code: "", discountPercentage: "" });
-                      setEditCouponId(null);
-                    }}
-                    className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors shadow-sm"
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              >
+                Create Coupon
+              </button>
             </form>
           </div>
 
@@ -200,7 +146,9 @@ const CreateCoupons = () => {
           )}
 
           {/* Error Message */}
-          {error && (
+          {
+
+error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 shadow-sm">
               {error}
             </div>
@@ -231,16 +179,13 @@ const CreateCoupons = () => {
                     <th className="py-4 px-6 text-left text-sm font-semibold">
                       Created At
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold">
-                      Actions
-                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {coupons.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="5"
+                        colSpan="4"
                         className="py-4 px-6 text-center text-gray-500"
                       >
                         No coupons available.
@@ -271,20 +216,6 @@ const CreateCoupons = () => {
                         </td>
                         <td className="py-4 px-6 text-gray-700">
                           {new Date(coupon.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="py-4 px-6 flex space-x-2">
-                          <button
-                            onClick={() => handleEdit(coupon)}
-                            className="bg-blue-600 text-white px-4 py-1 rounded-full hover:bg-blue-700 transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(coupon._id)}
-                            className="bg-red-600 text-white px-4 py-1 rounded-full hover:bg-red-700 transition-colors"
-                          >
-                            Delete
-                          </button>
                         </td>
                       </tr>
                     ))

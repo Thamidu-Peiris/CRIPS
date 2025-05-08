@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../../models/customer/User');
-const CustomerOrder = require('../../models/customer/CustomerOrder');
+
 // Get all pending customers
 router.get('/pending', async (req, res) => {
   try {
@@ -52,68 +52,6 @@ router.put('/:id/decline', async (req, res) => {
   }
 });
 
-router.get('/reviews/pending', async (req, res) => {
-  try {
-    console.log("Received request for /api/csm/customers/reviews/pending");
-    const orders = await CustomerOrder.find({ 'reviews.status': 'pending' })
-      .populate('userId', 'firstName lastName')
-      .lean();
-    console.log("Orders found:", orders.length, "Orders:", orders);
-    const pendingReviews = orders
-      .flatMap(order =>
-        order.reviews
-          .filter(review => review.status === 'pending' && order.userId) // Ensure userId is valid
-          .map(review => ({
-            _id: review._id,
-            orderId: order._id,
-            user: order.userId, // Will be null if userId is invalid
-            rating: review.rating,
-            review: review.review,
-            createdAt: review.createdAt,
-            items: order.items,
-          }))
-      )
-      .filter(review => review.user); // Filter out reviews with null user
-    console.log("Pending reviews processed:", pendingReviews);
-    if (pendingReviews.length === 0) {
-      console.log("No pending reviews found in database.");
-    }
-    res.json(pendingReviews);
-  } catch (error) {
-    console.error("Error fetching pending reviews:", error.message, error.stack);
-    res.status(500).json({ message: 'Failed to fetch pending reviews', error: error.message });
-  }
-});
-
-router.put('/reviews/:orderId/:reviewId/approve', async (req, res) => {
-  try {
-    const order = await CustomerOrder.findById(req.params.orderId);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-    const review = order.reviews.id(req.params.reviewId);
-    if (!review) return res.status(404).json({ message: 'Review not found' });
-    review.status = 'approved';
-    await order.save();
-    res.json({ message: 'Review approved', review });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to approve review', error });
-  }
-});
-
-router.put('/reviews/:orderId/:reviewId/reject', async (req, res) => {
-  try {
-    const order = await CustomerOrder.findById(req.params.orderId);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-    const review = order.reviews.id(req.params.reviewId);
-    if (!review) return res.status(404).json({ message: 'Review not found' });
-    review.status = 'rejected';
-    await order.save();
-    res.json({ message: 'Review rejected', review });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to reject review', error });
-  }
-});
-
-
 // Update Customer Details
 router.put('/:id', async (req, res) => {
   try {
@@ -158,10 +96,5 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to update customer details', error: error.message });
   }
 });
-
-// Add these routes here
-router.get('/reviews/pending', async (req, res) => { /* ... */ });
-router.put('/reviews/:orderId/:reviewId/approve', async (req, res) => { /* ... */ });
-router.put('/reviews/:orderId/:reviewId/reject', async (req, res) => { /* ... */ });
 
 module.exports = router;
