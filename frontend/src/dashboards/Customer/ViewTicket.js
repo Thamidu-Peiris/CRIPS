@@ -1,28 +1,29 @@
 
 // frontend\src\dashboards\Customer\ViewTicket.js
-
-
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom"; // Added Link import
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import CustomerHeader from "../../components/CustomerHeader"; // Ensure this path is correct
+import { motion } from "framer-motion";
+import CustomerHeader from "../../components/CustomerHeader";
 
 const ViewTicket = () => {
-  const { id } = useParams(); // ✅ Get Ticket ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const userInfo = JSON.parse(localStorage.getItem("userInfo")) || {};
 
   const [ticket, setTicket] = useState(null);
-  const [loading, setLoading] = useState(true); // ✅ Add loading state
-  const [error, setError] = useState(null); // ✅ Add error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [replyMessage, setReplyMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchTicket = async () => {
       try {
-        console.log(`Fetching ticket ID: ${id}`); // ✅ Debugging log
+        console.log(`Fetching ticket ID: ${id}`);
         const response = await axios.get(`http://localhost:5000/api/support/${id}`);
-        console.log("API Response:", response.data); // ✅ Debugging log
+        console.log("API Response:", response.data);
         setTicket(response.data);
         setLoading(false);
       } catch (error) {
@@ -35,7 +36,11 @@ const ViewTicket = () => {
   }, [id]);
 
   const handleReplySubmit = async () => {
-    if (!replyMessage.trim()) return alert("Reply cannot be empty.");
+    if (!replyMessage.trim()) {
+      setErrorMessage("Reply cannot be empty.");
+      setSuccessMessage("");
+      return;
+    }
 
     try {
       const response = await axios.put(`http://localhost:5000/api/support/${id}/reply`, {
@@ -49,88 +54,164 @@ const ViewTicket = () => {
       }));
 
       setReplyMessage("");
-      alert("Reply sent successfully!");
+      setSuccessMessage("Reply sent successfully!");
+      setErrorMessage("");
     } catch (error) {
       console.error("Error sending reply:", error);
-      alert("Failed to send reply. Please try again.");
+      setErrorMessage(error.response?.data?.message || "Failed to send reply. Please try again.");
+      setSuccessMessage("");
     }
   };
 
-  if (loading) return <p className="text-center text-gray-600">Loading ticket details...</p>;
-  if (error) return <p className="text-center text-red-600">{error}</p>; // ✅ Display error message
+  if (loading) return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-center text-gray-600 mt-10"
+    >
+      Loading ticket details...
+    </motion.div>
+  );
+  if (error) return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-center text-red-600 mt-10"
+    >
+      {error}
+    </motion.div>
+  );
 
   return (
-    <div className="font-sans min-h-screen bg-gray-100">
-      {/* 🔹 Navbar */}
-      <nav className="flex justify-between items-center p-5 bg-white shadow-md">
-        <div className="text-lg font-bold flex items-center">
-          <img src="/logo.png" alt="Logo" className="h-10 mr-2" />
-        </div>
+    <div className="font-sans min-h-screen bg-gray-50">
+      {/* Navbar */}
+      <nav className="flex justify-between items-center p-5 bg-white shadow-lg sticky top-0 z-50">
+        <motion.div
+          className="text-lg font-bold flex items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.img
+            src="/logo.png"
+            alt="Logo"
+            className="h-10 mr-2"
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.5 }}
+          />
+        </motion.div>
         <div className="space-x-6">
-          <Link to="/" className="text-green-600 font-medium">Home</Link>
-          <Link to="/shop" className="text-gray-600">Shop</Link>
-          <Link to="/dashboard/support" className="text-gray-600">Support</Link>
-          <Link to="/about" className="text-gray-600">About</Link>
-          <Link to="/contact" className="text-gray-600">Contact Us</Link>
+          <Link to="/" className="text-green-600 font-medium hover:text-green-700 transition">Home</Link>
+          <Link to="/shop" className="text-gray-600 hover:text-gray-800 transition">Shop</Link>
+          <Link to="/dashboard/support" className="text-gray-600 hover:text-gray-800 transition">Support</Link>
+          <Link to="/about" className="text-gray-600 hover:text-gray-800 transition">About</Link>
+          <Link to="/contact" className="text-gray-600 hover:text-gray-800 transition">Contact Us</Link>
         </div>
-        {/* 🔹 Customer Header */}
         <CustomerHeader />
       </nav>
 
-      {/* 🔹 Ticket Content */}
-      <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
-        <h2 className="text-2xl font-bold text-green-700 text-center">Ticket Details</h2>
+      {/* Ticket Content */}
+      <motion.div
+        className="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-xl"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2 className="text-3xl font-bold text-green-700 text-center mb-6">Ticket Details</h2>
 
-        <div className="mt-4">
-          <p>
-            <strong>Subject:</strong> {ticket.subject}
-          </p>
-          <p>
-            <strong>Status:</strong>{" "}
-            <span className={ticket.status === "Resolved" ? "text-green-600" : "text-red-600"}>{ticket.status}</span>
-          </p>
+        {/* Success Message */}
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center"
+          >
+            {successMessage}
+          </motion.div>
+        )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center"
+          >
+            {errorMessage}
+          </motion.div>
+        )}
+
+        {/* Ticket Info */}
+        <div className="space-y-4 bg-gray-50 p-6 rounded-lg">
+          <div className="flex justify-between items-center">
+            <p className="text-lg">
+              <strong>Subject:</strong> {ticket.subject}
+            </p>
+            <p className="text-lg">
+              <strong>Status:</strong>{" "}
+              <span className={ticket.status === "Resolved" ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
+                {ticket.status}
+              </span>
+            </p>
+          </div>
         </div>
 
         {/* Ticket Responses */}
-        <div className="mt-6 border p-3 rounded-lg bg-gray-100">
-          <h4 className="font-semibold text-gray-700">Conversation</h4>
-          {ticket.responses && ticket.responses.length > 0 ? (
-            ticket.responses.map((res, index) => (
-              <p
-                key={index}
-                className={`mt-2 p-2 rounded-lg ${res.sender === "Customer" ? "bg-green-100" : "bg-gray-200"}`}
-              >
-                <strong>{res.sender}:</strong> {res.message}
-              </p>
-            ))
-          ) : (
-            <p className="text-gray-600">No responses yet.</p>
-          )}
+        <div className="mt-8">
+          <h4 className="text-lg font-semibold text-gray-700 mb-4">Conversation</h4>
+          <div className="space-y-4 max-h-96 overflow-y-auto p-4 bg-gray-100 rounded-lg">
+            {ticket.responses && ticket.responses.length > 0 ? (
+              ticket.responses.map((res, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: res.sender === "Customer" ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className={`p-3 rounded-lg max-w-[80%] ${
+                    res.sender === "Customer"
+                      ? "bg-blue-200 ml-auto text-right"
+                      : "bg-gray-200 mr-auto text-left"
+                  }`}
+                >
+                  <p className="text-sm text-gray-500">{res.sender}</p>
+                  <p className="mt-1">{res.message}</p>
+                </motion.div>
+              ))
+            ) : (
+              <p className="text-gray-600 text-center">No responses yet.</p>
+            )}
+          </div>
         </div>
 
         {/* Reply Form */}
-        <div className="mt-4">
+        <div className="mt-8">
           <textarea
             value={replyMessage}
             onChange={(e) => setReplyMessage(e.target.value)}
             placeholder="Write your response..."
-            className="w-full p-2 border rounded-lg h-24"
+            className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 resize-none h-28"
           ></textarea>
-          <button
+          <motion.button
             onClick={handleReplySubmit}
-            className="w-full bg-green-600 text-white p-2 mt-2 rounded-lg"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="w-full bg-green-600 text-white p-3 mt-3 rounded-lg hover:bg-green-700 transition font-semibold"
           >
             Send Reply
-          </button>
+          </motion.button>
         </div>
 
-        <button
+        <motion.button
           onClick={() => navigate("/dashboard/support")}
-          className="w-full mt-4 bg-gray-400 text-white p-2 rounded-lg"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full mt-6 bg-gray-400 text-white p-3 rounded-lg hover:bg-gray-500 transition font-semibold"
         >
           Back to Tickets
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
     </div>
   );
 };
