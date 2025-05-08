@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
-import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown } from "react-icons/fi";
+import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiChevronDown, FiStar } from "react-icons/fi";
 
 const CSMSidebar = () => {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false);
@@ -129,7 +129,7 @@ const CSMSidebar = () => {
                 : "text-gray-700 hover:bg-gray-200"
             }`}
           >
-            <FiTag className="mr-3" /> Reviews Manage
+            <FiStar className="mr-3" /> Reviews Manage
           </a>
         </li>
 
