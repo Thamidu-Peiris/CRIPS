@@ -146,8 +146,17 @@ const AboutPage = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-            <p className="hover:text-green-400 transition cursor-pointer">Privacy Policy</p>
-            <p className="hover:text-green-400 transition cursor-pointer">Terms of Use</p>
+            <Link
+            to="/privacy"
+            className="text-white font-medium text-lg hover:text-green-400 transition relative group">
+            Privacy
+          </Link><p></p>
+          <Link
+            to="/terms"
+            className="text-white font-medium text-lg hover:text-green-400 transition relative group">
+            Terms of Use
+          </Link>
+          
             <p className="hover:text-green-400 transition cursor-pointer">FAQs</p>
             <p className="hover:text-green-400 transition cursor-pointer">Shipping Policy</p>
           </div>
