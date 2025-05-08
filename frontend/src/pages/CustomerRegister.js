@@ -23,6 +23,8 @@ const CustomerRegister = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // New state for success message
+  const [errorMessage, setErrorMessage] = useState(""); // New state for error message
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +47,7 @@ const CustomerRegister = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      setErrorMessage("Passwords do not match!");
       return;
     }
 
@@ -64,11 +66,15 @@ const CustomerRegister = () => {
       const response = await axios.post("http://localhost:5000/api/users/register", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert(response.data.message); // "Registration successful. Please wait for approval..."
-      navigate("/login"); // Redirect to login
+      setSuccessMessage(response.data.message); // Set success message
+      setErrorMessage(""); // Clear any previous error
+      setTimeout(() => {
+        navigate("/login"); // Redirect to login after 3 seconds
+      }, 3000);
     } catch (error) {
       console.error("Error registering user:", error);
-      alert(error.response?.data?.message || "Failed to register user");
+      setErrorMessage(error.response?.data?.message || "Failed to register user");
+      setSuccessMessage(""); // Clear any previous success message
     }
   };
 
@@ -91,6 +97,21 @@ const CustomerRegister = () => {
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="max-w-4xl w-full bg-white p-8 rounded-lg shadow-lg">
           <h2 className="text-3xl font-bold text-center text-green-600 mb-8">Create a New Account</h2>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center">
+              {successMessage}
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center">
+              {errorMessage}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block text-gray-700 font-medium mb-2">Select User Role</label>
