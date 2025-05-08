@@ -9,6 +9,8 @@ const OrdersPage = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(null);
   const [review, setReview] = useState({ rating: 0, review: "" });
+  const [successMessage, setSuccessMessage] = useState(""); // New state for success message
+  const [errorMessage, setErrorMessage] = useState(""); // New state for error message
   const navigate = useNavigate();
 
   const hasPendingOrApprovedReview = (order) => {
@@ -44,10 +46,14 @@ const OrdersPage = () => {
       ));
       setShowReviewModal(null);
       setReview({ rating: 0, review: "" });
-      alert("Review submitted and is pending approval.");
+      setSuccessMessage("Review submitted and is pending approval.");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000); // Auto-clear after 5 seconds
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("Failed to submit review.");
+      setErrorMessage(error.response?.data?.message || "Failed to submit review.");
+      setSuccessMessage("");
+      setTimeout(() => setErrorMessage(""), 5000); // Auto-clear after 5 seconds
     }
   };
 
@@ -126,6 +132,30 @@ const OrdersPage = () => {
         </div>
 
         <h2 className="text-4xl font-extrabold text-green-800 mt-8 mb-6 text-center">Your Orders</h2>
+
+        {/* Success Message */}
+        {successMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center max-w-7xl mx-auto"
+          >
+            {successMessage}
+          </motion.div>
+        )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center max-w-7xl mx-auto"
+          >
+            {errorMessage}
+          </motion.div>
+        )}
 
         <div className="bg-white rounded-xl shadow-lg p-6 max-w-7xl mx-auto animate-fade-in">
           <table className="w-full border-collapse">

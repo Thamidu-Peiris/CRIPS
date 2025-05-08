@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import CustomerHeader from "../components/CustomerHeader";
+import axios from "axios";
+import { FaArrowLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
+import CustomerHeader from "../components/CustomerHeader";
 
-const AboutPage = () => {
-  const [userInfo, setUserInfo] = useState(null);
+const Privacy = () => {
+  const [privacyContent, setPrivacyContent] = useState("");
+  const [privacyUpdatedAt, setPrivacyUpdatedAt] = useState(null);
+  const [privacyUpdatedBy, setPrivacyUpdatedBy] = useState(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userInfo"));
-    setUserInfo(storedUser);
+    const fetchPrivacy = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const response = await axios.get("http://localhost:5000/api/customize");
+        setPrivacyContent(response.data.data.privacy);
+        setPrivacyUpdatedAt(response.data.data.privacyUpdatedAt);
+        setPrivacyUpdatedBy(response.data.data.privacyUpdatedBy);
+      } catch (error) {
+        console.error("Error fetching Privacy Policy:", error);
+        setError(error.response?.data?.message || "Failed to fetch Privacy Policy. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPrivacy();
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("userInfo");
-    setUserInfo(null);
-    navigate("/");
-  };
 
   return (
     <div className="font-sans min-h-screen bg-white">
@@ -53,10 +67,10 @@ const AboutPage = () => {
           </Link>
           <Link
             to="/about"
-            className="text-green-700 font-bold text-lg hover:text-[#7ccc04] transition relative group"
+            className="text-gray-700 font-medium text-lg hover:text-gray-900 transition relative group"
           >
             About
-            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-100 transition-transform duration-300"></span>
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
           <Link
             to="/contact"
@@ -65,80 +79,48 @@ const AboutPage = () => {
             Contact Us
             <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
           </Link>
+          <Link
+            to="/privacy"
+            className="text-green-700 font-bold text-lg hover:text-[#7ccc04] transition relative group"
+          >
+            Privacy
+            <span className="absolute left-0 bottom-0 w-full h-[4px] bg-[#87de04] scale-x-100 transition-transform duration-300"></span>
+          </Link>
         </div>
-        
-          <CustomerHeader />
-        
+        <CustomerHeader />
       </nav>
 
       {/* Breadcrumb Navigation */}
       <div className="bg-white shadow-sm p-4 mx-4 mt-4 rounded-lg">
         <div className="text-gray-500 text-sm">
-          <Link to="/" className="text-green-600 hover:text-green-700 transition">Home</Link> / About
+          <Link to="/" className="text-green-600 hover:text-green-700 transition">Home</Link> / Privacy Policy
         </div>
       </div>
 
-      {/* About Section */}
-      <div className="max-w-7xl mx-auto bg-white shadow-lg p-12 mt-10 rounded-xl text-center animate-fade-in">
-        <h2 className="text-5xl font-extrabold text-[#63A302] mb-6">About Us</h2>
-        <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-          Welcome to AquaPlants – your trusted source for high-quality aquatic plants.
-          We specialize in providing fresh, vibrant, and healthy plants for all aquatic enthusiasts.
-          Whether you're a hobbyist or a professional, we have a wide range of plants to enhance your aquarium.
-        </p>
-
-        {/* Our Mission & Vision */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <motion.div
-            className="bg-[#F1FFDD] rounded-xl shadow-md p-6 hover:scale-105 transition-all duration-300"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <h3 className="text-3xl font-bold text-[#528701] mb-4">Our Mission</h3>
-            <p className="text-gray-700">
-              Our mission is to promote sustainable aquascaping by providing
-              the highest quality aquatic plants while ensuring environmental responsibility.
-            </p>
-          </motion.div>
-          <motion.div
-            className="bg-[#F1FFDD] rounded-xl shadow-md p-6 hover:scale-105 transition-all duration-300"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <h3 className="text-3xl font-bold text-[#528701] mb-4">Our Vision</h3>
-            <p className="text-gray-700">
-              We envision a world where aquatic life thrives in every home,
-              bringing tranquility and beauty through well-maintained aquariums.
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Our Team */}
-        <div className="mt-12">
-          <h3 className="text-3xl font-bold text-gray-500 mb-6">Meet Our Team</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((id) => (
-              <motion.div
-                key={id}
-                className="bg-white rounded-xl shadow-md p-6 text-center hover:scale-105 transition-all duration-300"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 * id }}
-              >
-                <img
-                  src={`/team${id}.jpg`}
-                  alt={`Team Member ${id}`}
-                  className="w-24 h-24 object-cover rounded-full mx-auto border-2 border-white"
-                  onError={(e) => (e.target.src = "/default-team.jpg")}
-                />
-                <h4 className="text-lg font-bold text-gray-800 mt-4">Team Member {id}</h4>
-                <p className="text-gray-600">Aquatic Specialist</p>
-              </motion.div>
-            ))}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto bg-white shadow-lg p-12 mt-10 rounded-xl animate-fade-in">
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
+            <p>{error}</p>
           </div>
-        </div>
+        )}
+
+        {/* Privacy Content */}
+        {loading ? (
+          <p className="text-center text-gray-600">Loading Privacy Policy...</p>
+        ) : (
+          <div className="text-center">
+            <h2 className="text-5xl font-extrabold text-[#63A302] mb-6">Privacy Policy</h2>
+            <div className="prose prose-lg text-gray-700 whitespace-pre-wrap max-w-3xl mx-auto">
+              {privacyContent || "No Privacy Policy available."}
+            </div>
+            <div className="mt-4 text-sm text-gray-600">
+              <p>Last updated: {privacyUpdatedAt ? new Date(privacyUpdatedAt).toLocaleString() : "Never"}</p>
+              <p>Updated by: {privacyUpdatedBy || "Unknown"}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -146,17 +128,8 @@ const AboutPage = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
           <div>
             <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-            <Link
-            to="/privacy"
-            className="text-white font-medium text-lg hover:text-green-400 transition relative group">
-            Privacy
-          </Link><p></p>
-          <Link
-            to="/terms"
-            className="text-white font-medium text-lg hover:text-green-400 transition relative group">
-            Terms of Use
-          </Link>
-          
+            <p className="hover:text-green-400 transition cursor-pointer">Privacy Policy</p>
+            <p className="hover:text-green-400 transition cursor-pointer">Terms of Use</p>
             <p className="hover:text-green-400 transition cursor-pointer">FAQs</p>
             <p className="hover:text-green-400 transition cursor-pointer">Shipping Policy</p>
           </div>
@@ -204,4 +177,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage;
+export default Privacy;
