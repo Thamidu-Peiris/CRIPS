@@ -111,6 +111,8 @@ import SalesManagerProfileSettings from "./dashboards/SalesReports/SrProfileSett
 import Customize from "./pages/SysManager/customize.js";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import UserFeed from "./pages/userFeed";
+import AdminFeed from "./pages/SysManager/adminFeed.js";
 
 function App() {
   return (
@@ -228,6 +230,8 @@ function App() {
         <Route path="/customize" element={<Customize />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/user-feed" element={<UserFeed />} />
+        <Route path="/admin-feed" element={<AdminFeed />} />
 
 
 
