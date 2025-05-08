@@ -15,6 +15,8 @@ const CreateTicket = () => {
     message: "",
     orderId: "",
   });
+  const [successMessage, setSuccessMessage] = useState(""); // New state for success message
+  const [errorMessage, setErrorMessage] = useState(""); // New state for error message
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,11 +26,15 @@ const CreateTicket = () => {
     e.preventDefault();
     try {
       await axios.post("http://localhost:5000/api/support", formData);
-      alert("Support ticket submitted successfully!");
-      navigate("/dashboard/support");
+      setSuccessMessage("Support ticket submitted successfully!");
+      setErrorMessage(""); // Clear any previous error
+      setTimeout(() => {
+        navigate("/dashboard/support"); // Redirect after 2 seconds
+      }, 2000);
     } catch (error) {
       console.error("Error submitting ticket:", error);
-      alert("Failed to submit support ticket. Please try again.");
+      setErrorMessage(error.response?.data?.message || "Failed to submit support ticket. Please try again.");
+      setSuccessMessage(""); // Clear any previous success
     }
   };
 
@@ -97,6 +103,21 @@ const CreateTicket = () => {
       {/* Create Ticket Content */}
       <div className="max-w-4xl mx-auto mt-10 p-6 border rounded-lg shadow-lg bg-white">
         <h2 className="text-2xl font-bold text-green-700 text-center">Submit a Support Ticket</h2>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center">
+            {successMessage}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center">
+            {errorMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {/* Name Field (Read-Only) */}
           <div>
