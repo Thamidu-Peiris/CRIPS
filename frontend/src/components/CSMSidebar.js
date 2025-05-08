@@ -7,7 +7,7 @@ import { FiShoppingCart, FiTruck, FiHeadphones, FiUsers, FiTag, FiSettings, FiCh
 const CSMSidebar = () => {
   const [helpCenterOpen, setHelpCenterOpen] = useState(false);
   const [customerManagementOpen, setCustomerManagementOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false); // New state for Settings dropdown
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState("/csm/dashboard");
   const location = useLocation();
   const navigate = useNavigate();
@@ -114,6 +114,22 @@ const CSMSidebar = () => {
             }`}
           >
             <FiTruck className="mr-3" /> Shipment Tracking
+          </a>
+        </li>
+        <li>
+          <a
+            href="/csm/reviews"
+            onClick={(e) => {
+              e.preventDefault();
+              handleItemClick("/csm/reviews");
+            }}
+            className={`flex items-center p-3 rounded-lg ${
+              selectedItem === "/csm/reviews"
+                ? "bg-green-200 text-gray-800"
+                : "text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            <FiTag className="mr-3" /> Reviews Manage
           </a>
         </li>
 
@@ -254,8 +270,8 @@ const CSMSidebar = () => {
             onClick={() => handleItemClick("#settings")}
             className={`flex items-center justify-between w-full p-3 rounded-lg ${
               selectedItem === "#settings" ||
-              selectedItem === "/csm/update-profile" ||
-              selectedItem === "/csm/change-password"
+              selectedItem === "/update-profile" ||
+              selectedItem === "/change-password"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}
