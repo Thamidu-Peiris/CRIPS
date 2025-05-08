@@ -267,31 +267,64 @@ const Careers = () => {
     if (isSupplierSubmitting) return;
     setSupplierError("");
     setIsSupplierSubmitting(true);
-
+  
+    // Validate terms acceptance
     if (!supplierFormData.termsAccepted) {
       setSupplierError("Please accept the Terms and Privacy Policy");
       setIsSupplierSubmitting(false);
       return;
     }
-
+  
+    // Validate password length
     if (supplierFormData.password.length < 8) {
       setSupplierError("Password must be at least 8 characters long");
       setIsSupplierSubmitting(false);
       return;
     }
-
-    for (const supply of supplierFormData.supplies) {
-      if (!supply.itemType || !supply.quantity || !supply.unit || !supply.photo) {
-        setSupplierError("All supply items must have an item type, quantity, unit, and photo");
+  
+    // Validate required fields
+    const requiredFields = [
+      'NIC', 'name', 'contactNumber', 'email', 'username', 'password',
+      'addressLine1', 'city', 'state', 'postalCode', 'country'
+    ];
+    for (const field of requiredFields) {
+      if (!supplierFormData[field]) {
+        setSupplierError(`Please fill in the ${field} field`);
         setIsSupplierSubmitting(false);
         return;
       }
     }
-
+  
+    // Validate supplies (ensure at least one item and all fields are filled)
+    if (supplierFormData.supplies.length === 0) {
+      setSupplierError("At least one supply item is required");
+      setIsSupplierSubmitting(false);
+      return;
+    }
+  
+    for (const [index, supply] of supplierFormData.supplies.entries()) {
+      if (!supply.itemType || !supply.quantity || !supply.unit || !supply.photo) {
+        setSupplierError(`Supply item ${index + 1} is missing required fields: ${!supply.itemType ? 'item type' : ''} ${!supply.quantity ? 'quantity' : ''} ${!supply.unit ? 'unit' : ''} ${!supply.photo ? 'photo' : ''}`);
+        setIsSupplierSubmitting(false);
+        return;
+      }
+      if (isNaN(supply.quantity) || supply.quantity <= 0) {
+        setSupplierError(`Quantity for supply item ${index + 1} must be a positive number`);
+        setIsSupplierSubmitting(false);
+        return;
+      }
+      // Ensure photo is a valid File object
+      if (!(supply.photo instanceof File)) {
+        setSupplierError(`Supply item ${index + 1} has an invalid photo`);
+        setIsSupplierSubmitting(false);
+        return;
+      }
+    }
+  
     const supplierFormDataToSend = new FormData();
     supplierFormDataToSend.append("NIC", supplierFormData.NIC);
     supplierFormDataToSend.append("name", supplierFormData.name);
-    supplierFormDataToSend.append("companyName", supplierFormData.companyName);
+    supplierFormDataToSend.append("companyName", supplierFormData.companyName || "");
     supplierFormDataToSend.append("contactNumber", supplierFormData.contactNumber);
     supplierFormDataToSend.append("email", supplierFormData.email);
     supplierFormDataToSend.append("username", supplierFormData.username);
@@ -305,20 +338,22 @@ const Careers = () => {
       supplierFormDataToSend.append(`supplies[${index}][unit]`, supply.unit);
       supplierFormDataToSend.append(`supplies[${index}][photo]`, supply.photo);
     });
-    supplierFormDataToSend.append("termsAccepted", supplierFormData.termsAccepted);
-
+    supplierFormDataToSend.append("termsAccepted", supplierFormData.termsAccepted.toString());
+  
     console.log("Submitting Supplier FormData:");
     const formDataEntries = {};
     for (let pair of supplierFormDataToSend.entries()) {
       formDataEntries[pair[0]] = pair[1];
     }
     console.table(formDataEntries);
-
+  
     try {
       const response = await axios.post("http://localhost:5000/api/suppliers/register", supplierFormDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       if (response.data.success) {
+        // Store the supplierId (NIC) in localStorage for future use
+        localStorage.setItem('supplierId', response.data.supplierId);
         alert("Supplier registration submitted successfully! Awaiting admin approval.");
         setIsSupplierPopupOpen(false);
         handleSupplierClear();
@@ -327,9 +362,12 @@ const Careers = () => {
     } catch (error) {
       console.error("Error submitting supplier registration:", error);
       console.log("Error response:", error.response);
-      const errorMessage = error.response?.data?.message || "Failed to submit supplier registration. Please check your input and try again.";
-      setSupplierError(errorMessage);
-    } finally {
+      const errorMessage = error.response?.data?.message;
+      if (errorMessage === "NIC already exists") {
+        setSupplierError("The NIC you entered already exists. Please use a different NIC.");
+      } else {
+        setSupplierError(errorMessage || "Failed to submit supplier registration. Please check your input and try again.");
+      }
       setIsSupplierSubmitting(false);
     }
   };

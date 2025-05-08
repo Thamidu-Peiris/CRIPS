@@ -2,7 +2,8 @@
 const mongoose = require('mongoose');
 
 const supplierSchema = new mongoose.Schema({
-  NIC: { type: String, required: true, unique: true },
+  NIC: { type: String, required: true, unique: true, index: true }, // Use NIC as the primary identifier
+  supplierId: { type: String, required: true, unique: true, index: true },
   name: { type: String, required: true },
   companyName: { type: String },
   username: { type: String, required: true, unique: true },  //Added username
