@@ -714,60 +714,65 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white p-10 text-center border-t-4 border-[#7ccc04]">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
-          <div>
-            <h3 className="text-lg font-bold mb-4">Quick Links</h3>
-            <p className="hover:text-green-400 transition">Privacy Policy</p>
-            <p className="hover:text-green-400 transition">Terms of Use</p>
-            <p className="hover:text-green-400 transition">FAQs</p>
-            <p className="hover:text-green-400 transition">Shipping Policy</p>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold mb-4">Contact Us</h3>
-            <p>
-              📧{" "}
-              <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">
-                support@aquaplants.com
-              </a>
-            </p>
-            <p>📞 (555) 123-4567</p>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold mb-4">Follow Us</h3>
-            <div className="flex space-x-4">
-              <a href="#" className="hover:scale-110 transition transform">
-                <img src="/facebook-icon.png" alt="Facebook" className="h-6" />
-              </a>
-              <a href="#" className="hover:scale-110 transition transform">
-                <img src="/instagram-icon.png" alt="Instagram" className="h-6" />
-              </a>
-              <a href="#" className="hover:scale-110 transition transform">
-                <img src="/twitter-icon.png" alt="Twitter" className="h-6" />
-              </a>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-bold mb-4">Newsletter</h3>
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="p-2 rounded-l bg-gray-800 text-white w-full focus:outline-none"
-              />
-              <button className="bg-red-600 px-4 py-2 rounded-r text-white hover:bg-red-700 transition">
-                Subscribe
-              </button>
-            </div>
-          </div>
-        </div>
-        <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
-        <button
-          onClick={handleBackToTop}
-          className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-[#589101] transition transform hover:scale-105"
-        >
-          <FaChevronUp />
+  <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 px-4 text-left">
+    <div>
+      <h3 className="text-lg font-bold mb-4">Quick Links</h3>
+      <Link to="/privacy" className="hover:text-green-400 transition">
+        Privacy Policy
+      </Link>
+      <p></p>
+      <Link to="/terms" className="hover:text-green-400 transition">
+        Terms of Use
+      </Link>
+      <p className="hover:text-green-400 transition">FAQs</p>
+      <p className="hover:text-green-400 transition">Shipping Policy</p>
+    </div>
+    <div>
+      <h3 className="text-lg font-bold mb-4">Contact Us</h3>
+      <p>
+        📧{" "}
+        <a href="mailto:support@aquaplants.com" className="hover:text-green-400 transition">
+          support@aquaplants.com
+        </a>
+      </p>
+      <p>📞 (555) 123-4567</p>
+    </div>
+    <div>
+      <h3 className="text-lg font-bold mb-4">Follow Us</h3>
+      <div className="flex space-x-4">
+        <a href="#" className="hover:scale-110 transition transform">
+          <img src="/facebook-icon.png" alt="Facebook" className="h-6" />
+        </a>
+        <a href="#" className="hover:scale-110 transition transform">
+          <img src="/instagram-icon.png" alt="Instagram" className="h-6" />
+        </a>
+        <a href="#" className="hover:scale-110 transition transform">
+          <img src="/twitter-icon.png" alt="Twitter" className="h-6" />
+        </a>
+      </div>
+    </div>
+    <div>
+      <h3 className="text-lg font-bold mb-4">Newsletter</h3>
+      <div className="flex">
+        <input
+          type="email"
+          placeholder="Your email"
+          className="p-2 rounded-l bg-gray-800 text-white w-full focus:outline-none"
+        />
+        <button className="bg-red-600 px-4 py-2 rounded-r text-white hover:bg-red-700 transition">
+          Subscribe
         </button>
-      </footer>
+      </div>
+    </div>
+  </div>
+  <p className="mt-8">© 2025 AquaPlants. All rights reserved.</p>
+  <button
+    onClick={handleBackToTop}
+    className="mt-4 p-3 bg-[#7ccc04] rounded-full text-white hover:bg-[#589101] transition transform hover:scale-105"
+  >
+    <FaChevronUp />
+  </button>
+</footer>
     </>
   );
 };

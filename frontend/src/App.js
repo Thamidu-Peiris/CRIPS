@@ -108,8 +108,9 @@ import Drivers from "./dashboards/TransportManager/DriversUI.js";
 import SalesManagerChangePassword from "./dashboards/SalesReports/SrChangePassword";
 import SalesManagerUpdateProfile from "./dashboards/SalesReports/SrUpdateProfile";
 import SalesManagerProfileSettings from "./dashboards/SalesReports/SrProfileSettings";
-
-
+import Customize from "./pages/SysManager/customize.js";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 function App() {
   return (
@@ -223,6 +224,11 @@ function App() {
         <Route path="/sales-manager-profile-settings" element={<SalesManagerProfileSettings />} />
         <Route path="/sales-manager-update-profile" element={<SalesManagerUpdateProfile />} />
         <Route path="/sales-manager-change-password" element={<SalesManagerChangePassword />} />
+        
+        <Route path="/customize" element={<Customize />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+
 
 
 
