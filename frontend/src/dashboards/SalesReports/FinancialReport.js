@@ -135,9 +135,6 @@ const FinancialReport = () => {
                 maxDate={new Date()} // Prevent future dates
               />
             </div>
-            <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
-              Generate Report
-            </button>
           </div>
         </div>
 

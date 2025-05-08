@@ -319,7 +319,7 @@ const SalarySheet = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-200">
+    <div className="flex h-parent bg-gray-200">
       <SalesManagerSidebar />
       <main className="flex-1 p-6 flex flex-col justify-start">
         <SalesManagerNavbar />
@@ -410,21 +410,23 @@ const SalarySheet = () => {
                         <td className="border border-gray-300 p-3">{entry.deductions || "-"}</td>
                         <td className="border border-gray-300 p-3">{entry.netSalary}</td>
                         <td className="border border-gray-300 p-3">
-                          <button
-                            onClick={() => {
-                              setUpdateEntry(entry);
-                              setIsUpdateModalOpen(true);
-                            }}
-                            className="bg-blue-500 text-white px-2 py-1 rounded mr-2 hover:bg-blue-600"
-                          >
-                            Update
-                          </button>
-                          <button
-                            onClick={() => handleDelete(entry._id)}
-                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                          >
-                            Delete
-                          </button>
+                          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                            <button
+                              onClick={() => {
+                                setUpdateEntry(entry);
+                                setIsUpdateModalOpen(true);
+                              }}
+                              className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600 transition-colors duration-200"
+                            >
+                              Update
+                            </button>
+                            <button
+                              onClick={() => handleDelete(entry._id)}
+                              className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600 transition-colors duration-200"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

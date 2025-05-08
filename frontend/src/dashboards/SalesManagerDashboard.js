@@ -114,9 +114,13 @@ const SalesManagerDashboard = () => {
       <main className="flex-1 p-6">
         <SalesManagerNavbar />
         
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6 mt-6">
+          <h1 className="text-3xl font-bold text-green-600">Sales Manager Dashboard</h1>
+        </div>
 
         {/* Summary Cards */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
           <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
             <p className="font-semibold text-lg">Sales Summary</p>
             <p className="font-semibold text-sm text-gray-500">(Last 7 days)</p>
@@ -124,7 +128,7 @@ const SalesManagerDashboard = () => {
             <Link to="/ProductReport" className="text-blue-500 mt-2 inline-block">See details</Link>
           </div>
           <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
-            <p className="font-semibold text-lg">Revenue </p>
+            <p className="font-semibold text-lg">Revenue</p>
             <p className="font-semibold text-sm text-gray-500">(Last 30 Days)</p>
             <h2 className="text-2xl font-bold text-blue-600">$ {salesSummary.revenue.toLocaleString()}</h2>
             <Link to="/FinancialReport" className="text-blue-500 mt-2 inline-block">See details</Link>
@@ -142,7 +146,7 @@ const SalesManagerDashboard = () => {
             <Link to="/FinancialReport" className="text-blue-500 mt-2 inline-block">See details</Link>
           </div>
           <div className="bg-white shadow-lg rounded-2xl p-6 text-center">
-            <p className="font-semibold text-lg">Revenue Growth </p>
+            <p className="font-semibold text-lg">Revenue Growth</p>
             <p className="font-semibold text-sm text-gray-500">(Last 30 Days)</p>
             <h2 className="text-2xl font-bold text-blue-600">{salesSummary.revenueGrowth.toFixed(2)}%</h2>
             <Link to="/FinancialReport" className="text-blue-500 mt-2 inline-block">See details</Link>
@@ -210,24 +214,28 @@ const SalesManagerDashboard = () => {
           </div>
         </div>
 
-        {/*Top Selling Plants*/}
+        {/* Top Selling Plants */}
         <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold">Top Selling Plants</h2>
+            <h2 className="text-lg font-bold">Top Selling Plants (Last 7 Days)</h2>
             <Link to="/ProductReport" className="text-blue-500">See details</Link>
           </div>
           <div className="flex justify-around">
-            {topSellingPlants.map((plant) => (
-              <div key={plant.id} className="text-center">
-                <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden mx-auto">
-                  <img src={plant.image} alt={plant.name} className="w-full h-full object-cover" />
+            {topSellingPlants.length > 0 ? (
+              topSellingPlants.map((plant) => (
+                <div key={plant.id} className="text-center">
+                  <div className="w-16 h-16 bg-gray-300 rounded-full overflow-hidden mx-auto">
+                    <img src={plant.image} alt={plant.name} className="w-full h-full object-cover" />
+                  </div>
+                  <p className="mt-2 font-semibold">{plant.name}</p>
+                  <p className="text-sm text-gray-600">Units Sold: {plant.sold}</p>
                 </div>
-                <p className="mt-2 font-semibold">{plant.name}</p>
-                <p className="text-sm text-gray-600">Units Sold: {plant.sold}</p>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-center text-gray-600">No top selling plants available for this period.</p>
+            )}
           </div>
-        </div> 
+        </div>
 
         {/* Recent Orders */}
         <div className="mt-6 bg-white p-6 rounded-2xl shadow-md">
