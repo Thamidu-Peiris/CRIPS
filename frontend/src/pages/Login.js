@@ -9,6 +9,8 @@ const Login = () => {
     emailOrUsername: "",
     password: "",
   });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -49,6 +51,10 @@ const Login = () => {
       console.log("  role:", localStorage.getItem("role"));
       console.log("  userInfo:", localStorage.getItem("userInfo"));
 
+      // Set success message and redirect
+      setSuccessMessage("Login successful! Redirecting...");
+      setErrorMessage("");
+
       // Role-based redirection
       if (role === "SystemManager") {
         console.log("[DEBUG] Redirecting to /sm-dashboard");
@@ -84,7 +90,12 @@ const Login = () => {
     } catch (error) {
       console.error("[DEBUG] Error logging in:", error.response?.data || error.message);
       console.error("[DEBUG] Error status:", error.response?.status);
-      alert("Login failed. Please check your credentials.");
+      // Prioritize thrown error message, then server message, then fallback
+      const message = error.message?.includes("Your account is")
+        ? error.message
+        : error.response?.data?.message || error.response?.data?.error || "Login failed. Please check your credentials.";
+      setErrorMessage(message);
+      setSuccessMessage("");
     }
   };
 
@@ -142,6 +153,21 @@ const Login = () => {
           className="max-w-md w-full bg-white/20 backdrop-blur-lg p-8 rounded-3xl shadow-2xl border border-white/30"
         >
           <h2 className="text-4xl font-bold text-center text-green-800 mb-8">Login</h2>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-lg text-center">
+              {successMessage}
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg text-center">
+              {errorMessage}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -176,7 +202,6 @@ const Login = () => {
               whileTap={{ scale: 0.95 }}
               type="submit"
               className="w-full bg-[#87de04] text-white py-4 rounded-full font-medium text-lg hover:bg-[#7ccc04] transition-all shadow-lg"
-
             >
               Login
             </motion.button>
