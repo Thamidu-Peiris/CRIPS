@@ -61,19 +61,6 @@ const Sidebar = () => {
         </li>
         <li>
           <Link
-            to="/reports"
-            className={`flex items-center p-3 rounded-xl transition duration-300 ${
-              location.pathname === "/reports"
-                ? "bg-green-200 text-green-900"
-                : "hover:bg-green-50 text-gray-600 hover:text-green-900"
-            }`}
-          >
-            <FaChartBar className="mr-3 text-lg" />
-            Reports
-          </Link>
-        </li>
-        <li>
-          <Link
             to="/customize"
             className={`flex items-center p-3 rounded-xl transition duration-300 ${
               location.pathname === "/customize"

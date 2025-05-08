@@ -16,9 +16,12 @@ const generateShipmentId = async () => {
   return `${prefix}${String(newIdNumber).padStart(3, '0')}`; // e.g., "SHP001"
 };
 
-// Create a new schedule
+// Create a new schedule with retry logic for unique shipmentId
 exports.createSchedule = async (req, res) => {
   let schedule = null;
+  const maxRetries = 5; // Maximum number of retries to generate a unique shipmentId
+  let attempt = 0;
+
   try {
     const { orderIds, vehicleId, driverId, departureDate, expectedArrivalDate, location } = req.body;
 
@@ -122,27 +125,48 @@ exports.createSchedule = async (req, res) => {
       });
     }
 
-    const shipmentId = await generateShipmentId();
+    // Retry logic to ensure a unique shipmentId
+    while (attempt < maxRetries) {
+      try {
+        const shipmentId = await generateShipmentId();
 
-    schedule = await Schedule.create({
-      shipmentId,
-      orderIds,
-      vehicleId,
-      driverId,
-      departureDate,
-      expectedArrivalDate,
-      location,
-      status: 'Scheduled',
-    });
+        schedule = await Schedule.create({
+          shipmentId,
+          orderIds,
+          vehicleId,
+          driverId,
+          departureDate,
+          expectedArrivalDate,
+          location,
+          status: 'Scheduled',
+        });
+
+        console.log('Schedule created successfully with shipmentId:', schedule.shipmentId);
+        break; // Exit the retry loop on success
+      } catch (error) {
+        // Check if the error is a duplicate key error (E11000)
+        if (error.code === 11000 && error.keyPattern && error.keyPattern.shipmentId) {
+          attempt++;
+          console.log(`Duplicate shipmentId detected, retrying (${attempt}/${maxRetries})...`);
+          if (attempt >= maxRetries) {
+            console.error('Max retries reached for generating unique shipmentId');
+            return res.status(500).json({ error: 'Failed to generate a unique shipmentId after multiple attempts' });
+          }
+          continue; // Retry with a new shipmentId
+        }
+        // If it's not a duplicate key error, throw the error to be caught by the outer try-catch
+        throw error;
+      }
+    }
 
     console.log('Schedule created successfully:', schedule);
 
     for (const orderId of orderIds) {
       try {
-        console.log(`Updating order ${orderId} to Shipped with shipmentId ${shipmentId}`);
+        console.log(`Updating order ${orderId} to Shipped with shipmentId ${schedule.shipmentId}`);
         const updatedOrder = await CustomerOrder.findByIdAndUpdate(
           orderId,
-          { status: 'Shipped', shipmentId },
+          { status: 'Shipped', shipmentId: schedule.shipmentId },
           { new: true }
         );
         if (!updatedOrder) {

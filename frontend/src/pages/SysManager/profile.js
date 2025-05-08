@@ -20,6 +20,9 @@ const Profile = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [formErrors, setFormErrors] = useState({});
+    const [formError, setFormError] = useState("");
+    const [formSuccess, setFormSuccess] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,6 +42,13 @@ const Profile = () => {
             return () => clearTimeout(timer);
         }
     }, [successMessage]);
+
+    useEffect(() => {
+        if (formSuccess) {
+            const timer = setTimeout(() => setFormSuccess(""), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [formSuccess]);
 
     useEffect(() => {
         console.log("Admin state updated:", admin);
@@ -100,17 +110,56 @@ const Profile = () => {
         }
     };
 
+    // Validate form fields
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.firstName.trim()) {
+            errors.firstName = "First Name is required";
+        }
+        if (!formData.lastName.trim()) {
+            errors.lastName = "Last Name is required";
+        }
+        if (!formData.username.trim()) {
+            errors.username = "Username is required";
+        }
+        if (!formData.email.trim()) {
+            errors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            errors.email = "Email is invalid";
+        }
+        if (!formData.contactNo.trim()) {
+            errors.contactNo = "Contact Number is required";
+        }
+        if (!formData.dob) {
+            errors.dob = "Date of Birth is required";
+        }
+        if (!formData.address.trim()) {
+            errors.address = "Address is required";
+        }
+        return errors;
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        // Clear error for the field being edited
+        setFormErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setFormErrors(validationErrors);
+            return;
+        }
+
         try {
             setLoading(true);
             setError("");
             setSuccessMessage("");
+            setFormError("");
+            setFormSuccess("");
             const token = localStorage.getItem("token");
             const updatedData = {
                 firstName: formData.firstName,
@@ -127,17 +176,20 @@ const Profile = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             console.log("Backend response:", response.data);
+            setFormSuccess("Profile updated successfully!");
             setSuccessMessage("Profile updated successfully!");
             setEditing(false);
             fetchProfile();
         } catch (error) {
             console.error("Error updating profile:", error.response?.data || error.message);
             if (error.response?.status === 401 || error.response?.status === 403) {
+                setFormError("Session expired or unauthorized. Please log in again.");
                 setError("Session expired or unauthorized. Please log in again.");
                 localStorage.removeItem("user");
                 localStorage.removeItem("token");
                 navigate("/login");
             } else {
+                setFormError(error.response?.data?.message || "Failed to update profile. Please try again.");
                 setError(error.response?.data?.message || "Failed to update profile. Please try again.");
             }
         } finally {
@@ -148,6 +200,9 @@ const Profile = () => {
     const handleCancel = () => {
         setFormData({ ...admin });
         setEditing(false);
+        setFormErrors({});
+        setFormError("");
+        setFormSuccess("");
     };
 
     return (
@@ -253,6 +308,16 @@ const Profile = () => {
                                     </div>
                                 ) : (
                                     <form onSubmit={handleSubmit} className="space-y-6">
+                                        {formError && (
+                                            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-xl">
+                                                <p>{formError}</p>
+                                            </div>
+                                        )}
+                                        {formSuccess && (
+                                            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-xl">
+                                                <p>{formSuccess}</p>
+                                            </div>
+                                        )}
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
                                                 <FaUser className="mr-2 text-green-500" /> First Name
@@ -262,10 +327,12 @@ const Profile = () => {
                                                 name="firstName"
                                                 value={formData.firstName}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.firstName ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.firstName && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.firstName}</p>
+                                            )}
                                         </div>
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
@@ -276,10 +343,12 @@ const Profile = () => {
                                                 name="lastName"
                                                 value={formData.lastName}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.lastName ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.lastName && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.lastName}</p>
+                                            )}
                                         </div>
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
@@ -290,10 +359,12 @@ const Profile = () => {
                                                 name="username"
                                                 value={formData.username}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.username ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.username && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.username}</p>
+                                            )}
                                         </div>
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
@@ -304,10 +375,12 @@ const Profile = () => {
                                                 name="email"
                                                 value={formData.email}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.email ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.email && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                                            )}
                                         </div>
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
@@ -318,10 +391,12 @@ const Profile = () => {
                                                 name="contactNo"
                                                 value={formData.contactNo}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.contactNo ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.contactNo && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.contactNo}</p>
+                                            )}
                                         </div>
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
@@ -332,10 +407,12 @@ const Profile = () => {
                                                 name="dob"
                                                 value={formData.dob}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.dob ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.dob && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.dob}</p>
+                                            )}
                                         </div>
                                         <div className="relative">
                                             <label className="block text-gray-600 font-semibold mb-1 flex items-center">
@@ -346,10 +423,12 @@ const Profile = () => {
                                                 name="address"
                                                 value={formData.address}
                                                 onChange={handleChange}
-                                                className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300"
-                                                required
+                                                className={`w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300 ${formErrors.address ? 'border-red-500' : ''}`}
                                                 disabled={loading}
                                             />
+                                            {formErrors.address && (
+                                                <p className="text-red-500 text-sm mt-1">{formErrors.address}</p>
+                                            )}
                                         </div>
                                         <div className="flex space-x-4">
                                             <button

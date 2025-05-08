@@ -10,7 +10,7 @@
     "ajv-keywords": "^5.1.0",
     "axios": "^1.8.4",
     "canvas-confetti": "^1.9.3",
-    "chart.js": "^4.4.8",
+    "chart.js": "^4.4.9",
     "chartjs-plugin-annotation": "^3.1.0",
     "framer-motion": "^12.10.0",
     "jspdf": "^3.0.1",

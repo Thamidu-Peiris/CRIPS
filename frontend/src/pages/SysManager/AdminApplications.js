@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../../dashboards/SM/sideBar";
 import { FaSearch, FaArrowLeft, FaDownload, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaTrash } from "react-icons/fa";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -14,6 +16,10 @@ const AdminApplications = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [managerName, setManagerName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmAppId, setConfirmAppId] = useState(null);
+  const [confirmStatus, setConfirmStatus] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,16 +108,35 @@ const AdminApplications = () => {
     setFilteredApplications(filtered);
   }, [searchQuery, applications]);
 
+  // Open Confirmation Modal for Approve/Reject/Delete
+  const openConfirmModal = (appId, status, actionType = "status") => {
+    setConfirmAppId(appId);
+    setConfirmStatus(status);
+    if (actionType === "delete") {
+      setConfirmAction(() => () => handleDelete(appId));
+    } else {
+      const app = applications.find(a => a._id === appId);
+      setConfirmAction(() => () => handleAction(app, status));
+    }
+    setShowConfirmModal(true);
+  };
+
+  // Close Confirmation Modal
+  const closeConfirmModal = () => {
+    setShowConfirmModal(false);
+    setConfirmAppId(null);
+    setConfirmStatus("");
+    setConfirmAction(null);
+  };
+
   const handleAction = async (app, status) => {
-    console.log(app.email);
     const id = app._id;
-    const confirmMessage = status === "approved"
-        ? "Are you sure you want to approve this application?"
-        : "Are you sure you want to reject this application?";
-    if (!window.confirm(confirmMessage)) {
+    if (status === "rejected" && !rejectionReason) {
+      setError("Please provide a reason for rejection.");
+      closeConfirmModal();
       return;
     }
-  
+
     try {
       setLoading(true);
       setSuccessMessage("");
@@ -119,21 +144,17 @@ const AdminApplications = () => {
       const token = localStorage.getItem("token");
       const payload = { status: status.toLowerCase() };
       if (status === "rejected") {
-        if (!rejectionReason) {
-          alert("Please provide a reason for rejection.");
-          return;
-        }
         payload.reason = rejectionReason;
       }
-  
+
       console.log("Sending status update request:", { id, payload });
       const response = await axios.put(`http://localhost:5000/api/jobs/applications/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (response.data.success) {
         setSuccessMessage(`Application ${status} successfully!`);
-  
+
         await axios.post("http://localhost:5000/api/email/send-status-notification", {
           to: app.email,
           name: app.firstName,
@@ -141,11 +162,11 @@ const AdminApplications = () => {
           status: status.toLowerCase(),
           rejectionReason: status === "rejected" ? rejectionReason : null,
           username: app.username,
-          password: app.plaintextPassword || "Password not available", // Use plaintextPassword
+          password: app.plaintextPassword || "Password not available",
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
-  
+
         const updatedApplications = applications.map(item =>
           item._id === id ? { ...item, status: payload.status, rejectionReason: status === "rejected" ? rejectionReason : null } : item
         );
@@ -166,14 +187,11 @@ const AdminApplications = () => {
       }
     } finally {
       setLoading(false);
+      closeConfirmModal();
     }
   };
 
   const handleDelete = async (appId) => {
-    if (!window.confirm("Are you sure you want to delete this application? This action cannot be undone.")) {
-      return;
-    }
-
     try {
       setLoading(true);
       setSuccessMessage("");
@@ -203,7 +221,85 @@ const AdminApplications = () => {
       }
     } finally {
       setLoading(false);
+      closeConfirmModal();
     }
+  };
+
+  // Export applications list as PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Job Applications - CRIPS System', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+    const tableColumn = [
+      "Name",
+      "Job Title",
+      "Email",
+      "Phone Number",
+      "Address",
+      "Start Date",
+      "Status",
+      "Rejection Reason"
+    ];
+    const tableRows = [];
+
+    filteredApplications.forEach(app => {
+      const appData = [
+        `${app.firstName} ${app.lastName}`,
+        app.jobTitle,
+        app.email,
+        app.phoneNumber,
+        app.address,
+        app.startDate && !isNaN(new Date(app.startDate)) ? new Date(app.startDate).toLocaleDateString() : "Not provided",
+        app.status,
+        app.status.toLowerCase() === "rejected" && app.rejectionReason ? app.rejectionReason : ""
+      ];
+      tableRows.push(appData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 40,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [34, 197, 94] }, // Green color for header (matches Tailwind's green-500)
+      margin: { top: 40 },
+    });
+
+    doc.save('job-applications.pdf');
+  };
+
+  const ConfirmationModal = ({ onConfirm, onCancel, action, status }) => {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-green-900 mb-4">Confirm Action</h2>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to {action === "delete" ? "delete" : status.toLowerCase()} this application? {action === "delete" ? "This action cannot be undone." : ""}
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={onConfirm}
+              className={`w-full py-3 rounded-xl transition duration-300 ${
+                action === "delete" ? 'bg-red-500 hover:bg-red-600 text-white' :
+                status === "approved" ? 'bg-green-500 hover:bg-green-600 text-white' :
+                'bg-red-500 hover:bg-red-600 text-white'
+              }`}
+            >
+              {action === "delete" ? "Delete" : status === "approved" ? "Approve" : "Reject"}
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -217,12 +313,20 @@ const AdminApplications = () => {
               <h1 className="text-4xl font-extrabold tracking-tight text-green-900">System Manager Dashboard - Job Applications</h1>
               <p className="text-xl mt-2 font-light text-gray-100">Welcome, {managerName}!</p>
             </div>
-            <button
-              onClick={() => navigate("/sm-dashboard")}
-              className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition duration-300"
-            >
-              <FaArrowLeft className="mr-2" /> Back to Dashboard
-            </button>
+            <div className="flex space-x-4">
+              <button
+                onClick={exportToPDF}
+                className="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition duration-300"
+              >
+                <FaDownload className="mr-2" /> Export to PDF
+              </button>
+              <button
+                onClick={() => navigate("/sm-dashboard")}
+                className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition duration-300"
+              >
+                <FaArrowLeft className="mr-2" /> Back to Dashboard
+              </button>
+            </div>
           </div>
         </div>
 
@@ -313,7 +417,7 @@ const AdminApplications = () => {
                   {app.status.toLowerCase() === "pending" && (
                     <>
                       <button
-                        onClick={() => handleAction(app, "approved")}
+                        onClick={() => openConfirmModal(app._id, "approved")}
                         className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors duration-300 font-medium flex items-center"
                         disabled={loading}
                       >
@@ -329,7 +433,7 @@ const AdminApplications = () => {
                     </>
                   )}
                   <button
-                    onClick={() => handleDelete(app._id)}
+                    onClick={() => openConfirmModal(app._id, null, "delete")}
                     className="bg-gray-500 text-white px-6 py-2 rounded-xl hover:bg-gray-600 transition-colors duration-300 font-medium flex items-center"
                     disabled={loading}
                   >
@@ -350,14 +454,17 @@ const AdminApplications = () => {
                     />
                     <div className="mt-2 flex space-x-4">
                       <button
-                        onClick={() => handleAction(app, "rejected")}
+                        onClick={() => openConfirmModal(app._id, "rejected")}
                         className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-300 font-medium"
                         disabled={loading}
                       >
                         {loading ? "Processing..." : "Submit Rejection"}
                       </button>
                       <button
-                        onClick={() => setSelectedApplicationId(null)}
+                        onClick={() => {
+                          setSelectedApplicationId(null);
+                          setRejectionReason("");
+                        }}
                         className="bg-gray-400 text-white px-6 py-2 rounded-xl hover:bg-gray-500 transition-colors duration-300 font-medium"
                         disabled={loading}
                       >
@@ -369,6 +476,16 @@ const AdminApplications = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Confirmation Modal */}
+        {showConfirmModal && (
+          <ConfirmationModal
+            onConfirm={confirmAction}
+            onCancel={closeConfirmModal}
+            action={confirmStatus ? (confirmStatus === "approved" ? "approve" : "reject") : "delete"}
+            status={confirmStatus}
+          />
         )}
       </div>
     </div>
