@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CustomerHeader from "../components/CustomerHeader";
 import { motion } from "framer-motion";
+import Confetti from "react-confetti";
 
 const Checkout = () => {
   const [shippingInfo, setShippingInfo] = useState({
@@ -265,24 +266,66 @@ const Checkout = () => {
             </motion.button>
           </motion.form>
         ) : orderSuccess ? (
-          <motion.div
-            className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl p-8 text-center"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            <div className="bg-green-100 text-green-800 font-bold p-6 rounded-xl mb-6">
-              Payment completed successfully!
-            </div>
-            <motion.button
-              onClick={() => navigate("/dashboard/orders")}
-              className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-4 rounded-full font-semibold hover:from-green-600 hover:to-green-800 transition-all duration-300 shadow-lg"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <div className="relative min-h-[60vh] flex items-center justify-center">
+            <Confetti
+              width={window.innerWidth}
+              height={window.innerHeight}
+              recycle={false}
+              numberOfPieces={200}
+              tweenDuration={1000}
+            />
+            <motion.div
+              className="bg-white rounded-3xl shadow-2xl p-10 text-center max-w-md w-full backdrop-blur-sm"
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              View Orders
-            </motion.button>
-          </motion.div>
+              <motion.div
+                className="mb-6"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              >
+                <svg
+                  className="w-16 h-16 mx-auto text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </motion.div>
+              <h3 className="text-3xl font-bold text-green-900 mb-4">
+                Order Confirmed!
+              </h3>
+              <p className="text-gray-600 mb-8">
+                Thank you for your purchase. Your order has been successfully
+                processed.
+              </p>
+              <motion.button
+                onClick={() => navigate("/dashboard/orders")}
+                className="w-full bg-gradient-to-r from-green-500 to-green-700 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-green-800 transition-all duration-300 shadow-md"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                View Orders
+              </motion.button>
+              <motion.button
+                onClick={() => navigate("/shop")}
+                className="w-full mt-4 bg-gray-100 text-gray-700 px-6 py-3 rounded-full font-semibold hover:bg-gray-200 transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Continue Shopping
+              </motion.button>
+            </motion.div>
+          </div>
         ) : (
           <motion.form
             onSubmit={handlePaymentSubmit}
