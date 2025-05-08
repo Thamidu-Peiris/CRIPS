@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaUser, FaUsers, FaChartBar, FaCog, FaBriefcase, FaEnvelope, FaStar, FaSignOutAlt, FaBox } from "react-icons/fa";
+import { FaHome, FaUser, FaUsers, FaChartBar, FaCog, FaBriefcase, FaEnvelope, FaStar, FaSignOutAlt, FaBox, FaPlusCircle } from "react-icons/fa";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -96,6 +96,19 @@ const Sidebar = () => {
           >
             <FaBriefcase className="mr-3 text-lg" />
             Job Applications
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/add-vacancies"
+            className={`flex items-center p-3 rounded-xl transition duration-300 ${
+              location.pathname === "/add-vacancies"
+                ? "bg-green-200 text-green-900"
+                : "hover:bg-green-50 text-gray-600 hover:text-green-900"
+            }`}
+          >
+            <FaPlusCircle className="mr-3 text-lg" />
+            Add Vacancies
           </Link>
         </li>
         <li>

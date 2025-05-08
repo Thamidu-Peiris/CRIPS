@@ -22,5 +22,4 @@ router.put('/status/:id', supplierController.updateSupplierStatus);
 
 router.get('/', supplierController.getAllSuppliers);
 
-
 module.exports = router;

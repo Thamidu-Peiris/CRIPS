@@ -1,4 +1,3 @@
-/* eslint-disable react/react-in-jsx-scope */
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import InventoryNavbar from './InventoryNavbar';
