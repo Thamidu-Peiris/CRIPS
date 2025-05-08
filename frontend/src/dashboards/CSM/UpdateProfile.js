@@ -76,7 +76,8 @@ const UpdateProfile = () => {
           },
         }
       );
-
+      
+      
       setSuccess("Profile updated successfully!");
       setError("");
 
@@ -100,90 +101,84 @@ const UpdateProfile = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100 font-sans">
+    <div className="flex h-screen bg-gray-100">
       <CSMSidebar />
-      <main className="flex-1 p-6">
+      <div className="flex-1 p-6">
         <CSMNavbar />
-        <div className="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl mt-8 transition-all duration-300">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8 tracking-tight"></h2>
-          {error && (
-            <p className="text-red-600 bg-red-100 p-4 rounded-lg text-center mb-6 animate-fade-in">{error}</p>
-          )}
-          {success && (
-            <p className="text-green-600 bg-green-100 p-4 rounded-lg text-center mb-6 animate-fade-in">{success}</p>
-          )}
+        <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg mt-6">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Update Profile</h2>
+          {error && <p className="text-red-500 text-center">{error}</p>}
+          {success && <p className="text-green-500 text-center">{success}</p>}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Profile Image</label>
+              <label className="block text-sm font-medium text-gray-700">Profile Image</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="block w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
+                className="block w-full p-3 border rounded-lg bg-gray-100"
               />
               {previewImage && (
-                <div className="mt-4 flex justify-center">
-                  <img
-                    src={previewImage}
-                    alt="Preview"
-                    className="w-32 h-32 rounded-full object-cover border-4 border-green-200 shadow-md"
-                  />
-                </div>
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="mt-2 w-32 h-32 rounded-full object-cover mx-auto"
+                />
               )}
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+              <label className="block text-sm font-medium text-gray-700">First Name</label>
               <input
                 type="text"
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
+                className="w-full p-3 border rounded-lg bg-gray-100"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+              <label className="block text-sm font-medium text-gray-700">Last Name</label>
               <input
                 type="text"
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
+                className="w-full p-3 border rounded-lg bg-gray-100"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+              <label className="block text-sm font-medium text-gray-700">Address</label>
               <input
                 type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
+                className="w-full p-3 border rounded-lg bg-gray-100"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
+              <label className="block text-sm font-medium text-gray-700">Phone Number</label>
               <input
                 type="text"
                 name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200"
+                className="w-full p-3 border rounded-lg bg-gray-100"
                 required
               />
             </div>
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition"
             >
               Update Profile
             </button>
           </form>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

@@ -1,30 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import CustomerHeader from "../components/CustomerHeader";
-import { FaUserTie, FaTruck, FaBox, FaLeaf, FaCut, FaDollarSign, FaBriefcase } from "react-icons/fa";
+import { FaUserTie, FaTruck, FaBox, FaLeaf, FaCut, FaDollarSign } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-// Function to generate a random username
-const generateUsername = (firstName, lastName) => {
-  const symbols = ["#", "@", "$", "%", "&"];
-  const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-  const randomNumbers = Math.floor(100 + Math.random() * 900); // 3-digit number
-  return `${firstName}${lastName}${randomSymbol}${randomNumbers}`.replace(/\s/g, "");
-};
-
-// Function to generate a strong 12-character password
-const generatePassword = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
-  let password = "";
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
-};
-
 const Careers = () => {
-  const [vacancies, setVacancies] = useState([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isSupplierPopupOpen, setIsSupplierPopupOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState("");
@@ -32,6 +13,7 @@ const Careers = () => {
     jobTitle: "",
     firstName: "",
     lastName: "",
+    username: "",
     addressLine1: "",
     addressLine2: "",
     city: "",
@@ -40,11 +22,12 @@ const Careers = () => {
     country: "",
     phoneNumber: "",
     email: "",
+    password: "",
+    confirmPassword: "",
     startDate: "",
     coverLetter: null,
     resume: null,
     termsAccepted: false,
-    role: "",
   });
   const [supplierFormData, setSupplierFormData] = useState({
     NIC: "",
@@ -70,45 +53,48 @@ const Careers = () => {
 
   const navigate = useNavigate();
 
-  // Job role icons mapping
-  const jobIcons = {
-    "Customer Service Manager": <FaUserTie className="text-green-600 text-3xl mb-2" />,
-    "Grower Handler": <FaLeaf className="text-green-600 text-3xl mb-2" />,
-    "Cutters": <FaCut className="text-green-600 text-3xl mb-2" />,
-    "Inventory Manager": <FaBox className="text-green-600 text-3xl mb-2" />,
-    "Sales Manager": <FaDollarSign className="text-green-600 text-3xl mb-2" />,
-    "Transport Manager": <FaTruck className="text-green-600 text-3xl mb-2" />,
-  };
-
-  // Role to background image mapping
-  const roleImageMap = {
-    "Customer Service Manager": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-    "Grower Handler": "https://i.pinimg.com/736x/c4/bc/32/c4bc324d97e3ff9a451fe8daab0aa4e8.jpg",
-    "Cutters": "https://i.pinimg.com/736x/e3/9f/33/e39f33421c80a4535bd068be081d3417.jpg",
-    "Inventory Manager": "https://i.pinimg.com/736x/e7/e5/ee/e7e5eeab4a5dade8ed036bef6a631398.jpg",
-    "Sales Manager": "https://i.pinimg.com/736x/a9/6a/49/a96a49314288260dd3e7017876ae3c63.jpg",
-    "Transport Manager": "https://i.pinimg.com/736x/68/7a/3a/687a3a7a2ac8031e5cd476a73a598d70.jpg",
-  };
-
-  useEffect(() => {
-    const fetchVacancies = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/vacancies');
-        const updatedVacancies = response.data.map(vacancy => ({
-          ...vacancy,
-          backgroundImage: vacancy.backgroundImage || roleImageMap[vacancy.title] || '',
-        }));
-        setVacancies(updatedVacancies);
-      } catch (error) {
-        console.error('Failed to fetch vacancies:', error);
-      }
-    };
-    fetchVacancies();
-  }, []);
+  const mockJobs = [
+    {
+      title: "Customer Service Manager",
+      description: "Handle customer inquiries and ensure satisfaction in our aqua plant export business.",
+      icon: <FaUserTie className="text-green-600 text-3xl mb-2" />,
+      backgroundImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+    },
+    {
+      title: "Grower Handler",
+      description: "Oversee the growth and care of aqua plants for export.",
+      icon: <FaLeaf className="text-green-600 text-3xl mb-2" />,
+      backgroundImage: "https://i.pinimg.com/736x/c4/bc/32/c4bc324d97e3ff9a451fe8daab0aa4e8.jpg",
+    },
+    {
+      title: "Cutters",
+      description: "Assist in the preparation and packaging of aqua plants.",
+      icon: <FaCut className="text-green-600 text-3xl mb-2" />,
+      backgroundImage: "https://i.pinimg.com/736x/e3/9f/33/e39f33421c80a4535bd068be081d3417.jpg",
+    },
+    {
+      title: "Inventory Manager",
+      description: "Manage stock levels and ensure timely delivery of aqua plants.",
+      icon: <FaBox className="text-green-600 text-3xl mb-2" />,
+      backgroundImage: "https://i.pinimg.com/736x/e7/e5/ee/e7e5eeab4a5dade8ed036bef6a631398.jpg",
+    },
+    {
+      title: "Sales Manager",
+      description: "Drive sales and build relationships with clients in the aqua plant industry.",
+      icon: <FaDollarSign className="text-green-600 text-3xl mb-2" />,
+      backgroundImage: "https://i.pinimg.com/736x/a9/6a/49/a96a49314288260dd3e7017876ae3c63.jpg",
+    },
+    {
+      title: "TransportManager",
+      description: "Oversee transportation operations, track shipments, optimize fuel consumption, ensure quality during transit, and manage logistics in the aqua plant industry.",
+      icon: <FaTruck className="text-green-600 text-3xl mb-2" />,
+      backgroundImage: "https://i.pinimg.com/736x/68/7a/3a/687a3a7a2ac8031e5cd476a73a598d70.jpg",
+    },
+  ];
 
   const handleApplyClick = (jobTitle) => {
     setSelectedJob(jobTitle);
-    setFormData({ ...formData, jobTitle, role: jobTitle });
+    setFormData({ ...formData, jobTitle });
     setIsPopupOpen(true);
     setError("");
     setIsSubmitting(false);
@@ -163,6 +149,7 @@ const Careers = () => {
       jobTitle: selectedJob,
       firstName: "",
       lastName: "",
+      username: "",
       addressLine1: "",
       addressLine2: "",
       city: "",
@@ -171,11 +158,12 @@ const Careers = () => {
       country: "",
       phoneNumber: "",
       email: "",
+      password: "",
+      confirmPassword: "",
       startDate: "",
       coverLetter: null,
       resume: null,
       termsAccepted: false,
-      role: selectedJob,
     });
     setError("");
     setIsSubmitting(false);
@@ -217,15 +205,17 @@ const Careers = () => {
       return;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setIsSubmitting(false);
+      return;
+    }
+
     if (!formData.termsAccepted) {
       setError("Please accept the Terms and Privacy Policy");
       setIsSubmitting(false);
       return;
     }
-
-    // Generate username and password
-    const username = generateUsername(formData.firstName, formData.lastName);
-    const password = generatePassword();
 
     const formDataToSend = new FormData();
     for (const key in formData) {
@@ -233,8 +223,6 @@ const Careers = () => {
         formDataToSend.append(key, formData[key]);
       }
     }
-    formDataToSend.append("username", username);
-    formDataToSend.append("password", password);
 
     console.log("Submitting FormData:");
     const formDataEntries = {};
@@ -267,64 +255,31 @@ const Careers = () => {
     if (isSupplierSubmitting) return;
     setSupplierError("");
     setIsSupplierSubmitting(true);
-  
-    // Validate terms acceptance
+
     if (!supplierFormData.termsAccepted) {
       setSupplierError("Please accept the Terms and Privacy Policy");
       setIsSupplierSubmitting(false);
       return;
     }
-  
-    // Validate password length
+
     if (supplierFormData.password.length < 8) {
       setSupplierError("Password must be at least 8 characters long");
       setIsSupplierSubmitting(false);
       return;
     }
-  
-    // Validate required fields
-    const requiredFields = [
-      'NIC', 'name', 'contactNumber', 'email', 'username', 'password',
-      'addressLine1', 'city', 'state', 'postalCode', 'country'
-    ];
-    for (const field of requiredFields) {
-      if (!supplierFormData[field]) {
-        setSupplierError(`Please fill in the ${field} field`);
-        setIsSupplierSubmitting(false);
-        return;
-      }
-    }
-  
-    // Validate supplies (ensure at least one item and all fields are filled)
-    if (supplierFormData.supplies.length === 0) {
-      setSupplierError("At least one supply item is required");
-      setIsSupplierSubmitting(false);
-      return;
-    }
-  
-    for (const [index, supply] of supplierFormData.supplies.entries()) {
+
+    for (const supply of supplierFormData.supplies) {
       if (!supply.itemType || !supply.quantity || !supply.unit || !supply.photo) {
-        setSupplierError(`Supply item ${index + 1} is missing required fields: ${!supply.itemType ? 'item type' : ''} ${!supply.quantity ? 'quantity' : ''} ${!supply.unit ? 'unit' : ''} ${!supply.photo ? 'photo' : ''}`);
-        setIsSupplierSubmitting(false);
-        return;
-      }
-      if (isNaN(supply.quantity) || supply.quantity <= 0) {
-        setSupplierError(`Quantity for supply item ${index + 1} must be a positive number`);
-        setIsSupplierSubmitting(false);
-        return;
-      }
-      // Ensure photo is a valid File object
-      if (!(supply.photo instanceof File)) {
-        setSupplierError(`Supply item ${index + 1} has an invalid photo`);
+        setSupplierError("All supply items must have an item type, quantity, unit, and photo");
         setIsSupplierSubmitting(false);
         return;
       }
     }
-  
+
     const supplierFormDataToSend = new FormData();
     supplierFormDataToSend.append("NIC", supplierFormData.NIC);
     supplierFormDataToSend.append("name", supplierFormData.name);
-    supplierFormDataToSend.append("companyName", supplierFormData.companyName || "");
+    supplierFormDataToSend.append("companyName", supplierFormData.companyName);
     supplierFormDataToSend.append("contactNumber", supplierFormData.contactNumber);
     supplierFormDataToSend.append("email", supplierFormData.email);
     supplierFormDataToSend.append("username", supplierFormData.username);
@@ -338,22 +293,20 @@ const Careers = () => {
       supplierFormDataToSend.append(`supplies[${index}][unit]`, supply.unit);
       supplierFormDataToSend.append(`supplies[${index}][photo]`, supply.photo);
     });
-    supplierFormDataToSend.append("termsAccepted", supplierFormData.termsAccepted.toString());
-  
+    supplierFormDataToSend.append("termsAccepted", supplierFormData.termsAccepted);
+
     console.log("Submitting Supplier FormData:");
     const formDataEntries = {};
     for (let pair of supplierFormDataToSend.entries()) {
       formDataEntries[pair[0]] = pair[1];
     }
     console.table(formDataEntries);
-  
+
     try {
       const response = await axios.post("http://localhost:5000/api/suppliers/register", supplierFormDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       if (response.data.success) {
-        // Store the supplierId (NIC) in localStorage for future use
-        localStorage.setItem('supplierId', response.data.supplierId);
         alert("Supplier registration submitted successfully! Awaiting admin approval.");
         setIsSupplierPopupOpen(false);
         handleSupplierClear();
@@ -362,12 +315,9 @@ const Careers = () => {
     } catch (error) {
       console.error("Error submitting supplier registration:", error);
       console.log("Error response:", error.response);
-      const errorMessage = error.response?.data?.message;
-      if (errorMessage === "NIC already exists") {
-        setSupplierError("The NIC you entered already exists. Please use a different NIC.");
-      } else {
-        setSupplierError(errorMessage || "Failed to submit supplier registration. Please check your input and try again.");
-      }
+      const errorMessage = error.response?.data?.message || "Failed to submit supplier registration. Please check your input and try again.";
+      setSupplierError(errorMessage);
+    } finally {
       setIsSupplierSubmitting(false);
     }
   };
@@ -436,39 +386,33 @@ const Careers = () => {
         </p>
 
         {/* Job Opportunities Grid */}
-        {vacancies.length === 0 ? (
-          <div className="text-center text-gray-600">
-            No job vacancies available at the moment. Please check back later!
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {vacancies.map((job, index) => (
-              <div
-                key={index}
-                className="relative bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 overflow-hidden"
-                style={{
-                  backgroundImage: job.backgroundImage ? `url(${job.backgroundImage})` : 'none',
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }}
-              >
-                {/* Overlay for better text visibility */}
-                <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-                <div className="relative z-10 text-center">
-                  {jobIcons[job.title] || <FaBriefcase className="text-green-600 text-3xl mb-2" />}
-                  <h3 className="text-xl font-semibold text-white mb-2">{job.title}</h3>
-                  <p className="text-gray-200 mb-4">{job.description}</p>
-                  <button
-                    onClick={() => handleApplyClick(job.title)}
-                    className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300"
-                  >
-                    Apply Now
-                  </button>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {mockJobs.map((job, index) => (
+            <div
+              key={index}
+              className="relative bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300 overflow-hidden"
+              style={{
+                backgroundImage: `url(${job.backgroundImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            >
+              {/* Overlay for better text visibility */}
+              <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+              <div className="relative z-10 text-center">
+                {job.icon}
+                <h3 className="text-xl font-semibold text-white mb-2">{job.title}</h3>
+                <p className="text-gray-200 mb-4">{job.description}</p>
+                <button
+                  onClick={() => handleApplyClick(job.title)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-300"
+                >
+                  Apply Now
+                </button>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
 
         {/* Supplier Section */}
         <div className="text-center mt-12 bg-white rounded-lg shadow-lg p-6">
@@ -522,6 +466,17 @@ const Careers = () => {
                       value={formData.lastName}
                       onChange={handleChange}
                       placeholder="Last Name"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Username *</label>
+                    <input
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      placeholder="Username"
                       className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />
@@ -668,6 +623,36 @@ const Careers = () => {
                       name="resume"
                       type="file"
                       onChange={handleChange}
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-3">Account Setup</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Password *</label>
+                    <input
+                      name="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="Password"
+                      className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Confirm Password *</label>
+                    <input
+                      name="confirmPassword"
+                      type="password"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      placeholder="Confirm Password"
                       className="w-full p-3 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                       required
                     />

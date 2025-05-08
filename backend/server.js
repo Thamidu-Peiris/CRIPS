@@ -43,14 +43,6 @@ const emailRoutes = require('./routes/SM/emailRoutes');
 const tmProfileRoutes = require('./routes/TransportManager/tmProfileRoutes');
 const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
-const vacancieRoutes = require('./routes/SM/vacancieRoutes');
-const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
-const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRoutes');
-
-const driverRoutes = require('./routes/TransportManager/driverRoutes');
-
-const salesManagerRoutes = require("./routes/SalesM/salesManagerRoutes");
-const growerHandlerRoutes = require("./routes/GrowerHandler/growerHandlerRoutes");
 
 
 // Load environment variables
@@ -85,9 +77,6 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/orders', orderRoutes);
-app.use('/api/inventory-manager', inventoryManagerRoutes);
-app.use("/api/salesM", salesManagerRoutes);
-app.use("/api/grower-handler" , growerHandlerRoutes);
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
@@ -134,9 +123,7 @@ app.use('/api/transport-manager', tmProfileRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
-app.use('/api/vacancies', vacancieRoutes);
-app.use('/api/vehicles', vehicleRoutes);
-app.use('/api/drivers', driverRoutes);
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
@@ -148,4 +135,4 @@ app.use((err, req, res, next) => {
     message: "Something went wrong on the server",
     error: err.message,
   });
-});
+});//

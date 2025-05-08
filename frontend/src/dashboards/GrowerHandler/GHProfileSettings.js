@@ -2,12 +2,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt } from "react-icons/fa";
-import GHSidebar from "../../components/GHSidebar";
 import GHNavbar from "../../components/GHNavbar";
+import GHSidebar from "../../components/GHSidebar";
 
-const SrProfileSettings = () => {
+const GHProfileSettings = () => {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,7 +15,7 @@ const SrProfileSettings = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      console.log("[DEBUG] Starting Grower Handler profile fetch...");
+      console.log("[DEBUG] Starting GH profile fetch...");
       console.log("[DEBUG] LocalStorage values:");
       console.log("  userId:", userId);
       console.log("  token:", token);
@@ -30,21 +28,21 @@ const SrProfileSettings = () => {
         return;
       }
 
-      if (!role || role.toLowerCase() !== "grower handler") {
-        setError("Access denied. This page is for Groer Handler only.");
+      if (role !== "grower handler") {
+        setError("Access denied. This page is for Grower Handlers only.");
         console.log("[DEBUG] Role mismatch, redirecting to shop");
-        navigate("/grower-handler/profile-settings");
+        navigate("/shop");
         return;
       }
 
       try {
-        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/grower-handler/profile/${userId}`);
+        console.log("[DEBUG] Sending GET request to:", `http://localhost:5000/api/jobs/profile/${userId}`);
         console.log("[DEBUG] Request headers:", {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         });
 
-        const response = await axios.get(`http://localhost:5000/api/grower-handler/profile/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/api/jobs/profile/${userId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -73,102 +71,78 @@ const SrProfileSettings = () => {
   }, [userId, token, role, navigate]);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-50 to-gray-200 font-sans">
+    <div className="flex min-h-screen bg-gray-100 font-sans">
       <GHSidebar />
-      <main className="flex-1 p-4 lg:p-8">
+      <div className="flex-1 flex flex-col">
         <GHNavbar />
-        <div className="mt-16 max-w-3xl mx-auto">
-          <h2 className="text-4xl font-extrabold text-gray-800 mb-8 tracking-tight">Profile Settings</h2>
+        <div className="p-6 lg:p-8">
+          <h2 className="text-3xl font-bold text-green-600 mb-6 tracking-tight">Grower Handler Profile Settings</h2>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg shadow-md transition-all duration-300">
+            <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-600 text-red-700 rounded-md">
               {error}
             </div>
           )}
 
           {/* Profile Card */}
           {profile ? (
-            <div className="bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl">
-              <div className="flex flex-col sm:flex-row items-center mb-8">
+            <div className="bg-white p-6 rounded-xl shadow-lg max-w-2xl mx-auto">
+              <div className="flex flex-col sm:flex-row items-center mb-6">
                 <img
                   src={profile.profileImage ? `http://localhost:5000${profile.profileImage}` : "/default-profile.png"}
                   alt="Profile"
-                  className="w-28 h-28 sm:w-36 sm:h-36 rounded-full object-cover border-4 border-green-100 shadow-md mb-4 sm:mb-0 sm:mr-6 transition-transform duration-300 hover:scale-105"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-green-200 mb-4 sm:mb-0 sm:mr-6"
                   onError={(e) => (e.target.src = "/default-profile.png")}
                 />
                 <div className="text-center sm:text-left">
-                  <h3 className="text-3xl font-bold text-gray-900">{profile.firstName} {profile.lastName}</h3>
-                  <p className="text-gray-500 text-lg mt-1">{profile.role || "Sales Manager"}</p>
+                  <h3 className="text-2xl font-semibold text-gray-800">{profile.firstName} {profile.lastName}</h3>
+                  <p className="text-gray-500 text-lg">{profile.role || "Grower Handler"}</p>
                 </div>
               </div>
 
               {/* Profile Details */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700">
-                <div className="space-y-4">
-                  <div className="flex items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-                    <FaUser className="text-green-500 mr-3 text-xl" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Username</p>
-                      <p className="text-gray-600 font-medium">{profile.username || "N/A"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-                    <FaEnvelope className="text-green-500 mr-3 text-xl" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Email</p>
-                      <p className="text-gray-600 font-medium">{profile.email || "N/A"}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-                    <FaPhone className="text-green-500 mr-3 text-xl" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Phone</p>
-                      <p className="text-gray-600 font-medium">{profile.phoneNumber || "Not provided"}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:-translate-y-1">
-                    <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 uppercase tracking-wide">Address</p>
-                      <p className="text-gray-600 font-medium">{profile.address || "Not provided"}</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-4 text-gray-700">
+                <p>
+                  <strong className="font-medium text-gray-900">Username:</strong>{" "}
+                  <span className="text-gray-600">{profile.username || "N/A"}</span>
+                </p>
+                <p>
+                  <strong className="font-medium text-gray-900">Email:</strong>{" "}
+                  <span className="text-gray-600">{profile.email || "N/A"}</span>
+                </p>
+                <p>
+                  <strong className="font-medium text-gray-900">Phone Number:</strong>{" "}
+                  <span className="text-gray-600">{profile.phoneNumber || "Not provided"}</span>
+                </p>
+                <p>
+                  <strong className="font-medium text-gray-900">Address:</strong>{" "}
+                  <span className="text-gray-600">{profile.address || "Not provided"}</span>
+                </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-8 flex flex-col sm:flex-row sm:justify-between gap-4">
-                <button
-                  onClick={() => navigate("/grower-handler/update-profile")}
-                  className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
-                  Update Profile
-                </button>
-                <button
-                  onClick={() => navigate("/grower-handler/change-password")}
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold shadow-md hover:from-blue-600 hover:to-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105"
-                >
-                  Change Password
-                </button>
-              </div>
+              {/* Update Button */}
+              <button
+                onClick={() => navigate("/grower-handler/update-profile")}
+                className="mt-6 w-full sm:w-auto bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
+              >
+                Update Profile
+              </button>
             </div>
           ) : (
             !error && (
               <div className="text-center text-gray-500 text-lg">
                 <p>Loading profile...</p>
                 <div className="mt-4 flex justify-center">
-                  <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
                 </div>
               </div>
             )
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 };
 
-export default SrProfileSettings;
+export default GHProfileSettings;

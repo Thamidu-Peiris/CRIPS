@@ -23,47 +23,4 @@ router.get('/coupons', async (req, res) => {
   }
 });
 
-router.put('/coupons/:id', async (req, res) => {
-  try {
-    const { code, discountPercentage } = req.body;
-    
-    if (!code || !discountPercentage) {
-      return res.status(400).json({ message: "Coupon code and discount percentage are required" });
-    }
-    
-    if (isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
-      return res.status(400).json({ message: "Discount percentage must be between 0 and 100" });
-    }
-
-    const coupon = await Coupon.findByIdAndUpdate(
-      req.params.id,
-      { 
-        code: code.toUpperCase(), 
-        discountPercentage: parseFloat(discountPercentage),
-      },
-      { new: true }
-    );
-
-    if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found" });
-    }
-
-    res.json(coupon);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
-router.delete('/coupons/:id', async (req, res) => {
-  try {
-    const coupon = await Coupon.findByIdAndDelete(req.params.id);
-    if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found" });
-    }
-    res.json({ message: "Coupon deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
-
 module.exports = router;

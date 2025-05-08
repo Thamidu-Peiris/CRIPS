@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CustomerHeader from "../../components/CustomerHeader";
 import { FaSearch } from "react-icons/fa";
-import axios from "axios";
 import { motion } from "framer-motion";
 
 const Shop = () => {
@@ -10,7 +9,6 @@ const Shop = () => {
   const [categories] = useState(["All", "Floating", "Submerged", "Emergent", "Marginal", "Mosses"]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [reviews, setReviews] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,6 +19,7 @@ const Shop = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        // Extract the stocks array from the response
         const stocksData = data.stocks || [];
         if (!Array.isArray(stocksData)) {
           console.error("Expected an array for stocks, received:", stocksData);
@@ -28,25 +27,14 @@ const Shop = () => {
           return;
         }
         setPlants(stocksData);
-
-        const reviewsData = {};
-        for (const plant of stocksData) {
-          try {
-            const reviewResponse = await axios.get(`http://localhost:5000/api/plants/${plant._id}/reviews`);
-            reviewsData[plant._id] = reviewResponse.data;
-          } catch (error) {
-            console.error(`Error fetching reviews for plant ${plant._id}:`, error);
-            reviewsData[plant._id] = [];
-          }
-        }
-        setReviews(reviewsData);
       } catch (error) {
         console.error("Error fetching stocked plants:", error);
-        setPlants([]);
+        setPlants([]); // Set to empty array on error
       }
     };
     fetchStockedPlants();
 
+    // Load LineIcons CSS
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = "https://cdn.lineicons.com/4.0/lineicons.css";
@@ -88,6 +76,7 @@ const Shop = () => {
 
   return (
     <div className="font-sans min-h-screen bg-gray-50">
+      {/* Navigation Bar */}
       <nav className="flex justify-between items-center p-6 bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50">
         <motion.img
           src="/logo.png"
@@ -136,6 +125,7 @@ const Shop = () => {
         <CustomerHeader />
       </nav>
 
+      {/* Hero Search and Filters */}
       <div className="bg-gradient-to-r from-green-100 to-teal-100 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col gap-6">
           <motion.h1
@@ -176,6 +166,7 @@ const Shop = () => {
         </div>
       </div>
 
+      {/* Featured Plants Section */}
       <section className="py-16 bg-white">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-green-800 mb-10">Featured Plants</h2>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
@@ -184,7 +175,6 @@ const Shop = () => {
               <PlantCard
                 key={plant._id}
                 plant={plant}
-                reviews={reviews[plant._id] || []}
                 handleAddToCart={handleAddToCart}
                 handleAddToWishlist={handleAddToWishlist}
               />
@@ -195,6 +185,7 @@ const Shop = () => {
         </div>
       </section>
 
+      {/* Latest Arrivals Section */}
       <section className="py-16 bg-gray-100">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-green-800 mb-10">Latest Arrivals</h2>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
@@ -203,7 +194,6 @@ const Shop = () => {
               <PlantCard
                 key={plant._id}
                 plant={plant}
-                reviews={reviews[plant._id] || []}
                 handleAddToCart={handleAddToCart}
                 handleAddToWishlist={handleAddToWishlist}
               />
@@ -214,6 +204,7 @@ const Shop = () => {
         </div>
       </section>
 
+      {/* All Plants Section */}
       <section className="py-16 bg-white">
         <h2 className="text-3xl md:text-4xl font-bold text-center text-green-800 mb-10">All Available Plants</h2>
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6">
@@ -222,7 +213,6 @@ const Shop = () => {
               <PlantCard
                 key={plant._id}
                 plant={plant}
-                reviews={reviews[plant._id] || []}
                 handleAddToCart={handleAddToCart}
                 handleAddToWishlist={handleAddToWishlist}
               />
@@ -236,67 +226,54 @@ const Shop = () => {
   );
 };
 
-const PlantCard = ({ plant, reviews, handleAddToCart, handleAddToWishlist }) => {
-  const averageRating = reviews.length > 0
-    ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
-    : 0;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full bg-white rounded-2xl shadow-lg hover:shadow-xl cursor-pointer transition-all duration-300 group overflow-hidden"
-    >
-      <div className="relative">
-        <Link to={`/plant/${plant._id}`}>
-          <img
-            src={plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg'}
-            alt={plant.plantName}
-            className="w-full h-64 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => (e.target.src = 'http://localhost:5000/uploads/default-plant.jpg')}
-          />
-        </Link>
-        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => handleAddToCart(plant)}
-            className="bg-white p-3 rounded-full shadow-lg hover:bg-green-50 flex items-center justify-center w-12 h-12"
-          >
-            <i className="lni lni-cart text-green-600 text-xl"></i>
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => handleAddToWishlist(plant)}
-            className="bg-white p-3 rounded-full shadow-lg hover:bg-green-50 flex items-center justify-center w-12 h-12"
-          >
-            <i className="lni lni-heart text-green-600 text-xl"></i>
-          </motion.button>
+// Reusable PlantCard Component
+const PlantCard = ({ plant, handleAddToCart, handleAddToWishlist }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5 }}
+    className="w-full bg-white rounded-2xl shadow-lg hover:shadow-xl cursor-pointer transition-all duration-300 group overflow-hidden"
+  >
+    <div className="relative">
+      <Link to={`/plant/${plant._id}`}>
+        <img
+          src={plant.plantImage || 'http://localhost:5000/uploads/default-plant.jpg'}
+          alt={plant.plantName}
+          className="w-full h-64 object-cover rounded-t-2xl group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => (e.target.src = 'http://localhost:5000/uploads/default-plant.jpg')}
+        />
+      </Link>
+      <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => handleAddToCart(plant)}
+          className="bg-white p-3 rounded-full shadow-lg hover:bg-green-50 flex items-center justify-center w-12 h-12"
+        >
+          <i className="lni lni-cart text-green-600 text-xl"></i>
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => handleAddToWishlist(plant)}
+          className="bg-white p-3 rounded-full shadow-lg hover:bg-green-50 flex items-center justify-center w-12 h-12"
+        >
+          <i className="lni lni-heart text-green-600 text-xl"></i>
+        </motion.button>
+      </div>
+    </div>
+    <div className="p-5">
+      <h3 className="text-xl font-semibold text-gray-800 truncate">{plant.plantName}</h3>
+      <div className="flex justify-between items-center mt-2">
+        <div className="flex gap-1">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className="text-yellow-400 text-base">★</span>
+          ))}
         </div>
       </div>
-      <div className="p-5">
-        <h3 className="text-xl font-semibold text-gray-800 truncate">{plant.plantName}</h3>
-        <div className="flex justify-between items-center mt-2">
-          <div className="flex gap-1">
-            {[...Array(5)].map((_, i) => (
-              <span
-                key={i}
-                className={`text-base ${
-                  i < Math.round(averageRating) ? "text-yellow-400" : "text-gray-300"
-                }`}
-              >
-                ★
-              </span>
-            ))}
-            <span className="text-gray-600 text-sm ml-2">({reviews.length})</span>
-          </div>
-        </div>
-        <p className="text-green-600 font-bold text-lg mt-2">${plant.itemPrice.toFixed(2)}</p>
-      </div>
-    </motion.div>
-  );
-};
+      <p className="text-green-600 font-bold text-lg mt-2">${plant.itemPrice.toFixed(2)}</p>
+    </div>
+  </motion.div>
+);
 
 export default Shop;

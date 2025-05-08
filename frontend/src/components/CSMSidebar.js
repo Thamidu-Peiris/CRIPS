@@ -102,13 +102,13 @@ const CSMSidebar = () => {
         </li>
         <li>
           <a
-            href="/csm/track-order"
+            href="#shipments"
             onClick={(e) => {
               e.preventDefault();
-              handleItemClick("/csm/track-order");
+              handleItemClick("#shipments");
             }}
             className={`flex items-center p-3 rounded-lg ${
-              selectedItem === "/csm/track-order"
+              selectedItem === "#shipments"
                 ? "bg-green-200 text-gray-800"
                 : "text-gray-700 hover:bg-gray-200"
             }`}

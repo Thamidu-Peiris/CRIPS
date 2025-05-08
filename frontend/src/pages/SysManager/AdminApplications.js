@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../../dashboards/SM/sideBar";
-import { FaSearch, FaArrowLeft, FaDownload, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaTrash } from "react-icons/fa";
+import { FaSearch, FaArrowLeft, FaDownload, FaCheckCircle, FaTimesCircle, FaHourglassHalf } from "react-icons/fa";
 
 const AdminApplications = () => {
   const [applications, setApplications] = useState([]);
@@ -139,9 +139,7 @@ const AdminApplications = () => {
           name: app.firstName,
           role: app.jobTitle,
           status: status.toLowerCase(),
-          rejectionReason: status === "rejected" ? rejectionReason : null,
-          username: app.username,
-          password: app.plaintextPassword || "Password not available", // Use plaintextPassword
+          rejectionReason: status === "rejected" ? rejectionReason : null
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -157,43 +155,6 @@ const AdminApplications = () => {
     } catch (error) {
       console.error(`Error ${status} application:`, error);
       setError(error.response?.data?.message || `Failed to ${status} application. Please try again.`);
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        localStorage.removeItem("userInfo");
-        localStorage.removeItem("userId");
-        localStorage.removeItem("token");
-        localStorage.removeItem("role");
-        navigate("/login");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (appId) => {
-    if (!window.confirm("Are you sure you want to delete this application? This action cannot be undone.")) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setSuccessMessage("");
-      setError("");
-      const token = localStorage.getItem("token");
-
-      console.log("Sending delete request for application ID:", appId);
-      const response = await axios.delete(`http://localhost:5000/api/jobs/applications/${appId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.data.success) {
-        setSuccessMessage("Application deleted successfully!");
-        const updatedApplications = applications.filter(app => app._id !== appId);
-        setApplications(updatedApplications);
-        setFilteredApplications(updatedApplications);
-      }
-    } catch (error) {
-      console.error("Error deleting application:", error);
-      setError(error.response?.data?.message || "Failed to delete application. Please try again.");
       if (error.response?.status === 401 || error.response?.status === 403) {
         localStorage.removeItem("userInfo");
         localStorage.removeItem("userId");
@@ -309,33 +270,26 @@ const AdminApplications = () => {
                 {app.status.toLowerCase() === "rejected" && app.rejectionReason && (
                   <p className="mt-4 text-red-600"><strong className="text-gray-800">Rejection Reason:</strong> {app.rejectionReason}</p>
                 )}
-                <div className="mt-4 flex space-x-4">
-                  {app.status.toLowerCase() === "pending" && (
-                    <>
-                      <button
-                        onClick={() => handleAction(app, "approved")}
-                        className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors duration-300 font-medium flex items-center"
-                        disabled={loading}
-                      >
-                        <FaCheckCircle className="mr-2" /> {loading ? "Processing..." : "Approve"}
-                      </button>
-                      <button
-                        onClick={() => setSelectedApplicationId(app._id)}
-                        className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
-                        disabled={loading}
-                      >
-                        <FaTimesCircle className="mr-2" /> {loading ? "Processing..." : "Reject"}
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => handleDelete(app._id)}
-                    className="bg-gray-500 text-white px-6 py-2 rounded-xl hover:bg-gray-600 transition-colors duration-300 font-medium flex items-center"
-                    disabled={loading}
-                  >
-                    <FaTrash className="mr-2" /> {loading ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
+                {app.status.toLowerCase() === "pending" ? (
+                  <div className="mt-4 flex space-x-4">
+                    <button
+                      onClick={() => handleAction(app, "approved")}
+                      className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors duration-300 font-medium flex items-center"
+                      disabled={loading}
+                    >
+                      <FaCheckCircle className="mr-2" /> {loading ? "Processing..." : "Approve"}
+                    </button>
+                    <button
+                      onClick={() => setSelectedApplicationId(app._id)}
+                      className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
+                      disabled={loading}
+                    >
+                      <FaTimesCircle className="mr-2" /> {loading ? "Processing..." : "Reject"}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-gray-500">Action not available for status: {app.status}</p>
+                )}
                 {selectedApplicationId === app._id && (
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-gray-600 mb-1">Reason for Rejection *</label>

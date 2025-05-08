@@ -1,8 +1,8 @@
+// backend\routes\TransportManager\transportDashboardRoutes.js
 const express = require('express');
 const router = express.Router();
 const Shipment = require('../../models/TransportManager/Shipment');
-const Vehicle = require('../../models/TransportManager/Vehicle'); // Import Vehicle model
-const Driver = require('../../models/TransportManager/drivers'); // Import Driver model
+const FuelLog = require('../../models/TransportManager/FuelLog');
 
 // 🚀 GET Transport Dashboard Stats (CALCULATED)
 router.get('/dashboard-stats', async (req, res) => {
@@ -10,16 +10,32 @@ router.get('/dashboard-stats', async (req, res) => {
     // 🚚 Active Shipments count
     const activeShipments = await Shipment.countDocuments({ status: "In Transit" });
 
-    // 🚗 Active Vehicles count
-    const activeVehicles = await Vehicle.countDocuments({ status: "Active" });
+    // ⛽ Fuel Efficiency Calculation (example: total distance / total fuel)
+    const fuelLogs = await FuelLog.find({});
+    let totalLiters = 0;
+    let totalDistance = 0; // Optional: Add distance in your FuelLog model later
+    fuelLogs.forEach(log => {
+      totalLiters += log.liters;
+      totalDistance += log.distance || 0; // If distance field exists
+    });
+    let fuelEfficiency = totalDistance && totalLiters ? (totalDistance / totalLiters).toFixed(2) : 8.5; // Default dummy value
 
-    // 👥 Active Drivers count
-    const activeDrivers = await Driver.countDocuments({ status: "Available" });
+    // 📈 On-Time Delivery %
+    const deliveredShipments = await Shipment.find({ status: "Delivered" });
+    let onTime = 0;
+    deliveredShipments.forEach(shipment => {
+      if (shipment.arrivalDate && shipment.arrivalDate <= shipment.expectedArrivalDate) {
+        onTime++;
+      }
+    });
+    const onTimeDelivery = deliveredShipments.length > 0
+      ? ((onTime / deliveredShipments.length) * 100).toFixed(2)
+      : 0;
 
     res.json({
       activeShipments,
-      activeVehicles,
-      activeDrivers,
+      fuelEfficiency,
+      onTimeDelivery
     });
 
   } catch (err) {

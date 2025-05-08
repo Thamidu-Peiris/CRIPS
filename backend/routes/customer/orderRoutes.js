@@ -78,21 +78,13 @@ router.get('/user/:userId', async (req, res) => {
 router.post('/:id/review', async (req, res) => {
   const { rating, review } = req.body;
   try {
-    // Validate inputs
-    if (!rating || !review || rating < 1 || rating > 5) {
-      return res.status(400).json({ message: "Rating (1-5) and review text are required" });
-    }
     const order = await CustomerOrder.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Order not found" });
-    if (order.status !== 'Completed') return res.status(400).json({ message: "Reviews can only be added to completed orders" });
-    const newReview = { rating, review, status: 'pending' };
-    order.reviews.push(newReview);
+    order.reviews.push({ rating, review });
     await order.save();
-    console.log("Review saved:", newReview, "for order:", order._id);
-    res.status(201).json({ message: "Review submitted successfully", review: newReview });
+    res.json(order);
   } catch (error) {
-    console.error("Error submitting review:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
