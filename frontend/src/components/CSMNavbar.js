@@ -1,19 +1,26 @@
 // frontend\src\components\CSMNavbar.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MdNotificationsNone } from "react-icons/md";
 import { FaAngleDown } from "react-icons/fa";
 import { FiUser, FiSettings, FiLock, FiLogOut } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
+import axios from "axios";
 
 const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [profileImage, setProfileImage] = useState("/default-profile.png");
+  const [alertQueue, setAlertQueue] = useState([]); // Queue for alert messages
+  const [currentAlert, setCurrentAlert] = useState(null); // Current alert message
+  const [isLoading, setIsLoading] = useState(false); // Loading state for data fetch
   const navigate = useNavigate();
   const location = useLocation();
+  const isDashboard = location.pathname === "/csm/dashboard";
+  const hasPlayedConfetti = useRef(false); // Track if confetti has played
+  const alertTimeoutRef = useRef(null); // Store timeout ID
 
   // Fetch user info from localStorage and update state
   const updateUserState = () => {
@@ -32,6 +39,96 @@ const Navbar = () => {
     }
   };
 
+  // Poll for new pending items (orders, customers, tickets)
+  const checkForNewItems = async () => {
+    if (!isDashboard) return; // Only check on dashboard
+    try {
+      setIsLoading(true);
+      console.log("Checking for new pending items...");
+      // Fetch all APIs concurrently
+      const [ordersResponse, customersResponse, ticketsResponse] = await Promise.all([
+        axios.get("http://localhost:5000/api/orders"),
+        axios.get("http://localhost:5000/api/csm/customers/pending"),
+        axios.get("http://localhost:5000/api/support"),
+      ]);
+
+      // Filter pending items
+      const pendingOrders = ordersResponse.data.filter(
+        (order) => order.status && order.status.toLowerCase() === "pending"
+      );
+      const pendingCustomers = customersResponse.data;
+
+      // Log raw tickets response and unique status values for debugging
+      console.log("Raw /api/support response:", ticketsResponse.data);
+      const ticketStatuses = [...new Set(ticketsResponse.data.map((ticket) => ticket.status || "undefined"))];
+      console.log("Unique ticket statuses:", ticketStatuses);
+
+      // Log tickets that fail the status filter
+      const nonPendingTickets = ticketsResponse.data.filter(
+        (ticket) => !ticket.status || !["pending", "open", "new", "unresolved", "active", "waiting", "in_progress", "on_hold", "created"].includes(ticket.status?.toLowerCase())
+      );
+      console.log("Non-pending tickets (failed status filter):", nonPendingTickets);
+
+      // Filter pending tickets (check multiple status variations)
+      // Customize this list based on your backend's status values
+      const pendingTickets = ticketsResponse.data.filter(
+        (ticket) => ticket.status && ["pending", "open", "new", "unresolved", "active", "waiting", "in_progress", "on_hold", "created"].includes(ticket.status.toLowerCase())
+      );
+
+      // Log counts for debugging
+      console.log("Pending Orders:", pendingOrders.length);
+      console.log("Pending Customers:", pendingCustomers.length);
+      console.log("Pending Tickets:", pendingTickets.length);
+
+      // Build alert messages for pending items with counts
+      const newAlerts = [];
+      if (pendingCustomers.length > 0) {
+        newAlerts.push(`${pendingCustomers.length} Pending Customer Request(s) Received`);
+      }
+      if (pendingOrders.length > 0) {
+        newAlerts.push(`${pendingOrders.length} New Pending Order(s) Received`);
+      }
+      if (pendingTickets.length > 0) {
+        newAlerts.push(`${pendingTickets.length} New Pending Ticket(s) Received`);
+      }
+
+      // Log queued alerts
+      console.log("New Alerts Queued:", newAlerts);
+
+      // Update alert queue if new items are found
+      if (newAlerts.length > 0) {
+        setAlertQueue((prev) => {
+          const updatedQueue = [...prev, ...newAlerts.filter((alert) => !prev.includes(alert))];
+          console.log("Updated Alert Queue:", updatedQueue);
+          return updatedQueue;
+        });
+      }
+    } catch (error) {
+      console.error("Error checking for new items:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle confetti on initial dashboard load
+  useEffect(() => {
+    if (isDashboard && !hasPlayedConfetti.current) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.1 },
+        colors: ["#4CAF50", "#2196F3", "#FFC107"],
+      });
+      hasPlayedConfetti.current = true; // Mark confetti as played
+    }
+    if (!isDashboard) {
+      hasPlayedConfetti.current = false; // Reset for next dashboard visit
+      setAlertQueue([]); // Clear alerts when leaving dashboard
+      setCurrentAlert(null); // Clear current alert
+    }
+  }, [isDashboard]);
+
+  // Handle user state and polling
   useEffect(() => {
     updateUserState();
 
@@ -42,21 +139,49 @@ const Navbar = () => {
     window.addEventListener("storage", handleStorageChange);
     window.addEventListener("userInfoChanged", handleStorageChange);
 
-    // Trigger confetti on dashboard load
-    if (location.pathname === "/csm/dashboard") {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.1 },
-        colors: ["#4CAF50", "#2196F3", "#FFC107"],
-      });
+    // Delay initial alert check by 5 seconds on dashboard load
+    let initialCheckTimeout;
+    if (isDashboard) {
+      initialCheckTimeout = setTimeout(() => {
+        checkForNewItems();
+        // Start polling every 30 seconds after initial check (adjust to 60000 for 60 seconds if needed)
+        const pollInterval = setInterval(checkForNewItems, 30000);
+        return () => clearInterval(pollInterval);
+      }, 5000);
     }
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("userInfoChanged", handleStorageChange);
+      if (initialCheckTimeout) clearTimeout(initialCheckTimeout);
     };
-  }, [location.pathname]);
+  }, [isDashboard]);
+
+  // Handle alert display, cycling, and hiding
+  useEffect(() => {
+    if (alertQueue.length > 0 && !currentAlert) {
+      console.log("Displaying alert:", alertQueue[0]);
+      setCurrentAlert(alertQueue[0]);
+      setAlertQueue((prev) => prev.slice(1));
+    }
+
+    if (currentAlert) {
+      console.log("Starting 3-second timer for alert:", currentAlert);
+      alertTimeoutRef.current = setTimeout(() => {
+        console.log("Hiding alert:", currentAlert);
+        setCurrentAlert(null);
+        alertTimeoutRef.current = null;
+      }, 3000); // Display for 3 seconds
+    }
+
+    return () => {
+      if (alertTimeoutRef.current) {
+        console.log("Clearing timeout on cleanup:", currentAlert);
+        clearTimeout(alertTimeoutRef.current);
+        alertTimeoutRef.current = null;
+      }
+    };
+  }, [alertQueue, currentAlert]);
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
@@ -71,7 +196,6 @@ const Navbar = () => {
   const fullName = `${firstName} ${lastName}`.trim();
 
   // Determine navbar title and layout based on route
-  const isDashboard = location.pathname === "/csm/dashboard";
   const isManageOrders = location.pathname === "/csm/manage-orders";
   const isTrackOrder = location.pathname === "/csm/track-order";
   const isKnowledgeBase = location.pathname === "/csm/knowledge-base";
@@ -85,7 +209,7 @@ const Navbar = () => {
   const isConversation = location.pathname.startsWith("/dashboard/conversation/");
   const isCustomerDetails = location.pathname.startsWith("/customer/");
   const title = isDashboard
-    ? "Welcome, CS Manager"
+    ? currentAlert || (isLoading ? "Checking for updates..." : "Welcome, CS Manager")
     : isManageOrders
     ? "Manage Orders"
     : isTrackOrder
@@ -112,8 +236,46 @@ const Navbar = () => {
     ? "Customer Details"
     : "Welcome, CS Manager";
 
+  // Animation variants for navbar background and text color
+  const navbarVariants = {
+    normal: {
+      backgroundColor: "#ffffff",
+      color: "#16a34a", // green-600 for title
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+    alert: {
+      backgroundColor: "#000000",
+      color: "#ffffff",
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  };
+
+  // Animation variants for notification bell shake
+  const bellVariants = {
+    idle: { rotate: 0 },
+    shake: {
+      rotate: [0, 15, -15, 10, -10, 5, -5, 0],
+      transition: {
+        duration: 0.8,
+        repeat: Infinity,
+        repeatDelay: 1,
+        ease: "easeInOut",
+      },
+    },
+  };
+
   return (
-    <div className="flex justify-between items-center bg-white p-4 shadow-md rounded-2xl">
+    <motion.div
+      className="flex justify-between items-center p-4 shadow-md rounded-2xl"
+      variants={navbarVariants}
+      animate={currentAlert && isDashboard ? "alert" : "normal"}
+    >
       <AnimatePresence>
         {isDashboard || isManageOrders || isTrackOrder || isKnowledgeBase || isSupportTickets || isCustomersList || isCustomerRequests || isCoupons || isProfileSettings || isUpdateProfile || isChangePassword || isConversation || isCustomerDetails ? (
           <motion.div
@@ -125,7 +287,7 @@ const Navbar = () => {
             className="flex items-center justify-center w-full relative"
           >
             <motion.h1
-              className="text-2xl font-bold text-green-600 font-sans"
+              className="text-2xl font-bold font-sans"
               initial={{ opacity: 1 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
@@ -140,13 +302,22 @@ const Navbar = () => {
             >
               {/* Notification Icon */}
               <button className="relative">
-                <MdNotificationsNone className="text-gray-800 text-3xl" />
+                <motion.div
+                  variants={bellVariants}
+                  animate={currentAlert && isDashboard ? "shake" : "idle"}
+                >
+                  <MdNotificationsNone
+                    className="text-3xl"
+                    style={{ color: currentAlert && isDashboard ? "#ffffff" : "#1f2937" }}
+                  />
+                </motion.div>
               </button>
               {/* Profile Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 z-20"
+                  className="flex items-center space-x-2 z-20"
+                  style={{ color: "#000000" }} // Always black
                 >
                   <img
                     src={profileImage}
@@ -160,7 +331,7 @@ const Navbar = () => {
                 </button>
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
-                    <ul className="py-2">
+                    <ul className={`py-2 ${currentAlert && isDashboard ? "text-white bg-gray-800" : "text-black"}`}>
                       <li
                         onClick={() => navigate("/profile-settings")}
                         className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
@@ -215,7 +386,7 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 z-20"
+                  className="flex items-center space-x-2 z-20"
                 >
                   <img
                     src={profileImage}
@@ -225,13 +396,13 @@ const Navbar = () => {
                       e.target.src = "/default-profile.png";
                     }}
                   />
-                  <span className="text-gray-800 font-normal">{fullName}</span>
-                  <FaAngleDown className="text-sm" />
+                  <span className="text-gray-600 hover:text-gray-800 font-normal">{fullName}</span>
+                  <FaAngleDown className="text-sm" style={{ color: "#000000" }} />
                 </button>
 
                 {showMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
-                    <ul className="py-2">
+                    <ul className="py-2 text-black">
                       <li
                         onClick={() => navigate("/profile-settings")}
                         className="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer border-b border-gray-200 last:border-b-0"
@@ -264,7 +435,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };
 

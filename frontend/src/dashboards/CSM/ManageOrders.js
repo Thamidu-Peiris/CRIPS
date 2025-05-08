@@ -23,8 +23,12 @@ const ManageOrders = () => {
 
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/orders");
-        // Sort orders by createdAt in descending order (latest first)
+        console.log("Fetching orders from /api/orders...");
+        // Fetch orders sorted by createdAt in descending order (latest first)
+        const response = await axios.get("http://localhost:5000/api/orders?sort=-createdAt");
+        console.log("Orders response:", response.data);
+
+        // Verify order sorting (fallback to frontend sorting if backend fails)
         const sortedOrders = response.data.sort((a, b) => 
           new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -71,11 +75,29 @@ const ManageOrders = () => {
   };
 
   if (loading) {
-    return <div className="text-center p-6">Loading...</div>;
+    return (
+      <div className="flex h-screen bg-gray-200">
+        <CSMSidebar />
+        <main className="flex-1 p-6 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 border-solid mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-700">Loading orders...</p>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center p-6 text-red-600">{error}</div>;
+    return (
+      <div className="flex h-screen bg-gray-200">
+        <CSMSidebar />
+        <main className="flex-1 p-6">
+          <CSMNavbar />
+          <div className="text-center p-6 text-red-600">{error}</div>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -84,7 +106,7 @@ const ManageOrders = () => {
       <main className="flex-1 p-6">
         <CSMNavbar />
         <div className="bg-white p-6 rounded-2xl shadow-md mt-6">
-          <h3 className="text-lg font-semibold mb-4"></h3>
+          <h3 className="text-lg font-semibold mb-4">Manage Orders</h3>
           <div className="overflow-x-auto rounded-3xl">
             <table className="w-full border-collapse border border-gray-300">
               <thead>
