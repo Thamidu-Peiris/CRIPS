@@ -1,7 +1,7 @@
 // CustomerReport.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { PieChart, Pie, Cell } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import SalesManagerNavbar from "../../components/SalesManagerNavbar";
 import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
@@ -69,6 +69,27 @@ const CustomerReport = () => {
 
   console.log("Pie Chart Data:", pieChartData);
 
+  // Custom label renderer to position labels outside the pie chart with lines
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 30; // Position labels 30px outside the pie
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="#333"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+        fontSize={12}
+      >
+        {`${pieChartData[index].name} (${percent.toFixed(2)}%)`}
+      </text>
+    );
+  };
+
   return (
     <div className="flex h-parent bg-gray-200">
       <SalesManagerSidebar />
@@ -76,9 +97,6 @@ const CustomerReport = () => {
         <SalesManagerNavbar />
         <div className="flex justify-between items-center mb-6 mt-6">
           <h1 className="text-3xl font-bold text-green-600">Customer Statistics Report</h1>
-          <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
-            Generate Report
-          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -91,22 +109,25 @@ const CustomerReport = () => {
               ) : error ? (
                 <p className="text-red-500">{error}</p>
               ) : orderSizeDistribution.length > 0 && totalOrders > 0 ? (
-                <PieChart width={350} height={350}>
-                  <Pie
-                    data={pieChartData}
-                    cx={160}
-                    cy={160}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${percent.toFixed(2)}%`}
-                    labelLine={true}
-                  >
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                </PieChart>
+                <ResponsiveContainer width="100%" height={400}>
+                  <PieChart>
+                    <Pie
+                      data={pieChartData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={renderCustomizedLabel}
+                      labelLine={true}
+                    >
+                      {pieChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value, name, props) => [`${value} orders`, props.payload.name]} />
+                  </PieChart>
+                </ResponsiveContainer>
               ) : (
                 <p className="text-gray-600">No order size data available for the selected period.</p>
               )}

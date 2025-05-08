@@ -1,6 +1,7 @@
+// frontend\src\dashboards\SalesReports\ProductPerformance.js
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { PieChart, Pie, Cell } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import SalesManagerNavbar from "../../components/SalesManagerNavbar";
 import SalesManagerSidebar from "../../components/SalesManagerSidebar";
 
@@ -229,6 +230,27 @@ const ProductReport = () => {
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#AF19FF", "#FF4560", "#33FF57"];
 
+  // Custom label renderer to position labels outside the pie chart with lines
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 30; // Position labels 30px outside the pie
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="#333"
+        textAnchor={x > cx ? "start" : "end"}
+        dominantBaseline="central"
+        fontSize={12}
+      >
+        {`${productData[index].name} (${(percent * 100).toFixed(0)}%)`}
+      </text>
+    );
+  };
+
   return (
     <div className="flex h-parent bg-gray-200">
       <SalesManagerSidebar />
@@ -236,9 +258,6 @@ const ProductReport = () => {
         <SalesManagerNavbar />
         <div className="flex justify-between items-center mb-6 mt-6">
           <h1 className="text-3xl font-bold text-green-600">Product Performance Report</h1>
-          <button className="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
-            Generate Report
-          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -309,21 +328,25 @@ const ProductReport = () => {
           <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col justify-center items-center">
             <h2 className="text-lg font-bold mb-4">Sales Trend of Plants (Average)</h2>
             {productData.length > 0 ? (
-              <PieChart width={300} height={300}>
-                <Pie
-                  data={productData}
-                  cx={150}
-                  cy={150}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name }) => name}
-                >
-                  {productData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
+              <ResponsiveContainer width="100%" height={400}>
+                <PieChart>
+                  <Pie
+                    data={productData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={120}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={renderCustomizedLabel}
+                    labelLine={true}
+                  >
+                    {productData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value, name, props) => [`${value} units`, props.payload.name]} />
+                </PieChart>
+              </ResponsiveContainer>
             ) : loading ? (
               <p className="text-gray-500">Loading...</p>
             ) : error ? (

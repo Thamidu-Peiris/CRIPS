@@ -29,81 +29,98 @@ const getFinancialReport = async (req, res) => {
       status: "Completed",
     });
 
-    // Calculate total income from customer orders
-    const totalIncome = customerOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-
     // Fetch stock orders to calculate expenses
     const stockOrders = await StockOrder.find({
       deliveryDate: { $gte: parsedStartDate, $lte: parsedEndDate },
       status: "delivered",
     }).populate("supplierId", "name");
 
-    // Calculate expenses from stock orders (quantity * unit, converting unit to number)
-    let runningBalance = 0;
-    const transactions = [];
-    let totalExpense = 0;
+    // Combine all transactions into a single array
+    const allTransactions = [];
 
-    // Add initial balance (assume 0 if starting fresh)
-    transactions.push({
+    // Add Balance B/F
+    allTransactions.push({
       date: parsedStartDate.toISOString().split("T")[0],
       description: "Balance B/F",
       income: 0,
       expense: 0,
-      balance: runningBalance,
+      type: "balance",
     });
 
-    // Process customer orders as income
-    for (const order of customerOrders) {
-      const income = order.total || 0;
-      runningBalance += income;
-      transactions.push({
+    // Add customer orders (income)
+    customerOrders.forEach(order => {
+      allTransactions.push({
         date: order.createdAt.toISOString().split("T")[0],
         description: `Order ${order._id}`,
-        income,
+        income: order.total || 0,
         expense: 0,
-        balance: runningBalance,
+        type: "income",
       });
-    }
+    });
 
-    // Process stock orders as expenses
-    for (const stockOrder of stockOrders) {
-      const unitPrice = parseFloat(stockOrder.unit) || 0; // Convert 'unit' string to number
+    // Add stock orders (expenses)
+    stockOrders.forEach(stockOrder => {
+      const unitPrice = parseFloat(stockOrder.unit) || 0;
       const expense = (stockOrder.quantity || 0) * unitPrice;
-      totalExpense += expense;
-      runningBalance -= expense;
-      transactions.push({
+      allTransactions.push({
         date: stockOrder.deliveryDate.toISOString().split("T")[0],
         description: `Stock Order from ${stockOrder.supplierId?.name || "Unknown"}`,
         income: 0,
         expense,
-        balance: runningBalance,
+        type: "expense",
       });
-    }
+    });
 
-    // Add final balance
-    transactions.push({
+    // Add Balance C/D
+    allTransactions.push({
       date: parsedEndDate.toISOString().split("T")[0],
       description: "Balance C/D",
       income: 0,
       expense: 0,
-      balance: runningBalance,
+      type: "balance",
+    });
+
+    // Sort transactions by date
+    allTransactions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Calculate running balance and build final transactions array
+    let runningBalance = 0;
+    const transactions = [];
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    allTransactions.forEach(tx => {
+      if (tx.type === "income") {
+        runningBalance += tx.income;
+        totalIncome += tx.income;
+      } else if (tx.type === "expense") {
+        runningBalance -= tx.expense;
+        totalExpense += tx.expense;
+      }
+
+      transactions.push({
+        date: tx.date,
+        description: tx.description,
+        income: tx.income,
+        expense: tx.expense,
+        balance: runningBalance,
+      });
     });
 
     // Calculate tax (15% of profit)
     const profit = totalIncome - totalExpense;
-    const totalTaxPayable = profit > 0 ? profit * 0.15 : 0; // 15% of profit
+    const totalTaxPayable = profit > 0 ? profit * 0.15 : 0;
 
     // Calculate net profit (after tax)
     const netProfit = profit - totalTaxPayable;
 
-    // Ensure netProfit is included in the response
     res.status(200).json({
-      transactions: transactions.sort((a, b) => new Date(a.date) - new Date(b.date)),
+      transactions,
       aggregates: {
         totalIncome: totalIncome || 0,
         totalExpense: totalExpense || 0,
         totalTaxPayable: totalTaxPayable || 0,
-        netProfit: netProfit || 0, // Explicitly include netProfit
+        netProfit: netProfit || 0,
         finalBalance: runningBalance || 0,
       },
     });
@@ -212,7 +229,7 @@ const getCustomerReport = async (req, res) => {
 
     const orderSizeDistribution = buckets.map(bucket => ({
       name: bucket.name,
-      value: bucket.count, // Send raw counts
+      value: bucket.count,
     }));
 
     res.status(200).json({
@@ -287,51 +304,66 @@ const getProductPerformanceReport = async (req, res) => {
       return res.status(400).json({ error: "startDate and endDate must be valid dates" });
     }
 
-    let query = {};
-    if (category) {
-      query.category = category;
+    const parsedStartDate = new Date(startDate + "T00:00:00Z");
+    const parsedEndDate = new Date(endDate + "T23:59:59.999Z");
+
+    // Aggregate sales data from customer orders within the date range
+    const salesData = await CustomerOrder.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: parsedStartDate, $lte: parsedEndDate },
+          status: "Completed",
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.plantName",
+          unitsSold: { $sum: "$items.quantity" },
+        },
+      },
+    ]);
+
+    // Map sales data to products
+    const products = [];
+    for (const sale of salesData) {
+      const product = await Product.findOne({ name: { $regex: `^${sale._id}$`, $options: 'i' } });
+      if (product) {
+        const revenue = product.price ? sale.unitsSold * product.price : 0;
+        products.push({
+          _id: product._id,
+          name: sale._id,
+          unitsSold: sale.unitsSold,
+          revenue,
+          image: product.image || "/default-plant.jpg",
+        });
+      }
     }
-    query.createdAt = {
-      $gte: new Date(startDate),
-      $lte: new Date(endDate),
+
+    // Sort products by unitsSold (or sortBy if specified)
+    products.sort((a, b) => b[sortBy] - a[sortBy]);
+
+    // Calculate aggregates
+    const aggregates = {
+      totalRevenue: products.reduce((sum, product) => sum + (product.revenue || 0), 0),
+      totalUnitsSold: products.reduce((sum, product) => sum + (product.unitsSold || 0), 0),
     };
 
-    const products = await Product.find(query).sort({ [sortBy]: -1 });
+    // Get top selling and least selling plants
+    const topSelling = [...products].sort((a, b) => b.unitsSold - a.unitsSold).slice(0, 3);
+    const leastSelling = [...products].sort((a, b) => a.unitsSold - b.unitsSold).slice(0, 3);
 
-    const aggregates = await Product.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: "$revenue" },
-          totalUnitsSold: { $sum: "$unitsSold" },
-        },
-      },
-    ]);
-
-    const topSelling = await Product.find(query).sort({ unitsSold: -1 }).limit(3);
-    const leastSelling = await Product.find(query).sort({ unitsSold: 1 }).limit(3);
-
-    const salesTrend = await Product.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: "$name",
-          value: { $sum: "$unitsSold" },
-        },
-      },
-    ]);
-    const formattedSalesTrend = salesTrend.map((item) => ({ name: item._id, value: item.value }));
+    const salesTrend = products.map(item => ({
+      name: item.name,
+      value: item.unitsSold,
+    }));
 
     res.status(200).json({
       products,
       topSelling,
       leastSelling,
-      salesTrend: formattedSalesTrend,
-      aggregates: {
-        totalRevenue: aggregates[0]?.totalRevenue || 0,
-        totalUnitsSold: aggregates[0]?.totalUnitsSold || 0,
-      },
+      salesTrend,
+      aggregates,
     });
   } catch (error) {
     console.error("Error fetching product performance report:", error.message);
@@ -342,17 +374,6 @@ const getProductPerformanceReport = async (req, res) => {
 // Dashboard Data Controller (for SalesManagerDashboard.js)
 const getDashboardData = async (req, res) => {
   try {
-    const { startDate: queryStartDate, endDate: queryEndDate } = req.query;
-
-    const endDate = queryEndDate || new Date().toISOString().split("T")[0];
-    const startDate = queryStartDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-    if (isNaN(Date.parse(startDate)) || isNaN(Date.parse(endDate))) {
-      return res.status(400).json({ error: "startDate and endDate must be valid dates" });
-    }
-
-    const parsedStartDate = new Date(startDate + "T00:00:00Z");
-    const parsedEndDate = new Date(endDate + "T23:59:59.999Z");
-
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
@@ -385,7 +406,7 @@ const getDashboardData = async (req, res) => {
     }));
 
     const salesLast7Days = await CustomerOrder.aggregate([
-      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      { $match: { createdAt: { $gte: sevenDaysAgo }, status: "Completed" } },
       { $unwind: "$items" },
       { $group: { _id: null, totalUnits: { $sum: "$items.quantity" } } },
     ]);
@@ -432,13 +453,20 @@ const getDashboardData = async (req, res) => {
     ]);
     responseData.orderStatusDistribution = orderStatusDistribution;
 
+    // Calculate top plants by units sold for the last 7 days (same as salesLast7Days)
     const salesData = await CustomerOrder.aggregate([
-      { $match: { createdAt: { $gte: parsedStartDate, $lte: parsedEndDate }, status: "Completed" } },
+      { $match: { createdAt: { $gte: sevenDaysAgo }, status: "Completed" } },
       { $unwind: "$items" },
-      { $group: { _id: "$items.plantName", unitsSold: { $sum: "$items.quantity" } } },
+      {
+        $group: {
+          _id: "$items.plantName",
+          unitsSold: { $sum: "$items.quantity" },
+        },
+      },
     ]);
 
     const topPlantsUnits = [];
+    const topSellingPlantsData = [];
     for (const sale of salesData) {
       const product = await Product.findOne({ name: { $regex: `^${sale._id}$`, $options: 'i' } });
       const price = product ? product.price : 0;
@@ -447,8 +475,29 @@ const getDashboardData = async (req, res) => {
         unitsSold: sale.unitsSold,
         totalRevenue: sale.unitsSold * price,
       });
+
+      if (product) {
+        topSellingPlantsData.push({
+          _id: product._id,
+          name: sale._id,
+          unitsSold: sale.unitsSold,
+          image: product.image || "/default-plant.jpg",
+        });
+      }
     }
     responseData.topPlantsUnits = topPlantsUnits.sort((a, b) => b.unitsSold - a.unitsSold);
+
+    // Top Selling Plants (top 3 for the last 7 days, matching getProductPerformanceReport)
+    const topSellingPlants = topSellingPlantsData
+      .sort((a, b) => b.unitsSold - a.unitsSold)
+      .slice(0, 3)
+      .map(plant => ({
+        id: plant._id,
+        name: plant.name,
+        sold: plant.unitsSold,
+        image: plant.image,
+      }));
+    responseData.topSellingPlants = topSellingPlants;
 
     const revenueData = await CustomerOrder.aggregate([
       {
@@ -480,17 +529,6 @@ const getDashboardData = async (req, res) => {
       },
     ]);
     responseData.revenueData = revenueData;
-
-    const topSellingPlants = await Product.find()
-      .sort({ unitsSold: -1 })
-      .limit(3)
-      .select("_id name image unitsSold");
-    responseData.topSellingPlants = topSellingPlants.map((plant) => ({
-      id: plant._id,
-      name: plant.name,
-      sold: plant.unitsSold,
-      image: plant.image || "/default-plant.jpg",
-    }));
 
     res.status(200).json(responseData);
   } catch (error) {
