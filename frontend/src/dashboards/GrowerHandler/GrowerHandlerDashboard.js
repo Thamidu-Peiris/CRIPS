@@ -274,7 +274,7 @@ const GrowerHandlerDashboard = () => {
                 <div className="bg-white p-4 rounded-2xl shadow-md text-center">
                   <h3 className="text-lg font-semibold mb-2">Rain Chance</h3>
                   <p className="text-2xl font-bold text-blue-600">{weatherData.current.rainChance}%</p>
-                  <p className="text-gray-500 mt-2">Low</p>
+                  <p className="text-gray-500 mt-2">High</p>
                 </div>
 
                 {/* Pressure */}

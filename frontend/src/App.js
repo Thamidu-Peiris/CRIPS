@@ -55,6 +55,7 @@ import CreateCoupons from './dashboards/CSM/CreateCoupons';
 
 
 //Grower  Handler
+
 import CutterDashboard from "./dashboards/Cutter/CutterDashboard.js";//Cutter dash
 import PlantFormPage from "./dashboards/GrowerHandler/PlantFormPage";
 import AssignTasks from "./dashboards/GrowerHandler/AssignTasks"; 
@@ -183,9 +184,6 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/add-vacancies" element={<AddVacancies />} />
-        
-
-
 
         <Route path="/transport-manager-profile" element={<TMprofile />} />
         <Route path="/sm-manage-cus" element={<SysManageCus />} />

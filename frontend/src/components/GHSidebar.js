@@ -41,11 +41,13 @@ const GHSidebar = () => {
     }
 
     // Settings Dropdown
+    /*
     if (currentPath.includes("/update-profile") || currentPath.includes("/change-password")) {
       setSettingsMenuOpen(true);
     } else {
       setSettingsMenuOpen(false);
     }
+    */
   }, [location.pathname]);
 
   const handleItemClick = (href) => {
@@ -69,18 +71,18 @@ const GHSidebar = () => {
           </a>
         </li>
 
-{/* Categories */}
-{/* 
-<li>
-  <a
-    href="/grower-handler/manage-categories"
-    onClick={(e) => { e.preventDefault(); handleItemClick("/grower-handler/manage-categories"); }}
-    className={`flex items-center p-3 rounded-lg ${selectedItem === "/grower-handler/manage-categories" ? "bg-green-200 text-gray-800" : "text-gray-700 hover:bg-gray-200"}`}
-  >
-    <FaFolder className="mr-3" /> Categories
-  </a>
-</li> 
-*/}
+        {/* Categories */}
+        {/*
+        <li>
+          <a
+            href="/grower-handler/manage-categories"
+            onClick={(e) => { e.preventDefault(); handleItemClick("/grower-handler/manage-categories"); }}
+            className={`flex items-center p-3 rounded-lg ${selectedItem === "/grower-handler/manage-categories" ? "bg-green-200 text-gray-800" : "text-gray-700 hover:bg-gray-200"}`}
+          >
+            <FaFolder className="mr-3" /> Categories
+          </a>
+        </li>
+        */}
 
         {/* Plant Management */}
         <li>
@@ -202,8 +204,8 @@ const GHSidebar = () => {
           )}
         </li>
 
-
         {/* Settings */}
+        {/*
         <li>
           <button
             onClick={() => setSettingsMenuOpen(!settingsMenuOpen)}
@@ -239,6 +241,7 @@ const GHSidebar = () => {
             </ul>
           )}
         </li>
+        */}
       </ul>
     </nav>
   );

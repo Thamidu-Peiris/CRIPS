@@ -45,8 +45,6 @@ const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
 const vacancieRoutes = require('./routes/SM/vacancieRoutes');
 
-
-
 // Load environment variables
 dotenv.config();
 
