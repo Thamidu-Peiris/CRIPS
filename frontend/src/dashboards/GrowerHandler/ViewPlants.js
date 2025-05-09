@@ -1,4 +1,5 @@
 // frontend\src\dashboards\GrowerHandler\ViewPlants.js
+// frontend\src\dashboards\GrowerHandler\ViewPlants.js
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -72,6 +73,38 @@ const ViewPlants = () => {
     handleSearchAndFilter(searchQuery, filter);
   };
 
+  // Generate CSV Report
+  const generateCSVReport = () => {
+    try {
+      // Define CSV headers
+      const headers = ["Plant Name", "Description", "Availability", "Batch Status", "Image URL"];
+      // Map plants to CSV rows, escaping quotes and handling undefined values
+      const rows = plants.map((plant) => [
+        `"${(plant.plantName || "").replace(/"/g, '""')}"`,
+        `"${(plant.description || "").replace(/"/g, '""')}"`,
+        `"${(plant.plantAvailability || "").replace(/"/g, '""')}"`,
+        `"${(plant.plantBatchStatus || "").replace(/"/g, '""')}"`,
+        `"${(plant.plantImage || "").replace(/"/g, '""')}"`,
+      ]);
+      // Combine headers and rows
+      const csvContent = [headers, ...rows].map((row) => row.join(",")).join("\n");
+
+      // Create a downloadable CSV file
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `all_plants_report_${new Date().toISOString().split("T")[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error generating CSV report:", err);
+      alert("Failed to generate report. Please try again.");
+    }
+  };
+
   // Pagination logic
   const indexOfLastPlant = currentPage * plantsPerPage;
   const indexOfFirstPlant = indexOfLastPlant - plantsPerPage;
@@ -111,12 +144,20 @@ const ViewPlants = () => {
     <div className="p-10 min-h-screen bg-gray-100">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-orange-700">View All Plants</h1>
-        <button
-          onClick={() => navigate("/dashboards/GrowerHandler")}
-          className="p-2 bg-orange-500 text-white rounded hover:bg-orange-700"
-        >
-          Back to Dashboard
-        </button>
+        <div className="space-x-4">
+          <button
+            onClick={generateCSVReport}
+            className="p-2 bg-green-500 text-white rounded hover:bg-green-700"
+          >
+            Download All Plants Report (CSV)
+          </button>
+          <button
+            onClick={() => navigate("/dashboards/GrowerHandler")}
+            className="p-2 bg-orange-500 text-white rounded hover:bg-orange-700"
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
 
       {/* Search and Filter Controls */}
