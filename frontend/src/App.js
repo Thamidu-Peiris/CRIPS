@@ -50,7 +50,10 @@ import ManageOrders from "./dashboards/CSM/ManageOrders";
 import OrderStatusHistory from "./dashboards/Customer/OrderStatusHistory";
 import CreateCoupons from './dashboards/CSM/CreateCoupons';
 
-
+import InvProfile from "../src/components/InventoryM/InvProfile.js";
+import InvUpdateProfile from "../src/components/InventoryM/InvUpdateProfile.js";
+import InvChangePassword from "../src/components/InventoryM/InvChangePassword.js";
+import ReviewManagement from './dashboards/CSM/ReviewManagement';
 
 
 
@@ -87,11 +90,20 @@ import TransportReports from "./dashboards/TransportManager/TransportReports.js"
 import TransportManagerDashboard from "./dashboards/TransportManager/TransportManagerDashboard.js";
 import ApproveSuppliers from './pages/SysManager/ApproveSuppliers.js';
 import OrderStock from './components/InventoryM/OrderStock.js';
-import SupplierDashboard from "./dashboards/Supplier/SupplierDashboard.js";
+
 import TMprofile from "./dashboards/TransportManager/TransportManagerProfile.js";
 import SysManageCus from './dashboards/SM/ManageCustomers.js';
+
 import CustomerDetails from "./dashboards/CSM/CustomerDetails";
+
+import SupplierDashboard from "./components/SupplierM/SupplierDashboard.js";
+
+
 import AddVacancies from "./pages/SysManager/AddVacancies.js";
+import CheckStatus from "./pages/CheckStatus.js";
+import Vehicle from "../src/dashboards/TransportManager/Vehicles.js";
+import TrackOrder from "./dashboards/CSM/TrackOrder.js";
+
 
 function App() {
   return (
@@ -184,9 +196,19 @@ function App() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/add-vacancies" element={<AddVacancies />} />
+        <Route path="/check-status" element={<CheckStatus />} />
+
+
 
         <Route path="/transport-manager-profile" element={<TMprofile />} />
         <Route path="/sm-manage-cus" element={<SysManageCus />} />
+        <Route path="/vehicles" element={<Vehicle />} />
+
+        <Route path="/inv-profile" element={<InvProfile />} />
+        <Route path="/inv-update-profile" element={<InvUpdateProfile />} />
+        <Route path="/inv-change-password" element={<InvChangePassword />} />
+        <Route path="/csm/track-order" element={<TrackOrder />} />
+        <Route path="/csm/reviews" element={<ReviewManagement />} />
 
 
       </Routes>

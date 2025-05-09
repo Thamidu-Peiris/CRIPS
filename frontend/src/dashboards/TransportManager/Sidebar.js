@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaTruck, FaClipboardCheck, FaGasPump, FaMapMarkedAlt, FaChartBar, FaBook, FaUser, FaSignOutAlt, FaBox } from 'react-icons/fa';
+import { FaTruck, FaClipboardCheck, FaGasPump, FaMapMarkedAlt, FaChartBar, FaBook, FaUser, FaSignOutAlt, FaBox, FaCar } from 'react-icons/fa';
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -10,6 +10,7 @@ export default function Sidebar() {
     { name: "Shipment Status", icon: <FaTruck />, path: "/ShipmentStatus" },
     { name: "Quality Check Log", icon: <FaClipboardCheck />, path: "/quality-check-log" },
     { name: "Fuel Tracker", icon: <FaGasPump />, path: "/fuel-tracker" },
+    { name: "Vehicles", icon: <FaCar />, path: "/vehicles" }, // Added Vehicles option
     { name: "Shipment Scheduler", icon: <FaClipboardCheck />, path: "/shipment-scheduler" },
     { name: "Route Optimizer", icon: <FaMapMarkedAlt />, path: "/route-optimizer" },
     { name: "Transport Reports", icon: <FaChartBar />, path: "/transport-reports" },

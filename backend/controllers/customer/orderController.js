@@ -3,6 +3,7 @@
 const CustomerOrder = require("../../models/customer/CustomerOrder");
 const Coupon = require("../../models/customer/Coupon");
 const Transaction = require("../../models/salesManager/FinancialModel");
+const CsmModel = require("../../models/csm/csmModel"); // Import CsmModel to check user role
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require('uuid');
 
@@ -14,12 +15,14 @@ const getOrderById = async (req, res) => {
       return res.status(400).json({ message: "Valid userId is required" });
     }
 
-    const order = await CustomerOrder.findById(req.params.id);
+    const order = await CustomerOrder.findById(req.params.id).populate('userId', 'firstName lastName email');
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
     }
 
-    if (order.userId.toString() !== userId) {
+    // Check if the user is a Customer Service Manager
+    const user = await CsmModel.findById(userId);
+    if (!user || (user.role !== "Customer Service Manager" && order.userId.toString() !== userId)) {
       return res.status(403).json({ message: "Unauthorized access" });
     }
 
@@ -31,7 +34,7 @@ const getOrderById = async (req, res) => {
 };
 
 // Get orders by user ID
-const getOrdersByUserId = async (ereq, res) => {
+const getOrdersByUserId = async (req, res) => {
   try {
     const orders = await CustomerOrder.find({ userId: req.params.userId });
     res.status(200).json(orders);

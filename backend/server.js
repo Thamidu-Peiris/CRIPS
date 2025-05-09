@@ -44,6 +44,8 @@ const tmProfileRoutes = require('./routes/TransportManager/tmProfileRoutes');
 const transportRoutes = require('./routes/TransportManager/transportRoutes');
 const cusRoutes = require('./routes/SM/cusRouter');
 const vacancieRoutes = require('./routes/SM/vacancieRoutes');
+const vehicleRoutes = require('./routes/TransportManager/vehicleRoutes');
+const inventoryManagerRoutes = require('./routes/InventoryM/inventoryManagerRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -77,6 +79,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/transport', transportDashboardRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/orders', orderRoutes);
+app.use('/api/inventory-manager', inventoryManagerRoutes);
 
 // Validate MongoDB URI
 if (!MONGO_URI) {
@@ -124,6 +127,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/transport', transportRoutes);
 app.use('/api/smManageCustomer', cusRoutes);
 app.use('/api/vacancies', vacancieRoutes);
+app.use('/api/vehicles', vehicleRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
