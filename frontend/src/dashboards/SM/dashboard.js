@@ -1,28 +1,38 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Sidebar from "./sideBar.js";
+import Sidebar from "../../dashboards/SM/sideBar";
 import { useNavigate } from "react-router-dom";
 import {
-  FaDollarSign,
-  FaBox,
   FaUsers,
   FaTasks,
   FaUserCog,
-  FaBell,
-  FaTicketAlt,
-  FaExclamationTriangle,
   FaBriefcase,
   FaCheckCircle,
   FaHourglassHalf,
   FaTimesCircle,
+  FaTruck,
+  FaStar,
+  FaShoppingCart,
 } from "react-icons/fa";
+import { Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ sales: 0, stock: 0, visitors: 0 });
+  const [stats, setStats] = useState({
+    visitors: 0,
+    pendingJobs: 0,
+    pendingSuppliers: 0,
+    pendingFeedback: 0,
+    activeShipments: 0,
+    pendingOrders: 0,
+  });
   const [orders, setOrders] = useState([]);
   const [managerName, setManagerName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,42 +49,239 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      setError(null);
-  
-      // Try to fetch visitor stats first
-      const visitorsResponse = await axios.get("http://localhost:5000/api/visitor/stats");
-      setStats(prevStats => ({
-        ...prevStats,
-        visitors: visitorsResponse.data.dayCount || 0,
-      }));
-  
-      // Optional: Try other endpoints but ignore their errors for now
+      setErrors([]);
+
+      // Fetch visitor stats
       try {
-        const salesResponse = await axios.get("http://localhost:5000/api/stats/sales");
-        const stockResponse = await axios.get("http://localhost:5000/api/stats/stock");
-        const ordersResponse = await axios.get("http://localhost:5000/api/orders/recent");
-  
+        const visitorsResponse = await axios.get("http://localhost:5000/api/visitor/stats");
         setStats(prevStats => ({
           ...prevStats,
-          sales: salesResponse.data.total || 0,
-          stock: stockResponse.data.total || 0,
+          visitors: visitorsResponse.data.dayCount || 0,
         }));
-        setOrders(ordersResponse.data || []);
-      } catch (innerErr) {
-        console.warn("Other APIs not ready:", innerErr);
-        // Don't set error, so visitors still show
+      } catch (visitorErr) {
+        console.error("Error fetching visitor stats:", visitorErr);
+        setErrors(prev => [...prev, "Failed to load visitor data."]);
       }
-  
+
+      // Fetch all job applications and calculate pending job applications count
+      try {
+        const token = localStorage.getItem("token");
+        const applicationsResponse = await axios.get("http://localhost:5000/api/jobs/applications", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const pendingJobsCount = applicationsResponse.data.data.filter(app => app.status === "pending").length;
+        setStats(prevStats => ({
+          ...prevStats,
+          pendingJobs: pendingJobsCount || 0,
+        }));
+      } catch (jobsErr) {
+        console.error("Error fetching job applications for pending count:", jobsErr);
+        setErrors(prev => [...prev, "Failed to load pending job applications."]);
+      }
+
+      // Fetch all pending supplier applications and calculate pending supplier applications count
+      try {
+        const token = localStorage.getItem("token");
+        const suppliersResponse = await axios.get("http://localhost:5000/api/suppliers/pending", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const pendingSuppliersCount = suppliersResponse.data.suppliers.filter(supplier => supplier.status === "pending").length;
+        setStats(prevStats => ({
+          ...prevStats,
+          pendingSuppliers: pendingSuppliersCount || 0,
+        }));
+      } catch (suppliersErr) {
+        console.error("Error fetching pending supplier applications:", suppliersErr);
+        setErrors(prev => [...prev, "Failed to load pending supplier applications."]);
+      }
+
+      // Fetch all reviews and calculate pending feedback count
+      try {
+        const token = localStorage.getItem("token");
+        const reviewsResponse = await axios.get("http://localhost:5000/api/user-feed/all", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const pendingFeedbackCount = reviewsResponse.data.data.filter(review => review.status === "pending").length;
+        setStats(prevStats => ({
+          ...prevStats,
+          pendingFeedback: pendingFeedbackCount || 0,
+        }));
+      } catch (feedbackErr) {
+        console.error("Error fetching reviews for pending feedback count:", feedbackErr);
+        setErrors(prev => [...prev, "Failed to load pending feedback."]);
+      }
+
+      // Fetch active shipments
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Authentication token not found. Please log in.");
+        }
+        const transportStatsResponse = await axios.get("http://localhost:5000/api/transport/dashboard-stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = transportStatsResponse.data || {};
+        setStats(prevStats => ({
+          ...prevStats,
+          activeShipments: data.activeShipments || 0,
+        }));
+      } catch (transportErr) {
+        console.error("Error fetching transport stats:", transportErr);
+        setErrors(prev => [...prev, "Failed to load active shipments data."]);
+      }
+
+      // Fetch all orders, calculate pending order count, and filter the most recent ones
+      try {
+        const token = localStorage.getItem("token");
+        const ordersResponse = await axios.get("http://localhost:5000/api/orders", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Calculate pending order count
+        const pendingOrdersCount = ordersResponse.data.filter(order => order.status === "Pending").length;
+        setStats(prevStats => ({
+          ...prevStats,
+          pendingOrders: pendingOrdersCount || 0,
+        }));
+
+        // Transform orders to match the expected structure for Dashboard.js
+        const transformedOrders = ordersResponse.data
+          .filter(order => order._id && order.status)
+          .map(order => ({
+            _id: order._id,
+            item: order.item || "Unknown Item",
+            date: order.createdAt || new Date().toISOString(),
+            price: order.price !== undefined ? order.price : 0,
+            status: order.status || "Pending",
+          }))
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 5);
+        setOrders(transformedOrders || []);
+      } catch (ordersErr) {
+        console.error("Error fetching orders:", ordersErr);
+        setErrors(prev => [...prev, "Failed to load recent orders or pending order count."]);
+      }
+
     } catch (error) {
-      console.error("Error fetching visitor stats:", error);
-      setError("Failed to load visitor data.");
+      console.error("Error fetching dashboard data:", error);
+      setErrors(prev => [...prev, "An unexpected error occurred while loading dashboard data."]);
     } finally {
       setLoading(false);
     }
   };
-  
+
   const handleQuickAction = (path) => {
     navigate(path);
+  };
+
+  // Data for Bar Chart (System Metrics)
+  const barChartData = {
+    labels: [
+      "Active Shipments",
+      "Pending Orders",
+      "Visitors",
+      "Pending Jobs",
+      "Pending Suppliers",
+      "Pending Feedback",
+    ],
+    datasets: [
+      {
+        label: "Count",
+        data: [
+          stats.activeShipments,
+          stats.pendingOrders,
+          stats.visitors,
+          stats.pendingJobs,
+          stats.pendingSuppliers,
+          stats.pendingFeedback,
+        ],
+        backgroundColor: [
+          "rgba(34, 197, 94, 0.6)",  // Green for Active Shipments
+          "rgba(59, 130, 246, 0.6)", // Blue for Pending Orders
+          "rgba(234, 179, 8, 0.6)",  // Yellow for Visitors
+          "rgba(139, 92, 246, 0.6)", // Purple for Pending Jobs
+          "rgba(249, 115, 22, 0.6)", // Orange for Pending Suppliers
+          "rgba(239, 68, 68, 0.6)",  // Red for Pending Feedback
+        ],
+        borderColor: [
+          "rgba(34, 197, 94, 1)",
+          "rgba(59, 130, 246, 1)",
+          "rgba(234, 179, 8, 1)",
+          "rgba(139, 92, 246, 1)",
+          "rgba(249, 115, 22, 1)",
+          "rgba(239, 68, 68, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Data for Pie Chart (Order Status Distribution)
+  const orderStatusCounts = orders.reduce((acc, order) => {
+    acc[order.status] = (acc[order.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  const pieChartData = {
+    labels: Object.keys(orderStatusCounts),
+    datasets: [
+      {
+        label: "Order Status",
+        data: Object.values(orderStatusCounts),
+        backgroundColor: [
+          "rgba(234, 179, 8, 0.6)",  // Yellow for Pending
+          "rgba(236, 72, 153, 0.6)", // Pink for Shipped
+          "rgba(34, 197, 94, 0.6)",  // Green for Delivered
+          "rgba(239, 68, 68, 0.6)",  // Red for Cancelled
+        ],
+        borderColor: [
+          "rgba(234, 179, 8, 1)",
+          "rgba(236, 72, 153, 1)",
+          "rgba(34, 197, 94, 1)",
+          "rgba(239, 68, 68, 1)",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          font: {
+            size: 14,
+            family: "'Inter', sans-serif",
+          },
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleFont: { size: 14 },
+        bodyFont: { size: 12 },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif",
+          },
+        },
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12,
+            family: "'Inter', sans-serif",
+          },
+        },
+      },
+    },
   };
 
   return (
@@ -99,27 +306,29 @@ const Dashboard = () => {
         )}
 
         {/* Error State */}
-        {error && (
+        {errors.length > 0 && (
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
-            <p>{error}</p>
+            {errors.map((err, index) => (
+              <p key={index}>{err}</p>
+            ))}
           </div>
         )}
 
         {/* Stats Cards */}
-        {!loading && !error && (
+        {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 flex items-center">
-              <FaDollarSign className="text-4xl text-green-500 mr-4" />
+              <FaTruck className="text-4xl text-green-500 mr-4" />
               <div>
-                <h2 className="text-xl font-semibold text-green-900">Sales</h2>
-                <p className="text-3xl font-bold text-gray-800">${stats.sales.toLocaleString()}</p>
+                <h2 className="text-xl font-semibold text-green-900">Active Shipments</h2>
+                <p className="text-3xl font-bold text-gray-800">{stats.activeShipments}</p>
               </div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 flex items-center">
-              <FaBox className="text-4xl text-green-500 mr-4" />
+              <FaShoppingCart className="text-4xl text-green-500 mr-4" />
               <div>
-                <h2 className="text-xl font-semibold text-green-900">Stock</h2>
-                <p className="text-3xl font-bold text-gray-800">{stats.stock.toLocaleString()}</p>
+                <h2 className="text-xl font-semibold text-green-900">Pending Orders</h2>
+                <p className="text-3xl font-bold text-gray-800">{stats.pendingOrders}</p>
               </div>
             </div>
             <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 flex items-center">
@@ -133,7 +342,7 @@ const Dashboard = () => {
         )}
 
         {/* Quick Actions Section */}
-        {!loading && !error && (
+        {!loading && (
           <div className="bg-white p-6 rounded-xl shadow-md mb-6">
             <h2 className="text-xl font-semibold text-green-900 mb-4">Quick Actions</h2>
             <div className="flex space-x-4">
@@ -154,28 +363,54 @@ const Dashboard = () => {
         )}
 
         {/* System Overview Section */}
-        {!loading && !error && (
+        {!loading && (
           <div className="bg-white p-6 rounded-xl shadow-md mb-6">
             <h2 className="text-xl font-semibold text-green-900 mb-4">System Overview</h2>
             <ul className="space-y-2">
               <li className="text-gray-600 flex items-center">
                 <FaBriefcase className="mr-2 text-green-500" />
-                Pending Job Applications: <span className="font-semibold ml-1 text-gray-800">5</span>
+                Pending Job Applications: <span className="font-semibold ml-1 text-gray-800">{stats.pendingJobs}</span>
               </li>
               <li className="text-gray-600 flex items-center">
-                <FaTicketAlt className="mr-2 text-yellow-500" />
-                Pending Support Tickets: <span className="font-semibold ml-1 text-gray-800">3</span>
+                <FaTruck className="mr-2 text-blue-500" />
+                Pending Supplier Applications: <span className="font-semibold ml-1 text-gray-800">{stats.pendingSuppliers}</span>
               </li>
               <li className="text-gray-600 flex items-center">
-                <FaExclamationTriangle className="mr-2 text-red-500" />
-                System Alerts: <span className="font-semibold ml-1 text-gray-800">0</span>
+                <FaStar className="mr-2 text-yellow-500" />
+                Pending Feedback: <span className="font-semibold ml-1 text-gray-800">{stats.pendingFeedback}</span>
               </li>
             </ul>
           </div>
         )}
 
+        {/* Data Analytics Section */}
+        {!loading && (
+          <div className="bg-white p-6 rounded-xl shadow-md mb-6">
+            <h2 className="text-xl font-semibold text-green-900 mb-4">Data Analytics</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Bar Chart for System Metrics */}
+              <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                <h3 className="text-lg font-medium text-gray-800 mb-4">System Metrics Overview</h3>
+                <div className="h-80">
+                  <Bar data={barChartData} options={chartOptions} />
+                </div>
+              </div>
+
+              {/* Pie Chart for Order Status Distribution */}
+              <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                <h3 className="text-lg font-medium text-gray-800 mb-4">Order Status Distribution</h3>
+                <div className="h-80 flex justify-center">
+                  <div className="w-64">
+                    <Pie data={pieChartData} options={chartOptions} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Recent Orders Section */}
-        {!loading && !error && (
+        {!loading && (
           <div className="bg-white p-6 rounded-xl shadow-md">
             <h2 className="text-xl font-semibold text-green-900 mb-4">Recent Orders</h2>
             {orders.length === 0 ? (
@@ -188,9 +423,9 @@ const Dashboard = () => {
                     className="border-b border-gray-200 py-2 flex justify-between items-center"
                   >
                     <div>
-                      <span className="font-medium text-gray-800">{order.item}</span>
+                      <span className="font-medium text-gray-800">{order.item || "Unknown Item"}</span>
                       <p className="text-sm text-gray-500">
-                        {new Date(order.date).toLocaleDateString()} | ${order.price.toLocaleString()}
+                        {order.date ? new Date(order.date).toLocaleDateString() : "Unknown Date"} | ${order.price ? order.price.toLocaleString() : "0"}
                       </p>
                     </div>
                     <span

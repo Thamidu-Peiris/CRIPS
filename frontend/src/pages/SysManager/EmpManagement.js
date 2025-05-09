@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../dashboards/SM/sideBar";
-import { FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBirthdayCake, FaEdit, FaTrash } from "react-icons/fa";
+import { FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBirthdayCake, FaTrash, FaDownload } from "react-icons/fa";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const SMDashboard = () => {
   const [employees, setEmployees] = useState([]);
@@ -13,6 +15,8 @@ const SMDashboard = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [managerName, setManagerName] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteEmployeeId, setDeleteEmployeeId] = useState(null);
   const navigate = useNavigate();
 
   const categories = [
@@ -34,7 +38,7 @@ const SMDashboard = () => {
     }
     fetchAllEmployees();
   }, []);
-  
+
   // Filter employees whenever employees or selectedCategory changes
   useEffect(() => {
     filterEmployeesByCategory(selectedCategory);
@@ -57,7 +61,7 @@ const SMDashboard = () => {
         navigate("/login");
         return;
       }
-  
+
       const response = await axios.get("http://localhost:5000/api/systemManagers/employees", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -79,239 +83,178 @@ const SMDashboard = () => {
     console.log("Filtering employees for category:", category);
     console.log("All employees:", employees);
     setSelectedCategory(category);
-  
+
     const filtered = employees.filter((emp) => emp.role === category);
-  
+
     console.log("Computed filtered employees:", filtered);
     setFilteredEmployees(filtered);
   };
 
-  const handleUpdateEmployee = async (id, updatedData) => {
-    try {
-      setLoading(true);
-      setError("");
-      setSuccessMessage("");
-      const token = localStorage.getItem("token");
-      const role = encodeURIComponent(selectedEmployee.role);
-      const response = await axios.put(
-        `http://localhost:5000/api/systemManagers/employees/${role}/${id}`,
-        updatedData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setSuccessMessage("Employee updated successfully!");
-      // Update employees state locally
-      setEmployees((prev) =>
-        prev.map((emp) => (emp._id === id ? response.data.data : emp))
-      );
-      setSelectedEmployee(null);
-    } catch (error) {
-      console.error("Error updating employee:", error);
-      setError(error.response?.data?.message || "Failed to update employee. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  const openDeleteConfirm = (id) => {
+    setDeleteEmployeeId(id);
+    setShowDeleteConfirm(true);
   };
-  
-  const handleDeleteEmployee = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this employee?")) return;
+
+  const closeDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+    setDeleteEmployeeId(null);
+  };
+
+  const handleDeleteEmployee = async () => {
+    if (!deleteEmployeeId) return;
+
     try {
       setLoading(true);
       setError("");
       setSuccessMessage("");
       const token = localStorage.getItem("token");
       const role = encodeURIComponent(selectedEmployee.role);
-      await axios.delete(`http://localhost:5000/api/systemManagers/employees/${role}/${id}`, {
+      await axios.delete(`http://localhost:5000/api/systemManagers/employees/${role}/${deleteEmployeeId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSuccessMessage("Employee deleted successfully!");
       // Update employees state locally
-      setEmployees((prev) => prev.filter((emp) => emp._id !== id));
+      setEmployees((prev) => prev.filter((emp) => emp._id !== deleteEmployeeId));
       setSelectedEmployee(null);
     } catch (error) {
       console.error("Error deleting employee:", error);
       setError(error.response?.data?.message || "Failed to delete employee. Please try again.");
     } finally {
       setLoading(false);
+      closeDeleteConfirm();
     }
   };
 
-  const EmployeeModal = ({ employee, onClose, onUpdate, onDelete }) => {
-    const [formData, setFormData] = useState({ ...employee });
-    const [isEditing, setIsEditing] = useState(false);
+  // Export employees list as PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Employee List - CRIPS System', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Category: ${selectedCategory}`, 14, 30);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 38);
 
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
-    };
+    const tableColumn = [
+      "Name",
+      "Role",
+      "Email",
+      "Contact No",
+      "Address",
+      "Date of Birth"
+    ];
+    const tableRows = [];
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      onUpdate(employee._id, formData);
-      setIsEditing(false);
-    };
+    filteredEmployees.forEach(emp => {
+      const empData = [
+        `${emp.firstName} ${emp.lastName}`,
+        emp.role,
+        emp.email,
+        emp.contactNo || "N/A",
+        emp.address || "N/A",
+        emp.dob ? new Date(emp.dob).toLocaleDateString() : "N/A"
+      ];
+      tableRows.push(empData);
+    });
 
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 48,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [34, 197, 94] }, // Green color for header (matches Tailwind's green-500)
+      margin: { top: 48 },
+    });
+
+    doc.save('employee-list.pdf');
+  };
+
+  const EmployeeModal = ({ employee, onClose, onDelete }) => {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
         <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
           <h2 className="text-2xl font-semibold text-green-900 mb-4">
-            {isEditing ? "Update Employee" : "Employee Details"}
+            Employee Details
           </h2>
-          {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Role</label>
-                <input
-                  type="text"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                  disabled
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Contact No</label>
-                <input
-                  type="text"
-                  name="contactNo"
-                  value={formData.contactNo}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Date of Birth</label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={formData.dob ? new Date(formData.dob).toISOString().split("T")[0] : ""}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div className="flex space-x-4 mt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300"
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save Changes"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <FaUser className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Name:</strong> {employee.firstName} {employee.lastName}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaUser className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Role:</strong> {employee.role}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaEnvelope className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Email:</strong> {employee.email}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaPhone className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Contact:</strong> {employee.contactNo || "N/A"}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Address:</strong> {employee.address || "N/A"}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaBirthdayCake className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>DOB:</strong>{" "}
-                  {employee.dob ? new Date(employee.dob).toLocaleDateString() : "N/A"}
-                </p>
-              </div>
-              <div className="flex space-x-4 mt-4">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
-                >
-                  <FaEdit className="mr-2" /> Update
-                </button>
-                <button
-                  onClick={() => onDelete(employee._id)}
-                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
-                >
-                  <FaTrash className="mr-2" /> Delete
-                </button>
-              </div>
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <FaUser className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Name:</strong> {employee.firstName} {employee.lastName}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaUser className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Role:</strong> {employee.role}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaEnvelope className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Email:</strong> {employee.email}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaPhone className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Contact:</strong> {employee.contactNo || "N/A"}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Address:</strong> {employee.address || "N/A"}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaBirthdayCake className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>DOB:</strong>{" "}
+                {employee.dob ? new Date(employee.dob).toLocaleDateString() : "N/A"}
+              </p>
+            </div>
+            <div className="flex space-x-4 mt-4">
               <button
-                onClick={onClose}
-                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300 mt-2"
+                onClick={() => openDeleteConfirm(employee._id)}
+                className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
               >
-                Close
+                <FaTrash className="mr-2" /> Delete
               </button>
             </div>
-          )}
+            <button
+              onClick={onClose}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300 mt-2"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ConfirmationModal = ({ onConfirm, onCancel }) => {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-green-900 mb-4">Confirm Deletion</h2>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to delete this employee? This action cannot be undone.
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={onConfirm}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300"
+            >
+              Delete
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -330,12 +273,20 @@ const SMDashboard = () => {
               </h1>
               <p className="text-xl mt-2 font-light text-gray-100">Welcome, {managerName}!</p>
             </div>
-            <button
-              onClick={() => navigate("/sm-dashboard")}
-              className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition duration-300"
-            >
-              <FaArrowLeft className="mr-2" /> Back
-            </button>
+            <div className="flex space-x-4">
+              <button
+                onClick={exportToPDF}
+                className="flex items-center bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition duration-300"
+              >
+                <FaDownload className="mr-2" /> Export to PDF
+              </button>
+              <button
+                onClick={() => navigate("/sm-dashboard")}
+                className="flex items-center bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl transition duration-300"
+              >
+                <FaArrowLeft className="mr-2" /> Back
+              </button>
+            </div>
           </div>
         </div>
 
@@ -408,8 +359,15 @@ const SMDashboard = () => {
           <EmployeeModal
             employee={selectedEmployee}
             onClose={() => setSelectedEmployee(null)}
-            onUpdate={handleUpdateEmployee}
-            onDelete={handleDeleteEmployee}
+            onDelete={openDeleteConfirm}
+          />
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <ConfirmationModal
+            onConfirm={handleDeleteEmployee}
+            onCancel={closeDeleteConfirm}
           />
         )}
       </div>

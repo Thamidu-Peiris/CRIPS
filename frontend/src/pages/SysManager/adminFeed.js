@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import Sidebar from "../../dashboards/SM/sideBar";
-import { FaArrowLeft,FaHourglassHalf, FaStar, FaCheckCircle, FaTimesCircle, FaTrash } from "react-icons/fa";
+import { FaArrowLeft, FaHourglassHalf, FaStar, FaCheckCircle, FaTimesCircle, FaTrash } from "react-icons/fa";
 
 const AdminFeed = () => {
   const [reviews, setReviews] = useState([]);
@@ -10,6 +10,10 @@ const AdminFeed = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [managerName, setManagerName] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmReviewId, setConfirmReviewId] = useState(null);
+  const [confirmStatus, setConfirmStatus] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,13 +71,27 @@ const AdminFeed = () => {
     fetchReviews();
   }, [navigate]);
 
-  const handleAction = async (reviewId, status) => {
-    const confirmMessage =
-      status === "approved"
-        ? "Are you sure you want to approve this review?"
-        : "Are you sure you want to reject this review?";
-    if (!window.confirm(confirmMessage)) return;
+  // Open Confirmation Modal for Approve/Reject/Delete
+  const openConfirmModal = (reviewId, status, actionType = "status") => {
+    setConfirmReviewId(reviewId);
+    setConfirmStatus(status);
+    if (actionType === "delete") {
+      setConfirmAction(() => () => handleDelete(reviewId));
+    } else {
+      setConfirmAction(() => () => handleAction(reviewId, status));
+    }
+    setShowConfirmModal(true);
+  };
 
+  // Close Confirmation Modal
+  const closeConfirmModal = () => {
+    setShowConfirmModal(false);
+    setConfirmReviewId(null);
+    setConfirmStatus("");
+    setConfirmAction(null);
+  };
+
+  const handleAction = async (reviewId, status) => {
     try {
       setLoading(true);
       setError("");
@@ -93,12 +111,11 @@ const AdminFeed = () => {
       setError(error.response?.data?.message || `Failed to ${status} review. Please try again.`);
     } finally {
       setLoading(false);
+      closeConfirmModal();
     }
   };
 
   const handleDelete = async (reviewId) => {
-    if (!window.confirm("Are you sure you want to delete this review? This action cannot be undone.")) return;
-
     try {
       setLoading(true);
       setError("");
@@ -116,7 +133,39 @@ const AdminFeed = () => {
       setError(error.response?.data?.message || "Failed to delete review. Please try again.");
     } finally {
       setLoading(false);
+      closeConfirmModal();
     }
+  };
+
+  const ConfirmationModal = ({ onConfirm, onCancel, action, status }) => {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-green-900 mb-4">Confirm Action</h2>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to {action === "delete" ? "delete" : status.toLowerCase()} this review? {action === "delete" ? "This action cannot be undone." : ""}
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={onConfirm}
+              className={`w-full py-3 rounded-xl transition duration-300 ${
+                action === "delete" ? 'bg-red-500 hover:bg-red-600 text-white' :
+                status === "approved" ? 'bg-green-500 hover:bg-green-600 text-white' :
+                'bg-red-500 hover:bg-red-600 text-white'
+              }`}
+            >
+              {action === "delete" ? "Delete" : status === "approved" ? "Approve" : "Reject"}
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -208,14 +257,14 @@ const AdminFeed = () => {
                   {review.status === "pending" && (
                     <>
                       <button
-                        onClick={() => handleAction(review._id, "approved")}
+                        onClick={() => openConfirmModal(review._id, "approved")}
                         className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors duration-300 font-medium flex items-center"
                         disabled={loading}
                       >
                         <FaCheckCircle className="mr-2" /> {loading ? "Processing..." : "Approve"}
                       </button>
                       <button
-                        onClick={() => handleAction(review._id, "rejected")}
+                        onClick={() => openConfirmModal(review._id, "rejected")}
                         className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
                         disabled={loading}
                       >
@@ -224,7 +273,7 @@ const AdminFeed = () => {
                     </>
                   )}
                   <button
-                    onClick={() => handleDelete(review._id)}
+                    onClick={() => openConfirmModal(review._id, null, "delete")}
                     className="bg-gray-500 text-white px-6 py-2 rounded-xl hover:bg-gray-600 transition-colors duration-300 font-medium flex items-center"
                     disabled={loading}
                   >
@@ -234,6 +283,16 @@ const AdminFeed = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Confirmation Modal */}
+        {showConfirmModal && (
+          <ConfirmationModal
+            onConfirm={confirmAction}
+            onCancel={closeConfirmModal}
+            action={confirmStatus ? (confirmStatus === "approved" ? "approve" : "reject") : "delete"}
+            status={confirmStatus}
+          />
         )}
       </div>
     </div>

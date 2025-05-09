@@ -9,6 +9,10 @@ export default function AddVacancies() {
   const [editingVacancy, setEditingVacancy] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [formErrors, setFormErrors] = useState({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteVacancyId, setDeleteVacancyId] = useState(null);
 
   // Predefined career opportunities
   const careerOptions = [
@@ -33,6 +37,14 @@ export default function AddVacancies() {
   useEffect(() => {
     fetchVacancies();
   }, []);
+
+  // Clear success message after 5 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => setSuccessMessage(''), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
@@ -68,13 +80,27 @@ export default function AddVacancies() {
     }
   };
 
+  const validateForm = (vacancy) => {
+    const errors = {};
+    if (!vacancy.title) {
+      errors.title = 'Job Title is required';
+    }
+    if (!vacancy.description.trim()) {
+      errors.description = 'Description is required';
+    }
+    return errors;
+  };
+
   const handleAddVacancy = async () => {
-    if (!newVacancy.title || !newVacancy.description) {
-      setError('Title and description are required.');
+    const validationErrors = validateForm(newVacancy);
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors);
       return;
     }
+
     setIsLoading(true);
     setError(null);
+    setSuccessMessage('');
     try {
       // Set the background image based on the selected role
       const vacancyWithImage = {
@@ -82,7 +108,9 @@ export default function AddVacancies() {
         backgroundImage: roleImageMap[newVacancy.title] || '',
       };
       await axios.post('http://localhost:5000/api/vacancies', vacancyWithImage, getAuthHeaders());
+      setSuccessMessage('Vacancy added successfully!');
       setNewVacancy({ title: '', description: '', backgroundImage: '' });
+      setFormErrors({});
       fetchVacancies();
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to add vacancy. Please try again.';
@@ -100,12 +128,15 @@ export default function AddVacancies() {
   };
 
   const handleEditVacancy = async () => {
-    if (!editingVacancy.title || !editingVacancy.description) {
-      setError('Title and description are required.');
+    const validationErrors = validateForm(editingVacancy);
+    if (Object.keys(validationErrors).length > 0) {
+      setFormErrors(validationErrors);
       return;
     }
+
     setIsLoading(true);
     setError(null);
+    setSuccessMessage('');
     try {
       // Set the background image based on the selected role
       const vacancyWithImage = {
@@ -113,7 +144,9 @@ export default function AddVacancies() {
         backgroundImage: roleImageMap[editingVacancy.title] || '',
       };
       await axios.put(`http://localhost:5000/api/vacancies/${editingVacancy._id}`, vacancyWithImage, getAuthHeaders());
+      setSuccessMessage('Vacancy updated successfully!');
       setEditingVacancy(null);
+      setFormErrors({});
       fetchVacancies();
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to update vacancy. Please try again.';
@@ -130,11 +163,25 @@ export default function AddVacancies() {
     }
   };
 
-  const handleDeleteVacancy = async (id) => {
+  const openDeleteConfirm = (id) => {
+    setDeleteVacancyId(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+    setDeleteVacancyId(null);
+  };
+
+  const handleDeleteVacancy = async () => {
+    if (!deleteVacancyId) return;
+
     setIsLoading(true);
     setError(null);
+    setSuccessMessage('');
     try {
-      await axios.delete(`http://localhost:5000/api/vacancies/${id}`, getAuthHeaders());
+      await axios.delete(`http://localhost:5000/api/vacancies/${deleteVacancyId}`, getAuthHeaders());
+      setSuccessMessage('Vacancy deleted successfully!');
       fetchVacancies();
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to delete vacancy. Please try again.';
@@ -148,6 +195,7 @@ export default function AddVacancies() {
       console.error('Failed to delete vacancy:', error.response ? error.response.data : error.message);
     } finally {
       setIsLoading(false);
+      closeDeleteConfirm();
     }
   };
 
@@ -157,9 +205,49 @@ export default function AddVacancies() {
     const backgroundImage = roleImageMap[selectedTitle] || '';
     if (editingVacancy) {
       setEditingVacancy({ ...editingVacancy, title: selectedTitle, backgroundImage });
+      setFormErrors((prev) => ({ ...prev, title: '' }));
     } else {
       setNewVacancy({ ...newVacancy, title: selectedTitle, backgroundImage });
+      setFormErrors((prev) => ({ ...prev, title: '' }));
     }
+  };
+
+  const handleDescriptionChange = (e) => {
+    const description = e.target.value;
+    if (editingVacancy) {
+      setEditingVacancy({ ...editingVacancy, description });
+      setFormErrors((prev) => ({ ...prev, description: '' }));
+    } else {
+      setNewVacancy({ ...newVacancy, description });
+      setFormErrors((prev) => ({ ...prev, description: '' }));
+    }
+  };
+
+  const ConfirmationModal = ({ onConfirm, onCancel }) => {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-green-900 mb-4">Confirm Deletion</h2>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to delete this vacancy? This action cannot be undone.
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={onConfirm}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300"
+            >
+              Delete
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -177,41 +265,53 @@ export default function AddVacancies() {
         </header>
 
         <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200">
+          {/* Error and Success Messages */}
+          {error && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
+              {error}
+            </div>
+          )}
+          {successMessage && (
+            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-xl">
+              {successMessage}
+            </div>
+          )}
+
           {/* Add/Edit Vacancy Form */}
           <div className="mb-8 bg-gray-50 p-4 rounded-xl shadow-inner border border-gray-200">
             <h2 className="text-2xl font-semibold text-green-900 mb-4 flex items-center">
               <FaBriefcase className="mr-2 text-green-500" />
               {editingVacancy ? 'Edit Vacancy' : 'Add New Vacancy'}
             </h2>
-            {error && (
-              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
-                {error}
-              </div>
-            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-gray-600 font-semibold mb-1">Job Title *</label>
                 <select
                   value={editingVacancy ? editingVacancy.title : newVacancy.title}
                   onChange={handleTitleChange}
-                  className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
+                  className={`w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 ${formErrors.title ? 'border-red-500' : ''}`}
                 >
                   <option value="">Select Job Title</option>
                   {careerOptions.map((option) => (
                     <option key={option} value={option}>{option}</option>
                   ))}
                 </select>
+                {formErrors.title && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className="block text-gray-600 font-semibold mb-1">Description *</label>
                 <input
                   type="text"
                   value={editingVacancy ? editingVacancy.description : newVacancy.description}
-                  onChange={(e) => editingVacancy ? setEditingVacancy({ ...editingVacancy, description: e.target.value }) : setNewVacancy({ ...newVacancy, description: e.target.value })}
+                  onChange={handleDescriptionChange}
                   placeholder="Job Description"
-                  className="w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`w-full p-2 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 ${formErrors.description ? 'border-red-500' : ''}`}
                 />
+                {formErrors.description && (
+                  <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>
+                )}
               </div>
             </div>
             <div className="mt-4 flex justify-end space-x-4">
@@ -225,7 +325,10 @@ export default function AddVacancies() {
                     {isLoading ? 'Saving...' : 'Save Changes'}
                   </button>
                   <button
-                    onClick={() => setEditingVacancy(null)}
+                    onClick={() => {
+                      setEditingVacancy(null);
+                      setFormErrors({});
+                    }}
                     disabled={isLoading}
                     className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition-all duration-300 disabled:opacity-50"
                   >
@@ -285,7 +388,7 @@ export default function AddVacancies() {
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDeleteVacancy(vacancy._id)}
+                            onClick={() => openDeleteConfirm(vacancy._id)}
                             className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition-all duration-200"
                           >
                             Delete
@@ -299,6 +402,14 @@ export default function AddVacancies() {
             )}
           </div>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <ConfirmationModal
+            onConfirm={handleDeleteVacancy}
+            onCancel={closeDeleteConfirm}
+          />
+        )}
       </div>
     </div>
   );

@@ -12,6 +12,10 @@ const ApproveSuppliers = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [managerName, setManagerName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [confirmSupplierId, setConfirmSupplierId] = useState(null);
+  const [confirmStatus, setConfirmStatus] = useState('');
   const navigate = useNavigate();
 
   // Clear success message after 5 seconds
@@ -102,15 +106,24 @@ const ApproveSuppliers = () => {
     setFilteredSuppliers(filtered);
   }, [searchQuery, pendingSuppliers]);
 
+  // Open Confirmation Modal
+  const openConfirmModal = (supplierId, status) => {
+    setConfirmSupplierId(supplierId);
+    setConfirmStatus(status);
+    setConfirmAction(() => () => handleAction(supplierId, status));
+    setShowConfirmModal(true);
+  };
+
+  // Close Confirmation Modal
+  const closeConfirmModal = () => {
+    setShowConfirmModal(false);
+    setConfirmSupplierId(null);
+    setConfirmStatus('');
+    setConfirmAction(null);
+  };
+
   // Handle approve/reject action
   const handleAction = async (supplierId, status) => {
-    const confirmMessage = status === 'approved'
-      ? 'Are you sure you want to approve this supplier?'
-      : 'Are you sure you want to reject this supplier?';
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
     try {
       setLoading(true);
       setSuccessMessage('');
@@ -144,7 +157,39 @@ const ApproveSuppliers = () => {
       }
     } finally {
       setLoading(false);
+      closeConfirmModal();
     }
+  };
+
+  const ConfirmationModal = ({ onConfirm, onCancel, action, supplierStatus }) => {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-green-900 mb-4">Confirm Action</h2>
+          <p className="text-gray-600 mb-6">
+            Are you sure you want to {action} this supplier?
+          </p>
+          <div className="flex space-x-4">
+            <button
+              onClick={onConfirm}
+              className={`w-full py-3 rounded-xl transition duration-300 ${
+                supplierStatus === 'approved'
+                  ? 'bg-green-500 hover:bg-green-600 text-white'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+              }`}
+            >
+              {supplierStatus === 'approved' ? 'Approve' : 'Reject'}
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -266,14 +311,14 @@ const ApproveSuppliers = () => {
                 {supplier.status.toLowerCase() === 'pending' ? (
                   <div className="mt-4 flex space-x-4">
                     <button
-                      onClick={() => handleAction(supplier._id, 'approved')}
+                      onClick={() => openConfirmModal(supplier._id, 'approved')}
                       className="bg-green-500 text-white px-6 py-2 rounded-xl hover:bg-green-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
                       <FaCheckCircle className="mr-2" /> {loading ? 'Processing...' : 'Approve'}
                     </button>
                     <button
-                      onClick={() => handleAction(supplier._id, 'rejected')}
+                      onClick={() => openConfirmModal(supplier._id, 'rejected')}
                       className="bg-red-500 text-white px-6 py-2 rounded-xl hover:bg-red-600 transition-colors duration-300 font-medium flex items-center"
                       disabled={loading}
                     >
@@ -286,6 +331,16 @@ const ApproveSuppliers = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Confirmation Modal */}
+        {showConfirmModal && (
+          <ConfirmationModal
+            onConfirm={confirmAction}
+            onCancel={closeConfirmModal}
+            action={confirmStatus === 'approved' ? 'approve' : 'reject'}
+            supplierStatus={confirmStatus}
+          />
         )}
       </div>
     </div>

@@ -21,10 +21,10 @@ export default function ShipmentScheduler() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [formError, setFormError] = useState(''); // For form validation errors inside modal
-  const [globalMessage, setGlobalMessage] = useState(null); // For success/error messages outside modal
-  const [globalMessageType, setGlobalMessageType] = useState(""); // Type: "success", "error", "confirm"
-  const [confirmAction, setConfirmAction] = useState(null); // Store the action to confirm (status update/delete)
+  const [formError, setFormError] = useState('');
+  const [globalMessage, setGlobalMessage] = useState(null);
+  const [globalMessageType, setGlobalMessageType] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     fetchSchedules();
@@ -33,7 +33,6 @@ export default function ShipmentScheduler() {
     fetchDrivers();
   }, []);
 
-  // Re-fetch drivers and vehicles whenever departureDate changes
   useEffect(() => {
     if (isModalOpen && newSchedule.departureDate) {
       fetchVehicles();
@@ -41,7 +40,6 @@ export default function ShipmentScheduler() {
     }
   }, [newSchedule.departureDate, isModalOpen]);
 
-  // Automatically clear global message after 3 seconds if it's a success or error
   useEffect(() => {
     if (globalMessage && (globalMessageType === "success" || globalMessageType === "error")) {
       const timer = setTimeout(() => {
@@ -56,7 +54,13 @@ export default function ShipmentScheduler() {
     setIsLoading(true);
     try {
       const response = await axios.get('http://localhost:5000/api/schedules');
-      setSchedules(response.data);
+      // Filter schedules to only show those with status "Scheduled"
+      const scheduledOnly = response.data.filter(schedule => schedule.status === "Scheduled");
+      setSchedules(scheduledOnly);
+      // Log shipment IDs to debug duplicates
+      const shipmentIds = response.data.map(schedule => schedule.shipmentId);
+      console.log("Fetched shipment IDs (all statuses):", shipmentIds);
+      console.log("Filtered schedules (Scheduled status only):", scheduledOnly);
     } catch (error) {
       console.error('Failed to fetch schedules:', error.response?.data || error.message);
       setGlobalMessage(error.response?.data?.error || 'Failed to fetch schedules. Please try again.');
@@ -115,7 +119,7 @@ export default function ShipmentScheduler() {
   };
 
   const validateForm = () => {
-    const currentDate = new Date('2025-05-07'); // Current date as of May 07, 2025
+    const currentDate = new Date('2025-05-07');
     const departureDate = new Date(newSchedule.departureDate);
     const arrivalDate = new Date(newSchedule.expectedArrivalDate);
 
@@ -165,7 +169,11 @@ export default function ShipmentScheduler() {
         throw new Error(`The following order IDs are invalid or no longer confirmed: ${invalidOrderIds.join(', ')}`);
       }
 
-      const response = await axios.post('http://localhost:5000/api/schedules', { ...newSchedule, orderIds: validOrderIds });
+      const payload = { ...newSchedule, orderIds: validOrderIds };
+      // Ensure shipmentId is not sent, letting the backend generate it
+      delete payload.shipmentId;
+      const response = await axios.post('http://localhost:5000/api/schedules', payload);
+      console.log("Created schedule with shipmentId:", response.data.shipmentId);
       setNewSchedule({
         orderIds: [],
         vehicleId: '',
@@ -250,10 +258,13 @@ export default function ShipmentScheduler() {
 
   const handleStatusUpdate = async (id, status, delayReason = '') => {
     try {
+      // Update the schedule status
       await axios.put(`http://localhost:5000/api/schedules/${id}/update`, { status, delayReason });
+      // If status is "In Progress", create a corresponding Shipment record
       if (status === 'In Progress') {
         await axios.post(`http://localhost:5000/api/shipments/scheduler/${id}/complete`);
       }
+      // Refresh the schedules list (only "Scheduled" status will be shown)
       await fetchSchedules();
       await fetchOrders();
       await fetchVehicles();
@@ -289,7 +300,6 @@ export default function ShipmentScheduler() {
     }
   };
 
-  // Function to show confirmation dialog
   const showConfirmation = (action, id, status = '', delayReason = '') => {
     setConfirmAction({ action, id, status, delayReason });
     setGlobalMessage(
@@ -300,7 +310,6 @@ export default function ShipmentScheduler() {
     setGlobalMessageType("confirm");
   };
 
-  // Function to handle confirmation
   const handleConfirm = () => {
     if (confirmAction.action === 'delete') {
       handleDeleteSchedule(confirmAction.id);
@@ -309,7 +318,6 @@ export default function ShipmentScheduler() {
     }
   };
 
-  // Function to close the global message
   const closeGlobalMessage = () => {
     setGlobalMessage(null);
     setGlobalMessageType("");
@@ -343,7 +351,6 @@ export default function ShipmentScheduler() {
           </p>
         </motion.header>
 
-        {/* Global Message Display (Success/Error/Confirmation) */}
         <AnimatePresence>
           {globalMessage && (
             <motion.div
@@ -424,7 +431,7 @@ export default function ShipmentScheduler() {
             {isLoading ? (
               <div className="text-center text-gray-600">Loading...</div>
             ) : schedules.length === 0 ? (
-              <div className="text-center text-gray-600">No schedules available.</div>
+              <div className="text-center text-gray-600">No scheduled shipments available.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../dashboards/SM/sideBar';
-import { FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBuilding, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaBuilding, FaTrash } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const API_BASE_URL = 'http://localhost:5000/api/smManageCustomer';
 
@@ -10,22 +12,12 @@ const ManageCustomers = () => {
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [editedCustomer, setEditedCustomer] = useState({
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    address: '',
-    phoneNumber: '',
-    companyName: '',
-    businessAddress: '',
-    taxId: '',
-    status: '',
-  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [managerName, setManagerName] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
   const navigate = useNavigate();
 
   // Fetch manager name and customers on component mount
@@ -90,312 +82,197 @@ const ManageCustomers = () => {
     setSelectedCustomer(null);
   };
 
-  // Open Edit Modal
-  const openEditModal = async (customer) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/${customer._id}`);
-      setSelectedCustomer(response.data);
-      setEditedCustomer(response.data);
-    } catch (error) {
-      console.error('Error fetching customer:', error);
-      setError(error.response?.data?.message || 'Failed to fetch customer details for editing.');
-    }
+  // Open Delete Confirmation Modal
+  const openDeleteConfirm = (customer) => {
+    setCustomerToDelete(customer);
+    setShowDeleteConfirm(true);
   };
 
-  // Close Edit Modal
-  const closeEditModal = () => {
-    setSelectedCustomer(null);
-    setEditedCustomer({
-      firstName: '',
-      lastName: '',
-      username: '',
-      email: '',
-      address: '',
-      phoneNumber: '',
-      companyName: '',
-      businessAddress: '',
-      taxId: '',
-      status: '',
-    });
+  // Close Delete Confirmation Modal
+  const closeDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+    setCustomerToDelete(null);
   };
 
-  // Handle input change in Edit Modal
-  const handleInputChange = (e) => {
-    setEditedCustomer({ ...editedCustomer, [e.target.name]: e.target.value });
-  };
+  // Delete a customer
+  const handleDeleteCustomer = async () => {
+    if (!customerToDelete) return;
 
-  // Update customer
-  const handleUpdateCustomer = async (e) => {
-    e.preventDefault();
     try {
       setLoading(true);
       setError('');
       setSuccessMessage('');
-      const response = await axios.put(
-        `${API_BASE_URL}/${selectedCustomer._id}`,
-        editedCustomer
-      );
-      setCustomers(
-        customers.map((customer) =>
-          customer._id === selectedCustomer._id ? response.data : customer
-        )
-      );
-      setSuccessMessage('Customer updated successfully!');
-      closeEditModal();
+      await axios.delete(`${API_BASE_URL}/${customerToDelete._id}`);
+      setCustomers(customers.filter((customer) => customer._id !== customerToDelete._id));
+      setSuccessMessage('Customer deleted successfully!');
+      closeDeleteConfirm();
+      closeViewModal();
     } catch (error) {
-      console.error('Error updating customer:', error);
-      setError(error.response?.data?.message || 'Failed to update customer.');
+      console.error('Error deleting customer:', error);
+      setError(error.response?.data?.message || 'Failed to delete customer.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Delete a customer
-  const handleDeleteCustomer = async (id) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
-      try {
-        setLoading(true);
-        setError('');
-        setSuccessMessage('');
-        await axios.delete(`${API_BASE_URL}/${id}`);
-        setCustomers(customers.filter((customer) => customer._id !== id));
-        setSuccessMessage('Customer deleted successfully!');
-        closeViewModal();
-      } catch (error) {
-        console.error('Error deleting customer:', error);
-        setError(error.response?.data?.message || 'Failed to delete customer.');
-      } finally {
-        setLoading(false);
-      }
-    }
+  // Export customer list as PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('Customer List - CRIPS Inventory System', 14, 22);
+    doc.setFontSize(11);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+
+    const tableColumn = [
+      "Name",
+      "Email",
+      "Company Name",
+      "Phone Number",
+      "Address",
+      "Business Address",
+      "Tax ID",
+      "Status"
+    ];
+    const tableRows = [];
+
+    filteredCustomers.forEach(customer => {
+      const customerData = [
+        `${customer.firstName} ${customer.lastName}`,
+        customer.email,
+        customer.companyName || '',
+        customer.phoneNumber || '',
+        customer.address || '',
+        customer.businessAddress || '',
+        customer.taxId || '',
+        customer.status
+      ];
+      tableRows.push(customerData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 40,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [34, 197, 94] },
+      margin: { top: 40 },
+    });
+
+    doc.save('customer-list.pdf');
   };
 
-  const CustomerModal = ({ customer, onClose, onUpdate, onDelete }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({ ...customer });
-
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      onUpdate(customer._id, formData);
-      setIsEditing(false);
-    };
-
+  const CustomerModal = ({ customer, onClose, onDelete }) => {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md border border-gray-200">
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md border border-gray-200 max-h-[90vh] overflow-y-auto">
           <h2 className="text-2xl font-semibold text-green-900 mb-4">
-            {isEditing ? 'Update Customer' : 'Customer Details'}
+            Customer Details
           </h2>
-          {isEditing ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address || ''}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Phone Number</label>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber || ''}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Company Name</label>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName || ''}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Business Address</label>
-                <input
-                  type="text"
-                  name="businessAddress"
-                  value={formData.businessAddress || ''}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Tax ID</label>
-                <input
-                  type="text"
-                  name="taxId"
-                  value={formData.taxId || ''}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-600 font-semibold mb-1">Status</label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="w-full p-3 bg-gray-100 border border-gray-300 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="declined">Declined</option>
-                </select>
-              </div>
-              <div className="flex space-x-4 mt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300"
-                  disabled={loading}
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <FaUser className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Name:</strong> {`${customer.firstName} ${customer.lastName}`}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaUser className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Username:</strong> {customer.username}
-                </p>
-              </div>
-              <div className="flex items-center">
-                <FaEnvelope className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Email:</strong> {customer.email}
-                </p>
-              </div>
+          <div className="space-y-4">
+            <div className="flex items-center">
+              <FaUser className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Name:</strong> {`${customer.firstName} ${customer.lastName}`}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaUser className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Username:</strong> {customer.username}
+              </p>
+            </div>
+            <div className="flex items-center">
+              <FaEnvelope className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Email:</strong> {customer.email}
+              </p>
+            </div>
+            {customer.address && (
               <div className="flex items-center">
                 <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
                 <p className="text-lg text-gray-600">
-                  <strong>Address:</strong> {customer.address || 'N/A'}
+                  <strong>Address:</strong> {customer.address}
                 </p>
               </div>
+            )}
+            {customer.phoneNumber && (
               <div className="flex items-center">
                 <FaPhone className="text-green-500 mr-3 text-xl" />
                 <p className="text-lg text-gray-600">
-                  <strong>Phone Number:</strong> {customer.phoneNumber || 'N/A'}
+                  <strong>Phone Number:</strong> {customer.phoneNumber}
                 </p>
               </div>
+            )}
+            {customer.companyName && (
               <div className="flex items-center">
                 <FaBuilding className="text-green-500 mr-3 text-xl" />
                 <p className="text-lg text-gray-600">
-                  <strong>Company Name:</strong> {customer.companyName || 'N/A'}
+                  <strong>Company Name:</strong> {customer.companyName}
                 </p>
               </div>
+            )}
+            {customer.businessAddress && (
               <div className="flex items-center">
                 <FaMapMarkerAlt className="text-green-500 mr-3 text-xl" />
                 <p className="text-lg text-gray-600">
-                  <strong>Business Address:</strong> {customer.businessAddress || 'N/A'}
+                  <strong>Business Address:</strong> {customer.businessAddress}
                 </p>
               </div>
+            )}
+            {customer.taxId && (
               <div className="flex items-center">
                 <FaBuilding className="text-green-500 mr-3 text-xl" />
                 <p className="text-lg text-gray-600">
-                  <strong>Tax ID:</strong> {customer.taxId || 'N/A'}
+                  <strong>Tax ID:</strong> {customer.taxId}
                 </p>
               </div>
-              <div className="flex items-center">
-                <FaBuilding className="text-green-500 mr-3 text-xl" />
-                <p className="text-lg text-gray-600">
-                  <strong>Status:</strong> {customer.status}
-                </p>
-              </div>
-              <div className="flex space-x-4 mt-4">
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
-                >
-                  <FaEdit className="mr-2" /> Update
-                </button>
-                <button
-                  onClick={() => onDelete(customer._id)}
-                  className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
-                >
-                  <FaTrash className="mr-2" /> Delete
-                </button>
-              </div>
+            )}
+            <div className="flex items-center">
+              <FaBuilding className="text-green-500 mr-3 text-xl" />
+              <p className="text-lg text-gray-600">
+                <strong>Status:</strong> {customer.status}
+              </p>
+            </div>
+            <div className="flex space-x-4 mt-4">
               <button
-                onClick={onClose}
-                className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300 mt-2"
+                onClick={() => onDelete(customer)}
+                className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300 flex items-center justify-center"
               >
-                Close
+                <FaTrash className="mr-2" /> Delete
               </button>
             </div>
-          )}
+            <button
+              onClick={onClose}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300 mt-2"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const ConfirmationModal = ({ onConfirm, onCancel }) => {
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-sm border border-gray-200">
+          <h2 className="text-xl font-semibold text-green-900 mb-4">Confirm Deletion</h2>
+          <p className="text-gray-600 mb-6">Are you sure you want to delete this customer? This action cannot be undone.</p>
+          <div className="flex space-x-4">
+            <button
+              onClick={onConfirm}
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition duration-300"
+            >
+              Delete
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full bg-gray-400 hover:bg-gray-500 text-white py-3 rounded-xl transition duration-300"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -423,7 +300,7 @@ const ManageCustomers = () => {
           </div>
         </div>
 
-        {/* Error and Success Messages */}
+        {/* Error, Success, and Loading Messages */}
         {error && (
           <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-xl">
             <p>{error}</p>
@@ -434,10 +311,23 @@ const ManageCustomers = () => {
             <p>{successMessage}</p>
           </div>
         )}
+        {loading && (
+          <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 rounded-xl">
+            <p>Loading...</p>
+          </div>
+        )}
 
         {/* Customer Management Section */}
         <div className="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-          <h2 className="text-2xl font-semibold text-green-900 mb-4">Customer Management</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-semibold text-green-900">Customer Management</h2>
+            <button
+              onClick={exportToPDF}
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-xl transition duration-300"
+            >
+              Export to PDF
+            </button>
+          </div>
 
           {/* Search Bar */}
           <div className="mb-6">
@@ -451,9 +341,7 @@ const ManageCustomers = () => {
           </div>
 
           {/* Customer List */}
-          {loading ? (
-            <p className="text-center text-gray-600">Loading customers...</p>
-          ) : filteredCustomers.length === 0 ? (
+          {!loading && filteredCustomers.length === 0 ? (
             <p className="text-center text-gray-600">No customers found.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -472,7 +360,9 @@ const ManageCustomers = () => {
                         {customer.firstName} {customer.lastName}
                       </h3>
                       <p className="text-gray-600">{customer.email}</p>
-                      <p className="text-gray-600">{customer.companyName || 'N/A'}</p>
+                      {customer.companyName && (
+                        <p className="text-gray-600">{customer.companyName}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -486,11 +376,15 @@ const ManageCustomers = () => {
           <CustomerModal
             customer={selectedCustomer}
             onClose={closeViewModal}
-            onUpdate={(id, data) => {
-              setEditedCustomer(data);
-              handleUpdateCustomer({ preventDefault: () => {} });
-            }}
-            onDelete={handleDeleteCustomer}
+            onDelete={(customer) => openDeleteConfirm(customer)}
+          />
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <ConfirmationModal
+            onConfirm={handleDeleteCustomer}
+            onCancel={closeDeleteConfirm}
           />
         )}
       </div>

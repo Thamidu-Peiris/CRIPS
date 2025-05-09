@@ -2,11 +2,15 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function CustomerOrders() {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +24,7 @@ export default function CustomerOrders() {
       try {
         const response = await axios.get("http://localhost:5000/api/orders");
         setOrders(response.data);
+        setFilteredOrders(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -29,6 +34,19 @@ export default function CustomerOrders() {
     };
     fetchOrders();
   }, []);
+
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    const status = e.target.value;
+    setFilterStatus(status);
+    if (status === "all") {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(
+        orders.filter((order) => order.status.toLowerCase() === status.toLowerCase())
+      );
+    }
+  };
 
   // Function to determine status colors
   const getStatusStyles = (status) => {
@@ -46,6 +64,49 @@ export default function CustomerOrders() {
     }
   };
 
+  // Function to generate PDF
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Customer Orders Report", 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+
+    // Prepare table data
+    const tableColumn = [
+      "Order ID",
+      "Customer",
+      "Status",
+      "Tracking Number",
+      "Current Location",
+    ];
+    const tableRows = [];
+
+    filteredOrders.forEach((order) => {
+      const orderData = [
+        order._id,
+        `${order.userId?.firstName || ""} ${order.userId?.lastName || ""}`,
+        order.status,
+        order.trackingNumber || "N/A",
+        order.trackingLocation || "N/A",
+      ];
+      tableRows.push(orderData);
+    });
+
+    // Generate table using jspdf-autotable
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      theme: "striped",
+      headStyles: { fillColor: [0, 105, 92], textColor: [255, 255, 255] },
+      styles: { fontSize: 10 },
+    });
+
+    // Save the PDF
+    doc.save("customer_orders_report.pdf");
+  };
+
   if (loading) {
     return <div className="text-center p-6 text-gray-600">Loading...</div>;
   }
@@ -60,12 +121,35 @@ export default function CustomerOrders() {
       <div className="flex-1 ml-64 p-8">
         {/* Header Section */}
         <header className="p-6 bg-white rounded-2xl shadow-lg border border-gray-100 mb-8">
-          <h1 className="text-4xl font-bold text-teal-900 tracking-tight">
-            Customer Orders
-          </h1>
-          <p className="text-lg mt-2 font-light text-gray-500">
-            View customer orders and their statuses
-          </p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-teal-900 tracking-tight">
+                Customer Orders
+              </h1>
+              <p className="text-lg mt-2 font-light text-gray-500">
+                View customer orders and their statuses
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <select
+                value={filterStatus}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="all">All Statuses</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="delayed">Delayed</option>
+              </select>
+              <button
+                onClick={generatePDF}
+                className="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition duration-200"
+              >
+                Download PDF
+              </button>
+            </div>
+          </div>
         </header>
 
         {/* Orders Table Section */}
@@ -73,9 +157,9 @@ export default function CustomerOrders() {
           <h2 className="text-2xl font-semibold text-teal-900 mb-6">
             Order Overview
           </h2>
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="text-center text-gray-500 py-6">
-              No orders available.
+              No orders available for the selected status.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -100,7 +184,7 @@ export default function CustomerOrders() {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((order) => (
+                  {filteredOrders.map((order) => (
                     <tr
                       key={order._id}
                       className="border-b border-gray-100 hover:bg-teal-50 transition duration-200"
